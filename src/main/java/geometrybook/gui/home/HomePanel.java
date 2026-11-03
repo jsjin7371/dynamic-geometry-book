@@ -1,6 +1,7 @@
 package geometrybook.gui.home;
 
 import geometrybook.gui.common.RoundedPanel;
+import geometrybook.gui.common.AppShell;
 import geometrybook.gui.common.Theme;
 import geometrybook.gui.common.TriangleCharacter;
 import geometrybook.gui.common.UiComponents;
@@ -32,66 +33,16 @@ public final class HomePanel extends JPanel {
     private final JLabel monthLabel = UiComponents.label("", 17, Font.BOLD, Theme.TEXT);
     private final JPanel calendarGrid = new JPanel(new GridLayout(0, 7, 4, 4));
 
-    public HomePanel(Runnable onLogout) {
+    public HomePanel(Runnable onLevel, Runnable onLogout) {
         super(new BorderLayout());
         setBackground(Theme.BACKGROUND);
-        add(header(), BorderLayout.NORTH);
-        add(sidebar(onLogout), BorderLayout.WEST);
+        AppShell shell = new AppShell(AppShell.Page.HOME, () -> { }, onLevel, onLogout);
         JScrollPane scroll = new JScrollPane(content());
         scroll.setBorder(null);
         scroll.getViewport().setBackground(Theme.BACKGROUND);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
-        add(scroll, BorderLayout.CENTER);
-    }
-
-    private JPanel header() {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(Color.WHITE);
-        header.setBorder(BorderFactory.createEmptyBorder(20, 28, 20, 28));
-        header.add(UiComponents.label("△  도형탐험대", 23, Font.BOLD, Theme.GREEN), BorderLayout.WEST);
-        JPanel info = new JPanel(new FlowLayout(FlowLayout.RIGHT, 24, 0));
-        info.setOpaque(false);
-        info.add(UiComponents.label("연속 3일", 15, Font.BOLD, Theme.GREEN));
-        info.add(UiComponents.label("150 P", 15, Font.BOLD, Theme.GREEN));
-        info.add(UiComponents.label("초록별", 15, Font.BOLD, Theme.TEXT));
-        header.add(info, BorderLayout.EAST);
-        return header;
-    }
-
-    private JPanel sidebar(Runnable onLogout) {
-        JPanel side = new JPanel();
-        side.setLayout(new BoxLayout(side, BoxLayout.Y_AXIS));
-        side.setBackground(Color.WHITE);
-        side.setBorder(BorderFactory.createEmptyBorder(24, 20, 24, 20));
-        side.setPreferredSize(new Dimension(205, 400));
-        RoundedPanel selected = new RoundedPanel(new BorderLayout(), Theme.MINT, 24);
-        selected.setBorder(BorderFactory.createEmptyBorder(14, 16, 14, 16));
-        selected.add(UiComponents.label("⌂  나의 탐험", 16, Font.BOLD, Theme.GREEN));
-        selected.setPreferredSize(new Dimension(0, 44));
-        selected.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-        selected.setAlignmentX(LEFT_ALIGNMENT);
-        side.add(selected);
-        for (String item : new String[] {"◇  레벨 지도", "☆  랭킹", "○  내 프로필"}) {
-            side.add(Box.createVerticalStrut(3));
-            JLabel label = UiComponents.label(item, 16, Font.PLAIN, Theme.MUTED);
-            label.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
-            JPanel row = new JPanel(new BorderLayout());
-            row.setOpaque(false);
-            row.add(label, BorderLayout.CENTER);
-            row.setPreferredSize(new Dimension(0, 44));
-            row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-            row.setAlignmentX(LEFT_ALIGNMENT);
-            side.add(row);
-        }
-        side.add(Box.createVerticalStrut(40));
-        JButton logout = new JButton("로그아웃");
-        logout.setFont(Theme.font(Font.PLAIN, 13));
-        logout.setForeground(Theme.MUTED);
-        logout.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
-        logout.setBorderPainted(false); logout.setContentAreaFilled(false); logout.setAlignmentX(LEFT_ALIGNMENT);
-        logout.addActionListener(event -> onLogout.run());
-        side.add(logout);
-        return side;
+        shell.setContent(scroll);
+        add(shell);
     }
 
     private JPanel content() {
