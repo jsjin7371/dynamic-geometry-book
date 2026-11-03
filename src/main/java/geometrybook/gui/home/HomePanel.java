@@ -1,6 +1,7 @@
 package geometrybook.gui.home;
 
 import geometrybook.gui.common.RoundedPanel;
+import geometrybook.domain.TriangleStudy;
 import geometrybook.gui.common.AppShell;
 import geometrybook.gui.common.Theme;
 import geometrybook.gui.common.TriangleCharacter;
@@ -28,15 +29,21 @@ import javax.swing.SwingConstants;
 /** 임시 데이터로 구성한 나의 탐험 화면. */
 public final class HomePanel extends JPanel {
     private final LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
-    private final Set<LocalDate> studyDates = Set.of(today, today.minusDays(1), today.minusDays(2));
+    private final Set<LocalDate> studyDates;
+    private final TriangleStudy study;
+    private final Runnable onLevel;
     private YearMonth month = YearMonth.from(today);
     private final JLabel monthLabel = UiComponents.label("", 17, Font.BOLD, Theme.TEXT);
     private final JPanel calendarGrid = new JPanel(new GridLayout(0, 7, 4, 4));
 
-    public HomePanel(Runnable onLevel, Runnable onLogout) {
+    public HomePanel(TriangleStudy study, Runnable onLevel, Runnable onLogout) {
         super(new BorderLayout());
+        this.study = study;
+        this.studyDates = study.studyDates();
+        this.onLevel = onLevel;
         setBackground(Theme.BACKGROUND);
-        AppShell shell = new AppShell(AppShell.Page.HOME, () -> { }, onLevel, onLogout);
+        AppShell shell = new AppShell(AppShell.Page.HOME, () -> {
+        }, onLevel, onLogout);
         JScrollPane scroll = new JScrollPane(content());
         scroll.setBorder(null);
         scroll.getViewport().setBackground(Theme.BACKGROUND);
@@ -59,10 +66,11 @@ public final class HomePanel extends JPanel {
         content.add(lessonCard());
         content.add(Box.createVerticalStrut(12));
         JPanel stats = new JPanel(new GridLayout(1, 3, 16, 0));
-        stats.setOpaque(false); stats.setAlignmentX(0f);
-        stats.add(statCard("전체 진도", "3 / 7 단계", Theme.LAVENDER));
-        stats.add(statCard("모은 포인트", "150 P", new Color(0xFFF1C9)));
-        stats.add(statCard("연속 학습", "3일째 탐험 중", new Color(0xFCE6DC)));
+        stats.setOpaque(false);
+        stats.setAlignmentX(0f);
+        stats.add(statCard("전체 진도", (study.isCompleted()?"1":"0") + " / 7 단계", Theme.LAVENDER));
+        stats.add(statCard("모은 포인트", "미정", new Color(0xFFF1C9)));
+        stats.add(statCard("연속 학습", studyDates.isEmpty()?"아직 기록 없음":"1일째 탐험 중", new Color(0xFCE6DC)));
         stats.setPreferredSize(new Dimension(0, 115));
         stats.setMaximumSize(new Dimension(Integer.MAX_VALUE, 140));
         content.add(stats);
@@ -76,7 +84,7 @@ public final class HomePanel extends JPanel {
         card.setBorder(BorderFactory.createEmptyBorder(22, 26, 22, 26));
         card.setAlignmentX(0f);
         JPanel text = vertical();
-        text.add(UiComponents.label("다음 탐험 · LEVEL 04", 13, Font.BOLD, Theme.GREEN));
+        text.add(UiComponents.label(study.isCompleted()?"다시 만나는 삼각형":"첫 탐험 · LEVEL 01", 13, Font.BOLD, Theme.GREEN));
         text.add(Box.createVerticalStrut(10));
         text.add(UiComponents.label("새로운 도형을 만나봐요!", 23, Font.BOLD, Theme.TEXT));
         text.add(Box.createVerticalStrut(8));
@@ -85,7 +93,7 @@ public final class HomePanel extends JPanel {
         JButton start = UiComponents.roundedPrimaryButton("탐험 시작하기  →");
         start.setMaximumSize(new Dimension(248, 52));
         start.setPreferredSize(new Dimension(248, 52));
-        start.setEnabled(false);
+        start.addActionListener(e -> onLevel.run());
         text.add(start);
         card.add(text, BorderLayout.CENTER);
         TriangleCharacter character = new TriangleCharacter();
@@ -110,12 +118,16 @@ public final class HomePanel extends JPanel {
         RoundedPanel card = new RoundedPanel(new BorderLayout(0, 16), Color.WHITE, 28);
         card.setBorder(BorderFactory.createEmptyBorder(22, 24, 22, 24));
         card.setAlignmentX(0f);
-        JPanel top = new JPanel(new BorderLayout()); top.setOpaque(false);
+        JPanel top = new JPanel(new BorderLayout());
+        top.setOpaque(false);
         top.add(UiComponents.label("나의 학습 달력", 20, Font.BOLD, Theme.TEXT), BorderLayout.WEST);
-        JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0)); controls.setOpaque(false);
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        controls.setOpaque(false);
         JButton previous = monthButton("‹", -1);
         JButton next = monthButton("›", 1);
-        controls.add(previous); controls.add(monthLabel); controls.add(next);
+        controls.add(previous);
+        controls.add(monthLabel);
+        controls.add(next);
         top.add(controls, BorderLayout.EAST);
         card.add(top, BorderLayout.NORTH);
         calendarGrid.setOpaque(false);
@@ -127,16 +139,23 @@ public final class HomePanel extends JPanel {
 
     private JButton monthButton(String text, int offset) {
         JButton button = new JButton(text);
-        button.setFont(Theme.font(Font.BOLD, 20)); button.setForeground(Theme.GREEN);
-        button.setBorderPainted(false); button.setContentAreaFilled(false);
-        button.addActionListener(event -> { month = month.plusMonths(offset); refreshCalendar(); });
+        button.setFont(Theme.font(Font.BOLD, 20));
+        button.setForeground(Theme.GREEN);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.addActionListener(event -> {
+            month = month.plusMonths(offset);
+            refreshCalendar();
+        });
         return button;
     }
 
     private void refreshCalendar() {
         monthLabel.setText(month.getYear() + "년 " + month.getMonthValue() + "월");
         calendarGrid.removeAll();
-        for (String day : new String[] {"일", "월", "화", "수", "목", "금", "토"}) {
+        for (String day : new String[] {
+            "일", "월", "화", "수", "목", "금", "토"
+        }) {
             calendarGrid.add(calendarCell(day, false));
         }
         int offset = month.atDay(1).getDayOfWeek().getValue() % 7;
@@ -145,7 +164,8 @@ public final class HomePanel extends JPanel {
             boolean studied = studyDates.contains(month.atDay(day));
             calendarGrid.add(calendarCell((studied ? "✓ " : "") + day, studied));
         }
-        calendarGrid.revalidate(); calendarGrid.repaint();
+        calendarGrid.revalidate();
+        calendarGrid.repaint();
     }
 
     private JComponent calendarCell(String text, boolean studied) {
@@ -162,7 +182,8 @@ public final class HomePanel extends JPanel {
     }
 
     private JPanel vertical() {
-        JPanel panel = new JPanel(); panel.setOpaque(false);
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         return panel;
     }
