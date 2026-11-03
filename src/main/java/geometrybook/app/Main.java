@@ -2,6 +2,7 @@ package geometrybook.app;
 
 import geometrybook.gui.auth.LoginPanel;
 import geometrybook.gui.home.HomePanel;
+import geometrybook.gui.level.LevelMapPanel;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import javax.swing.JFrame;
@@ -24,7 +25,8 @@ public final class Main {
             CardLayout layout = new CardLayout();
             JPanel screens = new JPanel(layout);
             screens.add(new LoginPanel(() -> layout.show(screens, "home")), "login");
-            screens.add(new HomePanel(() -> layout.show(screens, "login")), "home");
+            screens.add(new HomePanel(() -> layout.show(screens, "level"), () -> layout.show(screens, "login")), "home");
+            screens.add(new LevelMapPanel(() -> layout.show(screens, "home"), () -> layout.show(screens, "login")), "level");
             frame.setContentPane(screens);
             frame.setMinimumSize(new Dimension(960, 680));
             frame.setSize(1440, 960);
