@@ -2,25 +2,40 @@ package geometrybook.storage;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 /**
  * students.csv 저장소. 파일 ↔ Student 객체 변환과 PK·UK 검사를 맡는다.
  * 화면 코드는 이 클래스를 직접 쓰지 않고 AuthService를 쓴다.
+ *
+ * 쓰기(추가·수정)는 "읽기 → 검사 → 저장" 전체를 잠금으로 묶는다 (ERD 6장 단일 쓰기 잠금).
+ * - 같은 프로그램 안: 파일 경로별 ReentrantLock
+ * - 다른 프로그램(관리 도구 등)과: data 폴더의 students.csv.lock 파일 잠금
  */
 public class StudentRepository {
 
     public static final String FILE_NAME = "students.csv";
+    private static final String LOCK_FILE_NAME = FILE_NAME + ".lock";
+    private static final ConcurrentHashMap<Path, ReentrantLock> JVM_LOCKS = new ConcurrentHashMap<>();
+
     private final Path file;
+    private final Path lockFile;
 
     public StudentRepository(Path dataDir) {
-        this.file = dataDir.resolve(FILE_NAME);
+        this.file = dataDir.resolve(FILE_NAME).toAbsolutePath().normalize();
+        this.lockFile = dataDir.resolve(LOCK_FILE_NAME).toAbsolutePath().normalize();
     }
 
     /** 전체 학생 읽기. 파일이 없으면(최초 설치) 빈 목록, 형식이 깨졌으면 예외. */
@@ -63,34 +78,60 @@ public class StudentRepository {
         return findByLoginId(loginId).isPresent();
     }
 
-    /** 새 학생 추가 (loginId·id 중복이면 예외). */
+    /** 새 학생 추가 (loginId·id 중복이면 예외). 읽기~저장 전체가 잠금 안에서 실행된다. */
     public void insert(Student student) {
-        List<Student> all = findAll();
-        for (Student s : all) {
-            if (s.getLoginId().equals(student.getLoginId())) {
-                throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+        withWriteLock(() -> {
+            List<Student> all = findAll();
+            for (Student s : all) {
+                if (s.getLoginId().equals(student.getLoginId())) {
+                    throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+                }
+                if (s.getId().equals(student.getId())) {
+                    throw new DataFileException("이미 있는 학생 id입니다: " + student.getId());
+                }
             }
-            if (s.getId().equals(student.getId())) {
-                throw new DataFileException("이미 있는 학생 id입니다: " + student.getId());
-            }
-        }
-        all.add(student);
-        saveAll(all);
+            all.add(student);
+            saveAll(all);
+            return null;
+        });
     }
 
-    /** 기존 학생 정보 수정 (id 기준으로 교체). */
+    /** 기존 학생 정보 수정 (id 기준으로 교체). 다른 학생과 loginId가 겹치면 예외. */
     public void update(Student student) {
-        List<Student> all = findAll();
-        boolean found = false;
-        for (int i = 0; i < all.size(); i++) {
-            if (all.get(i).getId().equals(student.getId())) {
-                all.set(i, student);
-                found = true;
-                break;
+        withWriteLock(() -> {
+            List<Student> all = findAll();
+            int index = -1;
+            for (int i = 0; i < all.size(); i++) {
+                Student s = all.get(i);
+                if (s.getId().equals(student.getId())) {
+                    index = i;
+                } else if (s.getLoginId().equals(student.getLoginId())) {
+                    throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+                }
             }
+            if (index < 0) throw new IllegalArgumentException("없는 학생입니다: " + student.getId());
+            all.set(index, student);
+            saveAll(all);
+            return null;
+        });
+    }
+
+    /** 같은 프로그램 안의 스레드 + 다른 프로그램까지 한 번에 하나만 쓰도록 잠근다. */
+    private <T> T withWriteLock(Supplier<T> action) {
+        ReentrantLock jvmLock = JVM_LOCKS.computeIfAbsent(file, p -> new ReentrantLock());
+        jvmLock.lock();
+        try {
+            Files.createDirectories(lockFile.getParent());
+            try (FileChannel channel = FileChannel.open(lockFile,
+                         StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                 FileLock ignored = channel.lock()) {
+                return action.get();
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException("students.csv 쓰기 잠금을 얻지 못했습니다.", e);
+        } finally {
+            jvmLock.unlock();
         }
-        if (!found) throw new IllegalArgumentException("없는 학생입니다: " + student.getId());
-        saveAll(all);
     }
 
     private void saveAll(List<Student> all) {

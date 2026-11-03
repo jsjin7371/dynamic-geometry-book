@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 /**
  * 로그인·회원가입 창구. 화면(프론트)은 이 클래스의 메서드만 부르면 된다.
+ * 앱 시작 시 하나만 만들어서 화면들이 함께 쓴다 (현재 로그인 학생을 이 객체가 기억함).
  *
  * 사용 예:
  *   AuthService auth = new AuthService(Path.of("data"));
@@ -45,16 +46,14 @@ public class AuthService {
         if (!LOGIN_ID_RULE.matcher(loginId).matches()) {
             throw new IllegalArgumentException("아이디는 영문·숫자·_ 4~20자로 입력해 주세요.");
         }
-        if (password == null || password.length() < PASSWORD_MIN || password.length() > PASSWORD_MAX) {
-            throw new IllegalArgumentException("비밀번호는 " + PASSWORD_MIN + "~" + PASSWORD_MAX + "자로 입력해 주세요.");
-        }
+        checkPasswordRule(password);
         if (nickname.isEmpty() || nickname.length() > NICKNAME_MAX) {
             throw new IllegalArgumentException("닉네임은 1~" + NICKNAME_MAX + "자로 입력해 주세요.");
         }
         if (grade != null && (grade < 1 || grade > 6)) {
             throw new IllegalArgumentException("학년은 1~6 중에서 골라 주세요.");
         }
-        if (repository.existsByLoginId(loginId)) {
+        if (repository.existsByLoginId(loginId)) {   // 빠른 안내용. 최종 중복 검사는 insert가 잠금 안에서 한 번 더 함
             throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
         }
 
@@ -96,16 +95,27 @@ public class AuthService {
                 && !repository.existsByLoginId(loginId.trim());
     }
 
-    /** 비밀번호 변경 (현재 비밀번호 확인 후). */
+    /** 비밀번호 변경 (현재 비밀번호 확인 후). 틀리면 IllegalArgumentException. */
     public void changePassword(String loginId, String oldPassword, String newPassword) {
-        Student s = repository.findByLoginId(loginId)
+        if (loginId == null || oldPassword == null) {
+            throw new IllegalArgumentException("현재 비밀번호가 맞지 않습니다.");
+        }
+        checkPasswordRule(newPassword);
+        Student s = repository.findByLoginId(loginId.trim())
                 .filter(st -> PasswordHasher.verify(oldPassword, st.getPasswordHash()))
                 .orElseThrow(() -> new IllegalArgumentException("현재 비밀번호가 맞지 않습니다."));
-        if (newPassword == null || newPassword.length() < PASSWORD_MIN || newPassword.length() > PASSWORD_MAX) {
-            throw new IllegalArgumentException("비밀번호는 " + PASSWORD_MIN + "~" + PASSWORD_MAX + "자로 입력해 주세요.");
-        }
         s.setPasswordHash(PasswordHasher.hash(newPassword));
         s.setMustChangePassword(false);
         repository.update(s);
+        // 로그인 중인 본인이면 메모리의 학생 정보도 새것으로 바꾼다
+        if (currentStudent != null && currentStudent.getId().equals(s.getId())) {
+            currentStudent = s;
+        }
+    }
+
+    private static void checkPasswordRule(String password) {
+        if (password == null || password.length() < PASSWORD_MIN || password.length() > PASSWORD_MAX) {
+            throw new IllegalArgumentException("비밀번호는 " + PASSWORD_MIN + "~" + PASSWORD_MAX + "자로 입력해 주세요.");
+        }
     }
 }

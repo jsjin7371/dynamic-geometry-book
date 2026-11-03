@@ -13,11 +13,19 @@ import java.util.List;
  * CSV 읽기·쓰기 공통 클래스 (ERD 6장 저장 계약).
  * - UTF-8, 첫 행은 헤더
  * - 값에 쉼표·따옴표·줄바꿈이 있으면 큰따옴표로 감싸고, 안의 따옴표는 "" 로 바꾼다
- * - 단순 split(",") 을 쓰지 않고 한 글자씩 읽어서 인용 규칙을 처리한다
+ * - 단순 split(",")을 쓰지 않고, CSV 문법에 맞지 않는 줄은 오류로 처리한다
  */
 public final class CsvCodec {
 
     private CsvCodec() {}
+
+    /** 읽는 중 지금 어디에 있는지 */
+    private enum State {
+        FIELD_START,   // 칸이 막 시작됨
+        UNQUOTED,      // 따옴표 없는 칸 안
+        QUOTED,        // 따옴표로 감싼 칸 안
+        AFTER_QUOTE    // 감싼 칸의 닫는 따옴표 바로 뒤
+    }
 
     /** 파일 전체를 읽어 행 목록으로 돌려준다. 0번 행이 헤더. */
     public static List<List<String>> read(Path file) throws IOException {
@@ -30,45 +38,94 @@ public final class CsvCodec {
         List<List<String>> rows = new ArrayList<>();
         List<String> row = new ArrayList<>();
         StringBuilder cell = new StringBuilder();
-        boolean inQuotes = false;
-        boolean rowHasContent = false;
+        State state = State.FIELD_START;
+        int line = 1;
 
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            if (inQuotes) {
-                if (c == '"') {
-                    if (i + 1 < text.length() && text.charAt(i + 1) == '"') {
-                        cell.append('"');   // "" → "
-                        i++;
+            boolean newline = (c == '\n' || c == '\r');
+            if (c == '\r' && i + 1 < text.length() && text.charAt(i + 1) == '\n') i++;   // CRLF는 한 번만
+
+            switch (state) {
+                case FIELD_START:
+                    if (c == '"') {
+                        state = State.QUOTED;
+                    } else if (c == ',') {
+                        row.add("");
+                    } else if (newline) {
+                        if (!row.isEmpty()) {          // "a," 처럼 쉼표로 끝난 줄
+                            row.add("");
+                            rows.add(row);
+                            row = new ArrayList<>();
+                        }                              // 아니면 빈 줄 → 건너뜀
+                        line++;
                     } else {
-                        inQuotes = false;   // 인용 끝
+                        cell.append(c);
+                        state = State.UNQUOTED;
                     }
-                } else {
-                    cell.append(c);         // 쉼표·줄바꿈도 값의 일부
-                }
-            } else if (c == '"') {
-                inQuotes = true;
-                rowHasContent = true;
-            } else if (c == ',') {
-                row.add(cell.toString());
-                cell.setLength(0);
-                rowHasContent = true;
-            } else if (c == '\n' || c == '\r') {
-                if (c == '\r' && i + 1 < text.length() && text.charAt(i + 1) == '\n') i++;
-                if (rowHasContent || cell.length() > 0) {
-                    row.add(cell.toString());
-                    rows.add(row);
-                }
-                row = new ArrayList<>();
-                cell.setLength(0);
-                rowHasContent = false;
-            } else {
-                cell.append(c);
-                rowHasContent = true;
+                    break;
+
+                case UNQUOTED:
+                    if (c == ',') {
+                        row.add(cell.toString());
+                        cell.setLength(0);
+                        state = State.FIELD_START;
+                    } else if (newline) {
+                        row.add(cell.toString());
+                        cell.setLength(0);
+                        rows.add(row);
+                        row = new ArrayList<>();
+                        state = State.FIELD_START;
+                        line++;
+                    } else if (c == '"') {
+                        throw new DataFileException("CSV " + line + "행: 따옴표(\")는 칸 맨 앞에서만 쓸 수 있습니다.");
+                    } else {
+                        cell.append(c);
+                    }
+                    break;
+
+                case QUOTED:
+                    if (c == '"') {
+                        if (i + 1 < text.length() && text.charAt(i + 1) == '"') {
+                            cell.append('"');          // "" → "
+                            i++;
+                        } else {
+                            state = State.AFTER_QUOTE; // 인용 끝
+                        }
+                    } else {
+                        if (newline) {
+                            cell.append('\n');         // 값 안의 줄바꿈 (CRLF도 \n 하나로)
+                            line++;
+                        } else {
+                            cell.append(c);
+                        }
+                    }
+                    break;
+
+                case AFTER_QUOTE:
+                    if (c == ',') {
+                        row.add(cell.toString());
+                        cell.setLength(0);
+                        state = State.FIELD_START;
+                    } else if (newline) {
+                        row.add(cell.toString());
+                        cell.setLength(0);
+                        rows.add(row);
+                        row = new ArrayList<>();
+                        state = State.FIELD_START;
+                        line++;
+                    } else {
+                        throw new DataFileException("CSV " + line + "행: 닫는 따옴표 뒤에는 쉼표나 줄바꿈만 올 수 있습니다.");
+                    }
+                    break;
             }
         }
-        if (inQuotes) throw new DataFileException("CSV 인용부호(\")가 닫히지 않았습니다.");
-        if (rowHasContent || cell.length() > 0) {
+
+        // 파일 끝 처리
+        if (state == State.QUOTED) {
+            throw new DataFileException("CSV " + line + "행: 따옴표(\")가 닫히지 않았습니다.");
+        }
+        if (state != State.FIELD_START || !row.isEmpty()) {
             row.add(cell.toString());
             rows.add(row);
         }
@@ -87,6 +144,7 @@ public final class CsvCodec {
     /**
      * 헤더 + 행 전체를 파일에 쓴다.
      * 같은 폴더의 임시 파일에 다 쓴 뒤 원본과 교체해서, 쓰는 도중 꺼져도 원본이 깨지지 않게 한다.
+     * (여러 프로그램이 동시에 쓰는 것은 호출하는 쪽에서 잠금으로 막는다 → StudentRepository)
      */
     public static void writeAtomically(Path file, List<String> header, List<List<String>> rows) throws IOException {
         StringBuilder sb = new StringBuilder();

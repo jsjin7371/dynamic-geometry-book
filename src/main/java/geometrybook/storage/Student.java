@@ -2,6 +2,7 @@ package geometrybook.storage;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 학생 계정 (ERD: student → students.csv).
@@ -24,39 +25,42 @@ public class Student {
 
     public Student(String id, String loginId, String passwordHash, String nickname, Integer grade,
                    String avatarKey, boolean mustChangePassword, OffsetDateTime createdAt) {
-        this.id = id;
-        this.loginId = loginId;
-        this.passwordHash = passwordHash;
-        this.nickname = nickname;
+        this.id = Objects.requireNonNull(id, "id");
+        this.loginId = Objects.requireNonNull(loginId, "loginId");
+        this.passwordHash = Objects.requireNonNull(passwordHash, "passwordHash");
+        this.nickname = Objects.requireNonNull(nickname, "nickname");
         this.grade = grade;
         this.avatarKey = avatarKey;
         this.mustChangePassword = mustChangePassword;
-        this.createdAt = createdAt;
+        this.createdAt = Objects.requireNonNull(createdAt, "createdAt");
     }
 
-    /** CSV 한 행 → 객체 */
+    /** CSV 한 행 → 객체 (형식이 틀리면 DataFileException) */
     static Student fromRow(List<String> r, int lineNo) {
+        String where = "students.csv " + lineNo + "행: ";
         if (r.size() != HEADER.size()) {
-            throw new DataFileException("students.csv " + lineNo + "행: 열 개수가 " + r.size()
-                    + "개입니다 (" + HEADER.size() + "개여야 함).");
+            throw new DataFileException(where + "열 개수가 " + r.size() + "개입니다 (" + HEADER.size() + "개여야 함).");
+        }
+        if (r.get(0).isBlank() || r.get(1).isBlank() || r.get(3).isBlank()) {
+            throw new DataFileException(where + "id·loginId·nickname은 비울 수 없습니다.");
+        }
+        if (!PasswordHasher.isValidFormat(r.get(2))) {
+            throw new DataFileException(where + "passwordHash 형식이 올바르지 않습니다 (평문이거나 지원하지 않는 형식).");
+        }
+        String mcp = r.get(6).trim();
+        if (!mcp.equals("true") && !mcp.equals("false")) {
+            throw new DataFileException(where + "mustChangePassword는 true/false여야 합니다.");
         }
         try {
-            if (r.get(0).isBlank() || r.get(1).isBlank() || r.get(2).isBlank() || r.get(3).isBlank()) {
-                throw new DataFileException("students.csv " + lineNo + "행: id·loginId·passwordHash·nickname은 비울 수 없습니다.");
-            }
             String gradeText = r.get(4).trim();
             Integer grade = gradeText.isEmpty() ? null : Integer.parseInt(gradeText);
             if (grade != null && (grade < 1 || grade > 6)) {
-                throw new DataFileException("students.csv " + lineNo + "행: grade는 1~6 또는 빈 칸이어야 합니다.");
-            }
-            String mcp = r.get(6).trim();
-            if (!mcp.equals("true") && !mcp.equals("false")) {
-                throw new DataFileException("students.csv " + lineNo + "행: mustChangePassword는 true/false여야 합니다.");
+                throw new DataFileException(where + "grade는 1~6 또는 빈 칸이어야 합니다.");
             }
             return new Student(r.get(0), r.get(1), r.get(2), r.get(3), grade,
                     r.get(5), Boolean.parseBoolean(mcp), OffsetDateTime.parse(r.get(7)));
         } catch (NumberFormatException | java.time.format.DateTimeParseException e) {
-            throw new DataFileException("students.csv " + lineNo + "행: 숫자 또는 날짜 형식이 잘못됐습니다.");
+            throw new DataFileException(where + "숫자 또는 날짜 형식이 잘못됐습니다.");
         }
     }
 
@@ -78,9 +82,9 @@ public class Student {
     public boolean isMustChangePassword() { return mustChangePassword; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
 
-    void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    void setPasswordHash(String passwordHash) { this.passwordHash = Objects.requireNonNull(passwordHash); }
     void setMustChangePassword(boolean value) { this.mustChangePassword = value; }
-    public void setNickname(String nickname) { this.nickname = nickname; }
+    public void setNickname(String nickname) { this.nickname = Objects.requireNonNull(nickname); }
     public void setGrade(Integer grade) { this.grade = grade; }
     public void setAvatarKey(String avatarKey) { this.avatarKey = avatarKey; }
 
