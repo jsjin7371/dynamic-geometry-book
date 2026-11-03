@@ -11,10 +11,18 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-/** 로그인 후 화면에서 공유하는 헤더와 탐색 메뉴. */
+/** 로그인 후 화면에서 공유하는 헤더와 탐색 메뉴. 사용자 정보는 현재 임시 값이다. */
 public final class AppShell extends JPanel {
-    public enum Page { HOME, LEVEL }
+    /** 사이드바에서 강조할 현재 화면. */
+    public enum Page { HOME, LEVEL, LESSON }
 
+    /**
+     * 공통 헤더와 사이드바를 구성한다. 화면 전환과 로그아웃 처리는 호출자가 연결한다.
+     * @param selected 사이드바에서 강조할 화면
+     * @param onHome 나의 탐험 메뉴를 선택했을 때 실행할 동작
+     * @param onLevel 레벨 지도 메뉴를 선택했을 때 실행할 동작
+     * @param onLogout 로그아웃을 선택했을 때 실행할 동작
+     */
     public AppShell(Page selected, Runnable onHome, Runnable onLevel, Runnable onLogout) {
         super(new BorderLayout());
         setBackground(Theme.BACKGROUND);
@@ -22,11 +30,15 @@ public final class AppShell extends JPanel {
         add(sidebar(selected, onHome, onLevel, onLogout), BorderLayout.WEST);
     }
 
-    /** 공통 메뉴 옆에 각 화면의 본문을 배치한다. */
+    /**
+     * 공통 메뉴 옆 중앙 영역에 화면 본문을 배치한다. 본문을 처음 구성할 때 호출한다.
+     * @param content 표시할 화면 본문 컴포넌트
+     */
     public void setContent(java.awt.Component content) {
         add(content, BorderLayout.CENTER);
     }
 
+    /** 앱 이름과 임시 학생 요약 정보를 표시하는 헤더를 만든다. */
     private JPanel header() {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(Color.WHITE);
@@ -34,13 +46,14 @@ public final class AppShell extends JPanel {
         header.add(UiComponents.label("△  도형탐험대", 23, Font.BOLD, Theme.GREEN), BorderLayout.WEST);
         JPanel info = new JPanel(new FlowLayout(FlowLayout.RIGHT, 24, 0));
         info.setOpaque(false);
-        info.add(UiComponents.label("연속 3일", 15, Font.BOLD, Theme.GREEN));
-        info.add(UiComponents.label("150 P", 15, Font.BOLD, Theme.GREEN));
+        info.add(UiComponents.label("학습 탐험", 15, Font.BOLD, Theme.GREEN));
+        info.add(UiComponents.label("포인트 · 미정", 15, Font.BOLD, Theme.GREEN));
         info.add(UiComponents.label("초록별", 15, Font.BOLD, Theme.TEXT));
         header.add(info, BorderLayout.EAST);
         return header;
     }
 
+    /** 현재 화면을 강조하고 연결된 탐색 및 로그아웃 동작을 제공하는 사이드바를 만든다. */
     private JPanel sidebar(Page selected, Runnable onHome, Runnable onLevel, Runnable onLogout) {
         JPanel side = new JPanel();
         side.setLayout(new BoxLayout(side, BoxLayout.Y_AXIS));
@@ -65,6 +78,7 @@ public final class AppShell extends JPanel {
         return side;
     }
 
+    /** 현재 화면과 미연결 메뉴는 레이블로, 이동 가능한 메뉴는 버튼으로 추가한다. */
     private void addMenu(JPanel side, String text, boolean selected, Runnable action) {
         JPanel row = selected ? new RoundedPanel(new BorderLayout(), Theme.MINT, 24) : new JPanel(new BorderLayout());
         if (!selected) row.setOpaque(false);

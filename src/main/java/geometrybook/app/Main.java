@@ -1,33 +1,30 @@
 package geometrybook.app;
 
-import geometrybook.gui.auth.LoginPanel;
-import geometrybook.gui.home.HomePanel;
-import geometrybook.gui.level.LevelMapPanel;
-import java.awt.CardLayout;
 import java.awt.Dimension;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 public final class Main {
-    private Main() { }
+    private Main() {
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
             }
             JFrame frame = new JFrame("도형탐험대");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            CardLayout layout = new CardLayout();
-            JPanel screens = new JPanel(layout);
-            screens.add(new LoginPanel(() -> layout.show(screens, "home")), "login");
-            screens.add(new HomePanel(() -> layout.show(screens, "level"), () -> layout.show(screens, "login")), "home");
-            screens.add(new LevelMapPanel(() -> layout.show(screens, "home"), () -> layout.show(screens, "login")), "level");
-            frame.setContentPane(screens);
+            frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            AppNavigation navigation = new AppNavigation(frame);
+            frame.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override public void windowClosing(java.awt.event.WindowEvent event) {
+                    navigation.close();
+                }
+            });
             frame.setMinimumSize(new Dimension(960, 680));
             frame.setSize(1440, 960);
             frame.setLocationRelativeTo(null);
