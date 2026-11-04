@@ -13,16 +13,17 @@ import javax.swing.*;
 public final class LessonPanel extends JPanel {
     private final StudyProgress study;
     private StudyProgress.Session session;
-    private final Runnable onHome, onLevel, onLogout;
+    private final Runnable onHome, onLevel, onQuiz, onLogout;
     private LessonAnimation animation;
     private final LessonTopic topic;
     private boolean result;
-    public LessonPanel(StudyProgress study, LessonTopic topic, Runnable onHome, Runnable onLevel, Runnable onLogout) {
+    public LessonPanel(StudyProgress study, LessonTopic topic, Runnable onHome, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
         super(new BorderLayout());
         this.study = study;
         this.topic = topic;
         this.onHome = onHome;
         this.onLevel = onLevel;
+        this.onQuiz = onQuiz;
         this.onLogout = onLogout;
     }
     /** 새 시도를 만들며 이전 답안을 버린다. 완료한 도형은 복습으로 시작한다. */
@@ -50,7 +51,7 @@ public final class LessonPanel extends JPanel {
     private JPanel page(int step) {
         stop();
         removeAll();
-        AppShell shell = new AppShell(AppShell.Page.LESSON, () -> leave(onHome), () -> leave(onLevel), () -> leave(onLogout));
+        AppShell shell = new AppShell(AppShell.Page.LESSON, () -> leave(onHome), () -> leave(onLevel), () -> leave(onQuiz), () -> leave(onLogout));
         JPanel page = column();
         page.setBorder(BorderFactory.createEmptyBorder(24, 28, 24, 28));
         page.setBackground(Theme.BACKGROUND);

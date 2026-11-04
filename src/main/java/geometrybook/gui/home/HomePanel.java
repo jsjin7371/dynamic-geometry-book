@@ -36,14 +36,14 @@ public final class HomePanel extends JPanel {
     private final JLabel monthLabel = UiComponents.label("", 17, Font.BOLD, Theme.TEXT);
     private final JPanel calendarGrid = new JPanel(new GridLayout(0, 7, 4, 4));
 
-    public HomePanel(StudyProgress study, Runnable onLevel, Runnable onLogout) {
+    public HomePanel(StudyProgress study, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
         super(new BorderLayout());
         this.study = study;
         this.studyDates = study.studyDates();
         this.onLevel = onLevel;
         setBackground(Theme.BACKGROUND);
         AppShell shell = new AppShell(AppShell.Page.HOME, () -> {
-        }, onLevel, onLogout);
+        }, onLevel, onQuiz, onLogout);
         JScrollPane scroll = new JScrollPane(content());
         scroll.setBorder(null);
         scroll.getViewport().setBackground(Theme.BACKGROUND);

@@ -32,13 +32,13 @@ public final class LevelMapPanel extends JPanel {
     private final JPanel details = new JPanel(new BorderLayout());
     private int selected = 0;
 
-    public LevelMapPanel(StudyProgress study, Consumer<LessonTopic> onLesson, Runnable onHome, Runnable onLogout) {
+    public LevelMapPanel(StudyProgress study, Consumer<LessonTopic> onLesson, Runnable onHome, Runnable onQuiz, Runnable onLogout) {
         super(new BorderLayout());
         this.study = study;
         this.onLesson = onLesson;
         COMPLETED = study.completedCount();
         AppShell shell = new AppShell(AppShell.Page.LEVEL, onHome, () -> {
-        }, onLogout);
+        }, onQuiz, onLogout);
         JScrollPane scroll = new JScrollPane(content());
         scroll.setBorder(null);
         scroll.getViewport().setBackground(Theme.BACKGROUND);

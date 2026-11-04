@@ -1,6 +1,8 @@
 package geometrybook.app;
 
 import geometrybook.domain.StudyProgress;
+import geometrybook.gui.quiz.QuizPanel;
+import geometrybook.application.quiz.DemoQuizSource;
 import geometrybook.domain.LessonTopic;
 import geometrybook.gui.auth.LoginPanel;
 import geometrybook.gui.home.HomePanel;
@@ -15,6 +17,7 @@ final class AppNavigation {
     private final JFrame frame;
     private StudyProgress study = new StudyProgress();
     private LessonPanel lesson;
+    private QuizPanel quiz;
     AppNavigation(JFrame frame) {
         this.frame = frame;
         login();
@@ -28,28 +31,38 @@ final class AppNavigation {
 
     private void login() {
         lesson = null;
+        quiz = null;
         study = new StudyProgress();
         show(new LoginPanel(this::home));
     }
 
     private void home() {
         lesson = null;
-        show(new HomePanel(study, this::levels, this::login));
+        quiz = null;
+        show(new HomePanel(study, this::levels, this::quizzes, this::login));
     }
 
     private void levels() {
         lesson = null;
-        show(new LevelMapPanel(study, this::startLesson, this::home, this::login));
+        quiz = null;
+        show(new LevelMapPanel(study, this::startLesson, this::home, this::quizzes, this::login));
     }
 
     private void startLesson(LessonTopic topic) {
-        lesson = new LessonPanel(study, topic, this::home, this::levels, this::login);
+        lesson = new LessonPanel(study, topic, this::home, this::levels, this::quizzes, this::login);
         show(lesson);
         lesson.begin();
     }
 
+    private void quizzes() {
+        lesson = null;
+        quiz = new QuizPanel(new DemoQuizSource(), this::home, this::levels, this::login);
+        show(quiz);
+    }
+
     void close() {
         if (lesson != null) lesson.leave(frame::dispose);
+        else if (quiz != null) quiz.leave(frame::dispose);
         else frame.dispose();
     }
 }
