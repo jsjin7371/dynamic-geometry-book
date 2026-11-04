@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  * students.csv 저장소. 파일 ↔ Student 객체 변환과 PK·UK 검사를 맡는다.
  * 화면 코드는 이 클래스를 직접 쓰지 않고 AuthService를 쓴다.
  *
- * 쓰기(추가·수정)는 "읽기 → 검사 → 저장" 전체를 잠금으로 묶는다 (ERD 6장 단일 쓰기 잠금).
+ * 쓰기(추가·수정)는 "읽기 → 검사 → 저장" 전체를 잠금으로 묶어, 동시에 저장해도 기록이 사라지지 않게 한다.
  * - 같은 프로그램 안: 파일 경로별 ReentrantLock
  * - 다른 프로그램(관리 도구 등)과: data 폴더의 students.csv.lock 파일 잠금
  */
@@ -123,9 +123,13 @@ public class StudentRepository {
         try {
             Files.createDirectories(lockFile.getParent());
             try (FileChannel channel = FileChannel.open(lockFile,
-                         StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-                 FileLock ignored = channel.lock()) {
-                return action.get();
+                         StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+                FileLock fileLock = channel.lock();
+                try {
+                    return action.get();
+                } finally {
+                    fileLock.release();
+                }
             }
         } catch (IOException e) {
             throw new UncheckedIOException("students.csv 쓰기 잠금을 얻지 못했습니다.", e);

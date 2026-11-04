@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.Base64;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -79,11 +80,14 @@ public final class PasswordHasher {
     }
 
     private static byte[] pbkdf2(char[] password, byte[] salt, int iterations) {
+        PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, HASH_BYTES * 8);
         try {
-            PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, HASH_BYTES * 8);
             return SecretKeyFactory.getInstance(ALGORITHM).generateSecret(spec).getEncoded();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new IllegalStateException("비밀번호 해시 알고리즘을 사용할 수 없습니다.", e);
+        } finally {
+            spec.clearPassword();            // 계산이 끝나면 메모리에 남은 비밀번호를 지운다
+            Arrays.fill(password, '\0');
         }
     }
 }
