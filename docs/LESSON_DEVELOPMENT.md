@@ -96,7 +96,7 @@ public final class RectangleAnimation extends LessonAnimation {
 
 ### 애니메이션 선택
 
-현재 `LessonPanel.showExplanation()`은 정사각형이면 `SquareAnimation`, 그 외에는 `TriangleAnimation`을 만듭니다. 새 enum 항목만 추가하면 삼각형 애니메이션이 표시되므로 생성 분기를 반드시 수정하세요.
+`LessonPanel.showExplanation()`은 `switch`로 도형별 애니메이션을 생성합니다. 새 enum 항목을 추가할 때 해당 `case`도 추가해야 합니다. 연결이 누락된 레슨은 예외로 처리됩니다.
 
 직사각형을 추가한 뒤에는 다음처럼 각 도형을 명시적으로 연결할 수 있습니다. 해당 클래스 import도 추가해야 합니다.
 

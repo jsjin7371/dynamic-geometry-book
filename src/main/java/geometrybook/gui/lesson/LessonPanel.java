@@ -87,8 +87,16 @@ public final class LessonPanel extends JPanel {
             progress.setValue(animation.elapsed());
             pause.setText(animation.playing()?"일시정지":"재생");
         };
-        animation = topic == LessonTopic.SQUARE
-                ? new SquareAnimation(updatePlayback) : new TriangleAnimation(updatePlayback);
+        switch (topic) {
+            case TRIANGLE:
+                animation = new TriangleAnimation(updatePlayback);
+                break;
+            case SQUARE:
+                animation = new SquareAnimation(updatePlayback);
+                break;
+            default:
+                throw new IllegalArgumentException("지원하지 않는 레슨: " + topic);
+        }
         playback.add(UiComponents.label(topic.title() + "의 비밀을 알아볼까요?", 24, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
         playback.add(animation, BorderLayout.CENTER);
         JPanel controls = column();
