@@ -123,9 +123,13 @@ public class StudentRepository {
         try {
             Files.createDirectories(lockFile.getParent());
             try (FileChannel channel = FileChannel.open(lockFile,
-                         StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-                 FileLock ignored = channel.lock()) {
-                return action.get();
+                         StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+                FileLock fileLock = channel.lock();
+                try {
+                    return action.get();
+                } finally {
+                    fileLock.release();
+                }
             }
         } catch (IOException e) {
             throw new UncheckedIOException("students.csv 쓰기 잠금을 얻지 못했습니다.", e);
