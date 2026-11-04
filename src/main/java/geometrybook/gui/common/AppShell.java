@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 /** 로그인 후 화면에서 공유하는 헤더와 탐색 메뉴. 사용자 정보는 현재 임시 값이다. */
 public final class AppShell extends JPanel {
     /** 사이드바에서 강조할 현재 화면. */
-    public enum Page { HOME, LEVEL, LESSON }
+    public enum Page { HOME, LEVEL, LESSON, QUIZ }
 
     /**
      * 공통 헤더와 사이드바를 구성한다. 화면 전환과 로그아웃 처리는 호출자가 연결한다.
@@ -24,10 +24,15 @@ public final class AppShell extends JPanel {
      * @param onLogout 로그아웃을 선택했을 때 실행할 동작
      */
     public AppShell(Page selected, Runnable onHome, Runnable onLevel, Runnable onLogout) {
+        this(selected, onHome, onLevel, null, onLogout);
+    }
+
+    /** 퀴즈 메뉴의 이동 동작도 함께 연결하는 공통 화면. */
+    public AppShell(Page selected, Runnable onHome, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
         super(new BorderLayout());
         setBackground(Theme.BACKGROUND);
         add(header(), BorderLayout.NORTH);
-        add(sidebar(selected, onHome, onLevel, onLogout), BorderLayout.WEST);
+        add(sidebar(selected, onHome, onLevel, onQuiz, onLogout), BorderLayout.WEST);
     }
 
     /**
@@ -54,7 +59,7 @@ public final class AppShell extends JPanel {
     }
 
     /** 현재 화면을 강조하고 연결된 탐색 및 로그아웃 동작을 제공하는 사이드바를 만든다. */
-    private JPanel sidebar(Page selected, Runnable onHome, Runnable onLevel, Runnable onLogout) {
+    private JPanel sidebar(Page selected, Runnable onHome, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
         JPanel side = new JPanel();
         side.setLayout(new BoxLayout(side, BoxLayout.Y_AXIS));
         side.setBackground(Color.WHITE);
@@ -63,6 +68,8 @@ public final class AppShell extends JPanel {
         addMenu(side, "⌂  나의 탐험", selected == Page.HOME, onHome);
         side.add(Box.createVerticalStrut(3));
         addMenu(side, "◇  레벨 지도", selected == Page.LEVEL, onLevel);
+        side.add(Box.createVerticalStrut(3));
+        addMenu(side, "?  퀴즈", selected == Page.QUIZ, onQuiz);
         side.add(Box.createVerticalStrut(3));
         addMenu(side, "☆  랭킹", false, null);
         side.add(Box.createVerticalStrut(3));
