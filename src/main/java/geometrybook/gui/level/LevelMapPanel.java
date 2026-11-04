@@ -1,7 +1,9 @@
 package geometrybook.gui.level;
 
 import geometrybook.gui.common.AppShell;
-import geometrybook.domain.TriangleStudy;
+import geometrybook.domain.StudyProgress;
+import geometrybook.domain.LessonTopic;
+import java.util.function.Consumer;
 import geometrybook.gui.common.RoundedPanel;
 import geometrybook.gui.common.Theme;
 import geometrybook.gui.common.TriangleCharacter;
@@ -23,18 +25,18 @@ public final class LevelMapPanel extends JPanel {
     private static final String[] TITLES = {
         "삼각형", "정사각형", "직사각형", "마름모", "사다리꼴", "평행사변형", "원"
     };
-    private final TriangleStudy study;
-    private final Runnable onLesson;
+    private final StudyProgress study;
+    private final Consumer<LessonTopic> onLesson;
     private int COMPLETED;
     private final JPanel levelList = new JPanel(new GridLayout(0, 1, 0, 8));
     private final JPanel details = new JPanel(new BorderLayout());
     private int selected = 0;
 
-    public LevelMapPanel(TriangleStudy study, Runnable onLesson, Runnable onHome, Runnable onLogout) {
+    public LevelMapPanel(StudyProgress study, Consumer<LessonTopic> onLesson, Runnable onHome, Runnable onLogout) {
         super(new BorderLayout());
         this.study = study;
         this.onLesson = onLesson;
-        COMPLETED = study.isCompleted()?1:0;
+        COMPLETED = study.completedCount();
         AppShell shell = new AppShell(AppShell.Page.LEVEL, onHome, () -> {
         }, onLogout);
         JScrollPane scroll = new JScrollPane(content());
@@ -129,8 +131,8 @@ public final class LevelMapPanel extends JPanel {
         body.add(UiComponents.label(selected < COMPLETED ? "완료 · 복습 가능" : selected == COMPLETED ? "학습 가능" : "이전 단계를 완료하면 열려요", 14, Font.PLAIN, Theme.MUTED));
         body.add(Box.createVerticalStrut(20));
         JButton start = UiComponents.roundedPrimaryButton(selected < COMPLETED ? "복습하러 가기  →" : "탐험 시작하기  →");
-        start.setEnabled(selected == 0);
-        start.addActionListener(e -> onLesson.run());
+        start.setEnabled(selected < LessonTopic.values().length && selected <= COMPLETED);
+        start.addActionListener(e -> onLesson.accept(LessonTopic.values()[selected]));
         start.setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
         body.add(start);
         card.add(body, BorderLayout.NORTH);

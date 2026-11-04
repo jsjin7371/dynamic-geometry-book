@@ -1,44 +1,34 @@
 package geometrybook.gui.lesson;
 
-import geometrybook.domain.TriangleStudy;
+import geometrybook.domain.StudyProgress;
+import geometrybook.domain.LessonTopic;
 import geometrybook.gui.common.*;
+import geometrybook.gui.lesson.animation.LessonAnimation;
+import geometrybook.gui.lesson.animation.TriangleAnimation;
+import geometrybook.gui.lesson.animation.SquareAnimation;
 import java.awt.*;
 import javax.swing.*;
 
-/** 삼각형 설명, 확인 문제, 결과 화면을 담당한다. 영구 저장은 수행하지 않는다. */
+/** 도형 설명, 확인 문제, 결과 화면을 담당한다. 영구 저장은 수행하지 않는다. */
 public final class LessonPanel extends JPanel {
-    private final TriangleStudy study;
-    private TriangleStudy.Session session;
+    private final StudyProgress study;
+    private StudyProgress.Session session;
     private final Runnable onHome, onLevel, onLogout;
-    private TriangleAnimation animation;
+    private LessonAnimation animation;
+    private final LessonTopic topic;
     private boolean result;
-    private final String[] prompts = {
-        "삼각형의 변은 몇 개일까요?", "삼각형의 꼭짓점은 몇 개일까요?", "삼각형의 세 내각을 모두 더하면 몇 도일까요?"
-    };
-    private final String[][] choices = {
-        {
-            "2개", "3개", "4개"
-        }, {
-            "1개", "2개", "3개"
-        }, {
-            "180도", "90도", "360도"
-        }
-    };
-    private final String[] explanations = {
-        "삼각형은 곧은 선분 3개로 둘러싸인 도형이에요.", "변과 변이 만나는 꼭짓점은 3개예요.", "세 내각을 한 점에 모으면 곧은 각인 180도가 돼요."
-    };
-
-    public LessonPanel(TriangleStudy study, Runnable onHome, Runnable onLevel, Runnable onLogout) {
+    public LessonPanel(StudyProgress study, LessonTopic topic, Runnable onHome, Runnable onLevel, Runnable onLogout) {
         super(new BorderLayout());
         this.study = study;
+        this.topic = topic;
         this.onHome = onHome;
         this.onLevel = onLevel;
         this.onLogout = onLogout;
     }
-    /** 새 시도를 만들며 이전 답안을 버린다. 완료한 삼각형은 복습으로 시작한다. */
+    /** 새 시도를 만들며 이전 답안을 버린다. 완료한 도형은 복습으로 시작한다. */
     public void begin() {
         stop();
-        session = study.start();
+        session = study.start(topic);
         result = false;
         showExplanation();
     }
@@ -65,7 +55,7 @@ public final class LessonPanel extends JPanel {
         page.setBorder(BorderFactory.createEmptyBorder(24, 28, 24, 28));
         page.setBackground(Theme.BACKGROUND);
         page.setOpaque(true);
-        JButton back = UiComponents.roundedPrimaryButton("‹ 레벨 지도로    ·    LEVEL 01 삼각형");
+        JButton back = UiComponents.roundedPrimaryButton(String.format("‹ 레벨 지도로    ·    LEVEL %02d %s", topic.number(), topic.title()));
         back.addActionListener(e -> leave(onLevel));
         page.add(back);
         gap(page, 16);
@@ -90,13 +80,15 @@ public final class LessonPanel extends JPanel {
         playback.setOpaque(false);
         JLabel caption = UiComponents.label("", 15, Font.BOLD, Theme.GREEN);
         JButton pause = UiComponents.roundedPrimaryButton("일시정지");
-        JProgressBar progress = new JProgressBar(0, TriangleAnimation.DURATION);
-        animation = new TriangleAnimation(() -> {
+        JProgressBar progress = new JProgressBar(0, LessonAnimation.DURATION);
+        Runnable updatePlayback = () -> {
             caption.setText(animation.caption());
             progress.setValue(animation.elapsed());
             pause.setText(animation.playing()?"일시정지":"재생");
-        });
-        playback.add(UiComponents.label("삼각형의 비밀을 알아볼까요?", 24, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
+        };
+        animation = topic == LessonTopic.SQUARE
+                ? new SquareAnimation(updatePlayback) : new TriangleAnimation(updatePlayback);
+        playback.add(UiComponents.label(topic.title() + "의 비밀을 알아볼까요?", 24, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
         playback.add(animation, BorderLayout.CENTER);
         JPanel controls = column();
         controls.add(caption);
@@ -115,7 +107,7 @@ public final class LessonPanel extends JPanel {
         controls.add(buttons);
         playback.add(controls, BorderLayout.SOUTH);
         card.add(playback, BorderLayout.CENTER);
-        JLabel summary = UiComponents.label("<html><b>오늘의 발견</b><br><br>변 3개 · 꼭짓점 3개<br><br>세 내각의 합은 180°<br><br>모양이 달라도<br>삼각형의 내각의 합은<br>항상 같아요.</html>", 17, Font.PLAIN, Theme.TEXT);
+        JLabel summary = UiComponents.label("<html><b>오늘의 발견</b><br><br>" + topic.summary() + "</html>", 17, Font.PLAIN, Theme.TEXT);
         summary.setPreferredSize(new Dimension(190, 280));
         card.add(summary, BorderLayout.EAST);
         page.add(card);
@@ -142,12 +134,12 @@ public final class LessonPanel extends JPanel {
             RoundedPanel card = new RoundedPanel(new BorderLayout(8, 12), Color.WHITE, 24);
             card.setAlignmentX(0f);
             card.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
-            card.add(UiComponents.label((i+1)+". "+prompts[i], 18, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
+            card.add(UiComponents.label((i+1)+". "+topic.prompt(i), 18, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
             JPanel options = column();
             ButtonGroup group = new ButtonGroup();
             JRadioButton[] radios = new JRadioButton[3];
             for (int j = 0; j<3; j++) {
-                radios[j] = new JRadioButton(choices[i][j]);
+                radios[j] = new JRadioButton(topic.choice(i, j));
                 radios[j].setFont(Theme.font(Font.PLAIN, 16));
                 radios[j].setOpaque(false);
                 radios[j].setEnabled(!session.isCorrect(i));
@@ -156,7 +148,7 @@ public final class LessonPanel extends JPanel {
             }
             card.add(options, BorderLayout.CENTER);
             JPanel footer = column();
-            JLabel feedback = UiComponents.label(session.isCorrect(i)?"정답! "+explanations[i]:" ", 14, Font.PLAIN, Theme.GREEN);
+            JLabel feedback = UiComponents.label(session.isCorrect(i)?"정답! "+topic.explanation(i):" ", 14, Font.PLAIN, Theme.GREEN);
             JButton submit = UiComponents.roundedPrimaryButton(session.isCorrect(i)?"정답 확인 완료":"정답 확인");
             submit.setEnabled(!session.isCorrect(i));
             submit.addActionListener(e -> {
@@ -167,7 +159,7 @@ public final class LessonPanel extends JPanel {
                     return;
                 }
                 boolean correct = session.submit(index, choice);
-                feedback.setText((correct?"정답! ":"다시 생각해 보세요. ")+explanations[index]);
+                feedback.setText((correct?"정답! ":"다시 생각해 보세요. ")+topic.explanation(index));
                 if (correct) {
                     submit.setEnabled(false);
                     submit.setText("정답 확인 완료");
@@ -197,8 +189,8 @@ public final class LessonPanel extends JPanel {
         RoundedPanel card = new RoundedPanel(new BorderLayout(0, 24), Theme.MINT, 28);
         card.setAlignmentX(0f);
         card.setBorder(BorderFactory.createEmptyBorder(36, 36, 36, 36));
-        card.add(UiComponents.label(session.review?"삼각형 복습 완료!":"삼각형 탐험 완료!", 30, Font.BOLD, Theme.GREEN), BorderLayout.NORTH);
-        card.add(UiComponents.label("<html>세 문제를 모두 맞혔어요!<br><br>변과 꼭짓점은 3개, 세 내각의 합은 180도예요.<br><br>"+(session.review?"복습으로 추가 포인트는 지급되지 않아요.":"첫 탐험을 마쳤어요. 다음 단계는 정사각형이에요.")+"<br><br>이번 완료 기록은 앱 실행 중에만 유지됩니다.</html>", 18, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
+        card.add(UiComponents.label(topic.title() + (session.review ? " 복습 완료!" : " 탐험 완료!"), 30, Font.BOLD, Theme.GREEN), BorderLayout.NORTH);
+        card.add(UiComponents.label("<html>세 문제를 모두 맞혔어요!<br><br>" + topic.summary() + "<br><br>"+(session.review?"복습으로 추가 포인트는 지급되지 않아요.":"첫 탐험을 마쳤어요. 다음 단계는 " + topic.nextTitle() + "이에요.")+"<br><br>이번 완료 기록은 앱 실행 중에만 유지됩니다.</html>", 18, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         actions.setOpaque(false);
         JButton review = UiComponents.roundedPrimaryButton("복습하기");

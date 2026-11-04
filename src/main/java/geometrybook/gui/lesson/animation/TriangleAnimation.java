@@ -1,4 +1,4 @@
-package geometrybook.gui.lesson;
+package geometrybook.gui.lesson.animation;
 
 import geometrybook.gui.common.Theme;
 import java.awt.*;
@@ -6,58 +6,17 @@ import java.awt.geom.*;
 import javax.swing.*;
 
 /** 세 점, 변, 꼭짓점, 내각을 모으는 장면을 순서대로 그리는 애니메이션. */
-final class TriangleAnimation extends JComponent {
-    static final int DURATION = 24000;
-    private int elapsed;
-    private long lastTick;
-    private final Timer timer;
-    private final Runnable onUpdate;
-    TriangleAnimation(Runnable onUpdate) {
-        this.onUpdate = onUpdate;
-        setPreferredSize(new Dimension(600, 340));
-        timer = new Timer(25, e -> {
-            long now = System.nanoTime();
-            elapsed = Math.min(DURATION, elapsed + (int)((now - lastTick) / 1_000_000));
-            lastTick = now;
-            if (elapsed == DURATION) ((Timer)e.getSource()).stop();
-            repaint();
-            onUpdate.run();
-        });
+public final class TriangleAnimation extends LessonAnimation {
+    public TriangleAnimation(Runnable onUpdate) {
+        super(onUpdate);
     }
 
-    void play() {
-        if (elapsed == DURATION) elapsed = 0;
-        lastTick = System.nanoTime();
-        timer.start();
-        onUpdate.run();
-    }
-
-    void pause() {
-        timer.stop();
-        onUpdate.run();
-    }
-
-    void restart() {
-        elapsed = 0;
-        play();
-        repaint();
-    }
-    boolean playing() {
-        return timer.isRunning();
-    }
-    int elapsed() {
-        return elapsed;
-    }
-    String caption() {
+    @Override public String caption() {
         if (elapsed < 3000) return "서로 일직선 위에 있지 않은 세 점을 찾아요.";
         if (elapsed < 9000) return "세 점을 곧은 선분으로 이어 삼각형을 만들어요.";
         if (elapsed < 13000) return "삼각형은 변이 3개, 꼭짓점이 3개예요.";
         if (elapsed < 18000) return "세 꼭짓점 안쪽에 있는 각을 내각이라고 해요.";
         return "세 내각을 한 점에 모으면 곧은 각, 180도가 돼요!";
-    }
-    @Override public void removeNotify() {
-        timer.stop();
-        super.removeNotify();
     }
     @Override protected void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);

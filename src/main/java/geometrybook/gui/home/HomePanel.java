@@ -1,7 +1,7 @@
 package geometrybook.gui.home;
 
 import geometrybook.gui.common.RoundedPanel;
-import geometrybook.domain.TriangleStudy;
+import geometrybook.domain.StudyProgress;
 import geometrybook.gui.common.AppShell;
 import geometrybook.gui.common.Theme;
 import geometrybook.gui.common.TriangleCharacter;
@@ -30,13 +30,13 @@ import javax.swing.SwingConstants;
 public final class HomePanel extends JPanel {
     private final LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
     private final Set<LocalDate> studyDates;
-    private final TriangleStudy study;
+    private final StudyProgress study;
     private final Runnable onLevel;
     private YearMonth month = YearMonth.from(today);
     private final JLabel monthLabel = UiComponents.label("", 17, Font.BOLD, Theme.TEXT);
     private final JPanel calendarGrid = new JPanel(new GridLayout(0, 7, 4, 4));
 
-    public HomePanel(TriangleStudy study, Runnable onLevel, Runnable onLogout) {
+    public HomePanel(StudyProgress study, Runnable onLevel, Runnable onLogout) {
         super(new BorderLayout());
         this.study = study;
         this.studyDates = study.studyDates();
@@ -68,7 +68,7 @@ public final class HomePanel extends JPanel {
         JPanel stats = new JPanel(new GridLayout(1, 3, 16, 0));
         stats.setOpaque(false);
         stats.setAlignmentX(0f);
-        stats.add(statCard("전체 진도", (study.isCompleted()?"1":"0") + " / 7 단계", Theme.LAVENDER));
+        stats.add(statCard("전체 진도", study.completedCount() + " / 7 단계", Theme.LAVENDER));
         stats.add(statCard("모은 포인트", "미정", new Color(0xFFF1C9)));
         stats.add(statCard("연속 학습", studyDates.isEmpty()?"아직 기록 없음":"1일째 탐험 중", new Color(0xFCE6DC)));
         stats.setPreferredSize(new Dimension(0, 115));
@@ -84,7 +84,7 @@ public final class HomePanel extends JPanel {
         card.setBorder(BorderFactory.createEmptyBorder(22, 26, 22, 26));
         card.setAlignmentX(0f);
         JPanel text = vertical();
-        text.add(UiComponents.label(study.isCompleted()?"다시 만나는 삼각형":"첫 탐험 · LEVEL 01", 13, Font.BOLD, Theme.GREEN));
+        text.add(UiComponents.label(study.completedCount() == 0 ? "첫 탐험 · LEVEL 01" : study.completedCount() == 1 ? "다음 탐험 · 정사각형" : "배운 도형을 복습해요", 13, Font.BOLD, Theme.GREEN));
         text.add(Box.createVerticalStrut(10));
         text.add(UiComponents.label("새로운 도형을 만나봐요!", 23, Font.BOLD, Theme.TEXT));
         text.add(Box.createVerticalStrut(8));
