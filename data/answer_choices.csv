@@ -1,0 +1,14 @@
+id,questionId,choiceNo,content,isCorrect
+triangle-quiz-1-1,triangle-quiz-1,1,60도,false
+triangle-quiz-1-2,triangle-quiz-1,2,70도,true
+triangle-quiz-1-3,triangle-quiz-1,3,80도,false
+triangle-quiz-2-1,triangle-quiz-2,1,O,false
+triangle-quiz-2-2,triangle-quiz-2,2,X,true
+triangle-quiz-3-1,triangle-quiz-3,1,45도,false
+triangle-quiz-3-2,triangle-quiz-3,2,60도,true
+triangle-quiz-3-3,triangle-quiz-3,3,90도,false
+triangle-quiz-4-1,triangle-quiz-4,1,O,false
+triangle-quiz-4-2,triangle-quiz-4,2,X,true
+triangle-quiz-5-1,triangle-quiz-5,1,40도,true
+triangle-quiz-5-2,triangle-quiz-5,2,50도,false
+triangle-quiz-5-3,triangle-quiz-5,3,80도,false
