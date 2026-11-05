@@ -67,6 +67,10 @@ public final class CsvQuizSource implements QuizSource {
         for (QuestionRow q : questions) {
             List<QuizQuestion.Choice> list = choicesByQuestion.get(q.id);
             list.sort(Comparator.comparingInt(c -> c.choiceNo));
+            if (q.type == QuizQuestion.Type.OX && list.size() == 2
+                    && !(list.get(0).content.equals("O") && list.get(1).content.equals("X"))) {
+                throw new DataFileException(CHOICE_FILE + ": OX 문제 " + q.id + "의 보기는 1번 O, 2번 X여야 합니다.");
+            }
             QuizQuestion question;
             try {
                 question = new QuizQuestion(q.id, q.levelId, q.type, q.prompt, q.reviewSceneNo, list);
