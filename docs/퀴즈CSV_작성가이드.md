@@ -15,7 +15,7 @@ triangle-quiz-2,TRIANGLE,OX,한 삼각형 안에 직각(90도)이 두 개 있을
 | 열 | 쓰는 법 |
 |---|---|
 | id | 문제 고유 이름. 겹치면 안 됨. 규칙: `도형-quiz-번호` (예: `square-quiz-1`) |
-| levelId | 어느 단원 문제인지. 아래 표의 레벨 ID 중 하나 |
+| levelId | 어느 단원 문제인지. 아래 표의 레벨 ID 중 하나 (오타가 있으면 오류) |
 | type | `OX` 또는 `MULTIPLE_CHOICE`(객관식) |
 | prompt | 문제 문장 |
 | reviewSceneNo | 틀렸을 때 다시 볼 설명 장면 번호. 지금은 설명이 한 화면이라 `1` |
@@ -73,6 +73,8 @@ triangle-quiz-2-2,triangle-quiz-2,2,X,true
 | 오류 메시지 예 | 원인 |
 |---|---|
 | `questions.csv 4행: type은 OX 또는 MULTIPLE_CHOICE여야 합니다` | type 오타 |
+| `questions.csv 2행: levelId는 TRIANGLE, SQUARE, … 중 하나여야 합니다` | levelId 오타 (예: TRIANGEL) |
+| `answer_choices.csv: OX 문제 … 의 보기는 1번 O, 2번 X여야 합니다` | OX 보기 순서가 바뀜 |
 | `answer_choices.csv: 보기 … 의 questionId … 가 questions.csv에 없습니다` | 보기의 questionId 오타 |
 | `answer_choices.csv: 문제 … 의 보기 구성이 올바르지 않습니다` | 정답이 0개·2개, 보기 1개, OX인데 O·X가 아님 |
 | `questions.csv 3행: 열 개수가 6개입니다` | 문장에 쉼표가 있는데 큰따옴표를 안 씀 |
