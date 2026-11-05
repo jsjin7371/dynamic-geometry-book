@@ -2,13 +2,14 @@ package geometrybook.app;
 
 import geometrybook.domain.StudyProgress;
 import geometrybook.gui.quiz.QuizPanel;
-import geometrybook.application.quiz.DemoQuizSource;
 import geometrybook.domain.LessonTopic;
 import geometrybook.gui.auth.LoginPanel;
 import geometrybook.gui.home.HomePanel;
 import geometrybook.gui.level.LevelMapPanel;
 import geometrybook.gui.lesson.LessonPanel;
+import geometrybook.storage.CsvQuizSource;
 import java.awt.BorderLayout;
+import java.nio.file.Path;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -56,7 +57,7 @@ final class AppNavigation {
 
     private void quizzes() {
         lesson = null;
-        quiz = new QuizPanel(new DemoQuizSource(), this::home, this::levels, this::login);
+        quiz = new QuizPanel(new CsvQuizSource(Path.of("data")), this::home, this::levels, this::login);
         show(quiz);
     }
 
