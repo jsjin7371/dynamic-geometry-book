@@ -25,12 +25,8 @@ public abstract class CsvRecordReader<T> {
     /** 이 파일의 고정 헤더 (첫 행과 정확히 같아야 함) */
     protected abstract List<String> header();
 
-    /**
-     * CSV 한 행을 객체로 바꾼다.
-     * @param row   열 개수가 헤더와 같은 것이 보장된 행
-     * @param where 오류 메시지 앞에 붙일 위치 (예: "questions.csv 3행: ")
-     */
-    protected abstract T fromRow(List<String> row, String where);
+    /** CSV 한 행(열 개수가 헤더와 같은 것이 보장됨)을 객체로 바꾼다. */
+    protected abstract T fromRow(List<String> row);
 
     /** 파일 전체에 대한 규칙(중복 금지 등). 필요한 자식 클래스만 재정의한다. */
     protected void validate(List<T> records) {
@@ -53,46 +49,13 @@ public abstract class CsvRecordReader<T> {
         }
         List<T> records = new ArrayList<>();
         for (int i = 1; i < rows.size(); i++) {
-            String where = name + " " + (i + 1) + "행: ";
             List<String> row = rows.get(i);
             if (row.size() != header().size()) {
-                throw new DataFileException(where + "열 개수가 " + row.size() + "개입니다 (" + header().size() + "개여야 함).");
+                throw new DataFileException(name + " " + (i + 1) + "행: 열 개수가 헤더와 다릅니다.");
             }
-            records.add(fromRow(row, where));
+            records.add(fromRow(row));
         }
         validate(records);
         return List.copyOf(records);
-    }
-
-    // ---------- 자식 클래스가 쓰는 값 변환 도우미 ----------
-
-    /** 비어 있으면 안 되는 글자 칸 (앞뒤 공백 제거) */
-    protected static String requireText(String value, String where, String column) {
-        if (value == null || value.isBlank()) {
-            throw new DataFileException(where + column + "은(는) 비울 수 없습니다.");
-        }
-        return value.trim();
-    }
-
-    /** 1 이상의 정수 칸 */
-    protected static int requirePositiveInt(String value, String where, String column) {
-        int n;
-        try {
-            n = Integer.parseInt(value.trim());
-        } catch (NumberFormatException e) {
-            throw new DataFileException(where + column + "은(는) 정수여야 합니다: " + value);
-        }
-        if (n < 1) {
-            throw new DataFileException(where + column + "은(는) 1 이상이어야 합니다.");
-        }
-        return n;
-    }
-
-    /** true/false 칸 */
-    protected static boolean requireBoolean(String value, String where, String column) {
-        String v = value.trim();
-        if (v.equals("true")) return true;
-        if (v.equals("false")) return false;
-        throw new DataFileException(where + column + "은(는) true 또는 false여야 합니다: " + value);
     }
 }

@@ -37,7 +37,7 @@ public final class CsvQuizSource implements QuizSource {
 
     /**
      * 레벨 ID(예: TRIANGLE)의 문제를 questions.csv 행 순서대로 돌려준다. 문제가 없으면 빈 목록.
-     * 두 파일 중 하나라도 규칙에 맞지 않으면 DataFileException.
+     * 파일이 없거나 형식이 틀리면 예외가 나고, 퀴즈 화면은 "다시 시도"를 보여 준다.
      */
     @Override
     public List<QuizQuestion> findByLevelId(String levelId) {
@@ -108,20 +108,13 @@ public final class CsvQuizSource implements QuizSource {
         }
 
         @Override
-        protected QuestionRow fromRow(List<String> r, String where) {
+        protected QuestionRow fromRow(List<String> r) {
             return new QuestionRow(
-                    requireText(r.get(0), where, "id"),
-                    requireText(r.get(1), where, "levelId"),
-                    parseType(r.get(2), where),
-                    requireText(r.get(3), where, "prompt"),
-                    requirePositiveInt(r.get(4), where, "reviewSceneNo"));
-        }
-
-        private static QuizQuestion.Type parseType(String value, String where) {
-            for (QuizQuestion.Type type : QuizQuestion.Type.values()) {
-                if (type.name().equals(value.trim())) return type;
-            }
-            throw new DataFileException(where + "type은 OX 또는 MULTIPLE_CHOICE여야 합니다: " + value);
+                    r.get(0).trim(),
+                    r.get(1).trim(),
+                    QuizQuestion.Type.valueOf(r.get(2).trim()),
+                    r.get(3).trim(),
+                    Integer.parseInt(r.get(4).trim()));
         }
 
         @Override
@@ -149,13 +142,13 @@ public final class CsvQuizSource implements QuizSource {
         }
 
         @Override
-        protected QuizQuestion.Choice fromRow(List<String> r, String where) {
+        protected QuizQuestion.Choice fromRow(List<String> r) {
             return new QuizQuestion.Choice(
-                    requireText(r.get(0), where, "id"),
-                    requireText(r.get(1), where, "questionId"),
-                    requirePositiveInt(r.get(2), where, "choiceNo"),
-                    requireText(r.get(3), where, "content"),
-                    requireBoolean(r.get(4), where, "isCorrect"));
+                    r.get(0).trim(),
+                    r.get(1).trim(),
+                    Integer.parseInt(r.get(2).trim()),
+                    r.get(3).trim(),
+                    Boolean.parseBoolean(r.get(4).trim()));
         }
     }
 }
