@@ -41,9 +41,6 @@ public final class CsvQuizSource implements QuizSource {
      */
     @Override
     public List<QuizQuestion> findByLevelId(String levelId) {
-        if (levelId == null || levelId.isBlank()) {
-            throw new IllegalArgumentException("레벨 ID가 비어 있습니다.");
-        }
         List<QuestionRow> questions = new QuestionReader(dataDir).readAll();
         List<QuizQuestion.Choice> choices = new ChoiceReader(dataDir).readAll();
 
