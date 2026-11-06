@@ -5,7 +5,6 @@ import geometrybook.domain.quiz.QuizQuestion;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -160,21 +159,6 @@ public final class CsvQuizSource implements QuizSource {
                     requirePositiveInt(r.get(2), where, "choiceNo"),
                     requireText(r.get(3), where, "content"),
                     requireBoolean(r.get(4), where, "isCorrect"));
-        }
-
-        @Override
-        protected void validate(List<QuizQuestion.Choice> choices) {
-            Set<String> ids = new HashSet<>();
-            Map<String, Set<Integer>> choiceNosByQuestion = new HashMap<>();
-            for (QuizQuestion.Choice c : choices) {
-                if (!ids.add(c.id)) {
-                    throw new DataFileException(CHOICE_FILE + ": id 중복 " + c.id);
-                }
-                if (!choiceNosByQuestion.computeIfAbsent(c.questionId, k -> new HashSet<>()).add(c.choiceNo)) {
-                    throw new DataFileException(CHOICE_FILE + ": 같은 문제의 choiceNo 중복 "
-                            + c.questionId + " " + c.choiceNo);
-                }
-            }
         }
     }
 }
