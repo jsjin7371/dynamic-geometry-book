@@ -30,10 +30,6 @@ public final class CsvQuizSource implements QuizSource {
     public static final String QUESTION_FILE = "questions.csv";
     public static final String CHOICE_FILE = "answer_choices.csv";
 
-    /** 퀴즈 화면(QuizPanel)이 조회하는 레벨 ID. 여기에 없는 levelId는 오타로 보고 오류를 낸다. */
-    public static final List<String> LEVEL_IDS = List.of(
-            "TRIANGLE", "SQUARE", "RECTANGLE", "RHOMBUS", "TRAPEZOID", "PARALLELOGRAM", "CIRCLE");
-
     private final Path dataDir;
 
     public CsvQuizSource(Path dataDir) {
@@ -123,19 +119,10 @@ public final class CsvQuizSource implements QuizSource {
         protected QuestionRow fromRow(List<String> r, String where) {
             return new QuestionRow(
                     requireText(r.get(0), where, "id"),
-                    parseLevelId(r.get(1), where),
+                    requireText(r.get(1), where, "levelId"),
                     parseType(r.get(2), where),
                     requireText(r.get(3), where, "prompt"),
                     requirePositiveInt(r.get(4), where, "reviewSceneNo"));
-        }
-
-        private static String parseLevelId(String value, String where) {
-            String levelId = requireText(value, where, "levelId");
-            if (!LEVEL_IDS.contains(levelId)) {
-                throw new DataFileException(where + "levelId는 " + String.join(", ", LEVEL_IDS)
-                        + " 중 하나여야 합니다: " + levelId);
-            }
-            return levelId;
         }
 
         private static QuizQuestion.Type parseType(String value, String where) {
