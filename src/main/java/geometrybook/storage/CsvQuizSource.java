@@ -5,7 +5,6 @@ import geometrybook.domain.quiz.QuizQuestion;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,10 +29,6 @@ public final class CsvQuizSource implements QuizSource {
     public static final String QUESTION_FILE = "questions.csv";
     public static final String CHOICE_FILE = "answer_choices.csv";
 
-    /** 퀴즈 화면(QuizPanel)이 조회하는 레벨 ID. 여기에 없는 levelId는 오타로 보고 오류를 낸다. */
-    public static final List<String> LEVEL_IDS = List.of(
-            "TRIANGLE", "SQUARE", "RECTANGLE", "RHOMBUS", "TRAPEZOID", "PARALLELOGRAM", "CIRCLE");
-
     private final Path dataDir;
 
     public CsvQuizSource(Path dataDir) {
@@ -42,13 +37,10 @@ public final class CsvQuizSource implements QuizSource {
 
     /**
      * 레벨 ID(예: TRIANGLE)의 문제를 questions.csv 행 순서대로 돌려준다. 문제가 없으면 빈 목록.
-     * 두 파일 중 하나라도 규칙에 맞지 않으면 DataFileException.
+     * 파일이 없거나 형식이 틀리면 예외가 나고, 퀴즈 화면은 "다시 시도"를 보여 준다.
      */
     @Override
     public List<QuizQuestion> findByLevelId(String levelId) {
-        if (levelId == null || levelId.isBlank()) {
-            throw new IllegalArgumentException("레벨 ID가 비어 있습니다.");
-        }
         List<QuestionRow> questions = new QuestionReader(dataDir).readAll();
         List<QuizQuestion.Choice> choices = new ChoiceReader(dataDir).readAll();
 
@@ -71,10 +63,6 @@ public final class CsvQuizSource implements QuizSource {
         for (QuestionRow q : questions) {
             List<QuizQuestion.Choice> list = choicesByQuestion.get(q.id);
             list.sort(Comparator.comparingInt(c -> c.choiceNo));
-            if (q.type == QuizQuestion.Type.OX && list.size() == 2
-                    && !(list.get(0).content.equals("O") && list.get(1).content.equals("X"))) {
-                throw new DataFileException(CHOICE_FILE + ": OX 문제 " + q.id + "의 보기는 1번 O, 2번 X여야 합니다.");
-            }
             QuizQuestion question;
             try {
                 question = new QuizQuestion(q.id, q.levelId, q.type, q.prompt, q.reviewSceneNo, list);
@@ -120,29 +108,13 @@ public final class CsvQuizSource implements QuizSource {
         }
 
         @Override
-        protected QuestionRow fromRow(List<String> r, String where) {
+        protected QuestionRow fromRow(List<String> r) {
             return new QuestionRow(
-                    requireText(r.get(0), where, "id"),
-                    parseLevelId(r.get(1), where),
-                    parseType(r.get(2), where),
-                    requireText(r.get(3), where, "prompt"),
-                    requirePositiveInt(r.get(4), where, "reviewSceneNo"));
-        }
-
-        private static String parseLevelId(String value, String where) {
-            String levelId = requireText(value, where, "levelId");
-            if (!LEVEL_IDS.contains(levelId)) {
-                throw new DataFileException(where + "levelId는 " + String.join(", ", LEVEL_IDS)
-                        + " 중 하나여야 합니다: " + levelId);
-            }
-            return levelId;
-        }
-
-        private static QuizQuestion.Type parseType(String value, String where) {
-            for (QuizQuestion.Type type : QuizQuestion.Type.values()) {
-                if (type.name().equals(value.trim())) return type;
-            }
-            throw new DataFileException(where + "type은 OX 또는 MULTIPLE_CHOICE여야 합니다: " + value);
+                    r.get(0).trim(),
+                    r.get(1).trim(),
+                    QuizQuestion.Type.valueOf(r.get(2).trim()),
+                    r.get(3).trim(),
+                    Integer.parseInt(r.get(4).trim()));
         }
 
         @Override
@@ -170,28 +142,13 @@ public final class CsvQuizSource implements QuizSource {
         }
 
         @Override
-        protected QuizQuestion.Choice fromRow(List<String> r, String where) {
+        protected QuizQuestion.Choice fromRow(List<String> r) {
             return new QuizQuestion.Choice(
-                    requireText(r.get(0), where, "id"),
-                    requireText(r.get(1), where, "questionId"),
-                    requirePositiveInt(r.get(2), where, "choiceNo"),
-                    requireText(r.get(3), where, "content"),
-                    requireBoolean(r.get(4), where, "isCorrect"));
-        }
-
-        @Override
-        protected void validate(List<QuizQuestion.Choice> choices) {
-            Set<String> ids = new HashSet<>();
-            Map<String, Set<Integer>> choiceNosByQuestion = new HashMap<>();
-            for (QuizQuestion.Choice c : choices) {
-                if (!ids.add(c.id)) {
-                    throw new DataFileException(CHOICE_FILE + ": id 중복 " + c.id);
-                }
-                if (!choiceNosByQuestion.computeIfAbsent(c.questionId, k -> new HashSet<>()).add(c.choiceNo)) {
-                    throw new DataFileException(CHOICE_FILE + ": 같은 문제의 choiceNo 중복 "
-                            + c.questionId + " " + c.choiceNo);
-                }
-            }
+                    r.get(0).trim(),
+                    r.get(1).trim(),
+                    Integer.parseInt(r.get(2).trim()),
+                    r.get(3).trim(),
+                    Boolean.parseBoolean(r.get(4).trim()));
         }
     }
 }
