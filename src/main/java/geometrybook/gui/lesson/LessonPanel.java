@@ -81,7 +81,7 @@ public final class LessonPanel extends JPanel {
         playback.setOpaque(false);
         JLabel caption = UiComponents.label("", 15, Font.BOLD, Theme.GREEN);
         JButton pause = UiComponents.roundedPrimaryButton("일시정지");
-        JProgressBar progress = new JProgressBar(0, LessonAnimation.DURATION);
+        RoundedProgressBar progress = new RoundedProgressBar(0, LessonAnimation.DURATION);
         Runnable updatePlayback = () -> {
             caption.setText(animation.caption());
             progress.setValue(animation.elapsed());
