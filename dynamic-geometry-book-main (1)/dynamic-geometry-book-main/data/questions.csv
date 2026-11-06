@@ -1,0 +1,6 @@
+id,levelId,type,prompt,reviewSceneNo
+triangle-quiz-1,TRIANGLE,MULTIPLE_CHOICE,삼각형의 두 각이 50도와 60도라면 나머지 각은 몇 도일까요?,1
+triangle-quiz-2,TRIANGLE,OX,한 삼각형 안에 직각(90도)이 두 개 있을 수 있다.,1
+triangle-quiz-3,TRIANGLE,MULTIPLE_CHOICE,세 각의 크기가 모두 같은 삼각형의 한 각은 몇 도일까요?,1
+triangle-quiz-4,TRIANGLE,OX,삼각형을 더 크게 그리면 세 내각의 합도 커진다.,1
+triangle-quiz-5,TRIANGLE,MULTIPLE_CHOICE,"한 각이 100도이고 나머지 두 각이 같다면, 같은 두 각은 각각 몇 도일까요?",1
