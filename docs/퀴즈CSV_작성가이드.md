@@ -15,7 +15,7 @@ triangle-quiz-2,TRIANGLE,OX,한 삼각형 안에 직각(90도)이 두 개 있을
 | 열 | 쓰는 법 |
 |---|---|
 | id | 문제 고유 이름. 겹치면 안 됨. 규칙: `도형-quiz-번호` (예: `square-quiz-1`) |
-| levelId | 어느 단원 문제인지. 아래 표의 레벨 ID 중 하나 (오타가 있으면 오류) |
+| levelId | 어느 단원 문제인지. 아래 표의 레벨 ID 중 하나 (오타가 나면 그 문제가 안 보임) |
 | type | `OX` 또는 `MULTIPLE_CHOICE`(객관식) |
 | prompt | 문제 문장 |
 | reviewSceneNo | 틀렸을 때 다시 볼 설명 장면 번호. 지금은 설명이 한 화면이라 `1` |
@@ -45,12 +45,12 @@ triangle-quiz-2-2,triangle-quiz-2,2,X,true
 | questionId | 어느 문제의 보기인지. questions.csv의 id와 똑같이 |
 | choiceNo | 보기 번호 1, 2, 3… 화면에 이 순서로 나옴 |
 | content | 보기 내용 |
-| isCorrect | 정답이면 `true`, 아니면 `false` |
+| isCorrect | 정답이면 `true`, 아니면 `false` (대소문자 상관없음) |
 
 ## 3. 꼭 지킬 규칙
 
 - 문제마다 보기 **2개 이상**, 정답(`true`)은 **정확히 1개**
-- **OX 문제**는 보기 2개: 1번 `O`, 2번 `X`. 정답인 쪽만 `true`
+- **OX 문제**는 보기 2개: 1번 `O`, 2번 `X`로 맞춰 쓰기 (choiceNo 순서대로 화면에 나옴). 정답인 쪽만 `true`
 - 문장에 **쉼표(,)** 가 있으면 칸 전체를 큰따옴표로 감싸기
   - 예: `"한 각이 100도이고 나머지 두 각이 같다면, 같은 두 각은 각각 몇 도일까요?"`
 - 문장 안에 큰따옴표를 쓰려면 `""`처럼 두 번 쓰기
@@ -68,15 +68,11 @@ triangle-quiz-2-2,triangle-quiz-2,2,X,true
 
 규칙에 맞지 않으면 퀴즈 화면에 "문제를 불러오지 못했어요"가 뜹니다. 파일을 고친 뒤 **다시 시도**를 누르면 바로 다시 읽습니다.
 
-지금 화면에는 자세한 원인이 표시되지 않으므로, 아래 표를 보고 확인하거나 데이터 담당에게 파일을 보내 주세요. 저장 모듈이 내는 오류 메시지는 이런 식입니다.
+자주 나는 원인은 이런 것들이에요.
 
-| 오류 메시지 예 | 원인 |
+| 증상 | 원인 |
 |---|---|
-| `questions.csv 4행: type은 OX 또는 MULTIPLE_CHOICE여야 합니다` | type 오타 |
-| `questions.csv 2행: levelId는 TRIANGLE, SQUARE, … 중 하나여야 합니다` | levelId 오타 (예: TRIANGEL) |
-| `answer_choices.csv: OX 문제 … 의 보기는 1번 O, 2번 X여야 합니다` | OX 보기 순서가 바뀜 |
-| `answer_choices.csv: 보기 … 의 questionId … 가 questions.csv에 없습니다` | 보기의 questionId 오타 |
-| `answer_choices.csv: 문제 … 의 보기 구성이 올바르지 않습니다` | 정답이 0개·2개, 보기 1개, OX인데 O·X가 아님 |
-| `questions.csv 3행: 열 개수가 6개입니다` | 문장에 쉼표가 있는데 큰따옴표를 안 씀 |
+| "문제를 불러오지 못했어요" | type 오타, 숫자 칸에 글자, 보기의 questionId 오타, 정답이 0개·2개, 보기 1개, OX인데 O·X가 아님, 쉼표 문장에 큰따옴표 안 씀 |
+| "퀴즈 준비 중" | 그 단원 문제가 없거나 levelId 오타 |
 
 궁금한 점은 데이터 담당(정연)에게 물어봐 주세요.
