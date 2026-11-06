@@ -18,7 +18,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
+import geometrybook.gui.common.RoundedProgressBar;
 import javax.swing.JScrollPane;
 
 public final class LevelMapPanel extends JPanel {
@@ -81,12 +81,11 @@ public final class LevelMapPanel extends JPanel {
         card.setBorder(BorderFactory.createEmptyBorder(18, 22, 18, 22));
         card.setAlignmentX(LEFT_ALIGNMENT);
         card.add(UiComponents.label("전체 7단계 중 " + COMPLETED + "단계 완료", 16, Font.BOLD, Theme.TEXT), BorderLayout.WEST);
-        JProgressBar bar = new JProgressBar(0, TITLES.length);
+        RoundedProgressBar bar = new RoundedProgressBar(0, TITLES.length);
         bar.setValue(COMPLETED);
         bar.setForeground(Theme.GREEN);
         bar.setBackground(new Color(0xDCE6DF));
         bar.setBorderPainted(false);
-        bar.setPreferredSize(new Dimension(160, 10));
         card.add(bar, BorderLayout.CENTER);
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
         return card;

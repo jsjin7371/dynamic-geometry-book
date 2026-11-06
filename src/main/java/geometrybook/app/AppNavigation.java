@@ -8,6 +8,7 @@ import geometrybook.gui.home.HomePanel;
 import geometrybook.gui.level.LevelMapPanel;
 import geometrybook.gui.lesson.LessonPanel;
 import geometrybook.storage.CsvQuizSource;
+import geometrybook.storage.AuthService;
 import java.awt.BorderLayout;
 import java.nio.file.Path;
 import javax.swing.JFrame;
@@ -16,6 +17,7 @@ import javax.swing.JPanel;
 /** 화면 전환과 임시 로그인 세션 수명을 관리한다. */
 final class AppNavigation {
     private final JFrame frame;
+    private final AuthService auth = new AuthService(Path.of("data"));
     private StudyProgress study = new StudyProgress();
     private LessonPanel lesson;
     private QuizPanel quiz;
@@ -31,10 +33,11 @@ final class AppNavigation {
     }
 
     private void login() {
+        auth.logout();
         lesson = null;
         quiz = null;
         study = new StudyProgress();
-        show(new LoginPanel(this::home));
+        show(new LoginPanel(auth, this::home));
     }
 
     private void home() {

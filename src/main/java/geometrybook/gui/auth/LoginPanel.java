@@ -3,6 +3,11 @@ package geometrybook.gui.auth;
 import geometrybook.gui.common.RoundedPanel;
 import geometrybook.gui.common.Theme;
 import geometrybook.gui.common.UiComponents;
+import geometrybook.storage.AuthService;
+import geometrybook.storage.Student;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,12 +24,20 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 public final class LoginPanel extends JPanel {
     private final Runnable onLogin;
+    private final AuthService auth;
+    private final JTextField idField = new JTextField();
+    private final JPasswordField passwordField = new JPasswordField();
+    private final JButton loginButton = UiComponents.primaryButton("로그인하고 탐험하기  →");
+    private boolean authenticating;
 
-    public LoginPanel(Runnable onLogin) {
+    public LoginPanel(AuthService auth, Runnable onLogin) {
         super(new GridBagLayout());
+        this.auth = auth;
         this.onLogin = onLogin;
         setBackground(Theme.BACKGROUND);
         setBorder(BorderFactory.createEmptyBorder(32, 32, 32, 32));
@@ -69,9 +82,9 @@ public final class LoginPanel extends JPanel {
         form.add(Box.createVerticalStrut(14));
         form.add(UiComponents.label("로그인하고 오늘의 탐험을 시작해요.", 17, Font.PLAIN, Theme.MUTED));
         form.add(Box.createVerticalStrut(30));
-        addField(form, "아이디", new JTextField());
+        addField(form, "아이디", idField);
         form.add(Box.createVerticalStrut(20));
-        addField(form, "비밀번호", new JPasswordField());
+        addField(form, "비밀번호", passwordField);
         form.add(Box.createVerticalStrut(20));
         JCheckBox remember = new JCheckBox("아이디 기억하기");
         remember.setFont(Theme.font(Font.PLAIN, 15));
@@ -80,11 +93,72 @@ public final class LoginPanel extends JPanel {
         remember.setAlignmentX(0f);
         form.add(remember);
         form.add(Box.createVerticalStrut(22));
-        JButton login = UiComponents.primaryButton("로그인하고 탐험하기  →");
-        login.addActionListener(event -> onLogin.run());
-        form.add(login);
+        loginButton.addActionListener(event -> authenticate());
+        passwordField.addActionListener(event -> authenticate());
+        form.add(loginButton);
         wrapper.add(form);
         return wrapper;
+    }
+
+    private void authenticate() {
+        if (authenticating) return;
+        String loginId = idField.getText();
+        char[] password = passwordField.getPassword();
+        passwordField.setText("");
+        setAuthenticating(true);
+        new SwingWorker<Optional<Student>, Void>() {
+            @Override
+            protected Optional<Student> doInBackground() {
+                try {
+                    return auth.login(loginId, new String(password));
+                } finally {
+                    Arrays.fill(password, '\0');
+                }
+            }
+
+            @Override
+            protected void done() {
+                if (!isDisplayable()) {
+                    auth.logout();
+                    return;
+                }
+                try {
+                    Optional<Student> student = get();
+                    if (student.isPresent()) {
+                        JOptionPane.showMessageDialog(LoginPanel.this,
+                                student.get().getLoginId() + "님, 환영합니다.", "로그인 성공",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        onLogin.run();
+                    } else {
+                        JOptionPane.showMessageDialog(LoginPanel.this,
+                                "아이디 또는 비밀번호가 틀렸습니다", "로그인 실패",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    showAuthenticationError();
+                } catch (ExecutionException exception) {
+                    showAuthenticationError();
+                } finally {
+                    setAuthenticating(false);
+                }
+            }
+        }.execute();
+    }
+
+    private void setAuthenticating(boolean busy) {
+        authenticating = busy;
+        loginButton.setEnabled(!busy);
+        idField.setEnabled(!busy);
+        passwordField.setEnabled(!busy);
+        loginButton.setText(busy ? "로그인 중…" : "로그인하고 탐험하기  →");
+    }
+
+    private void showAuthenticationError() {
+        auth.logout();
+        JOptionPane.showMessageDialog(this,
+                "계정 정보를 읽지 못했습니다. data 폴더를 확인한 후 다시 시도해 주세요.",
+                "로그인 오류", JOptionPane.ERROR_MESSAGE);
     }
 
     private static JPanel column() {
