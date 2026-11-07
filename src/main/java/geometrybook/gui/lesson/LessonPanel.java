@@ -190,7 +190,13 @@ public final class LessonPanel extends JPanel {
             gap(page, 14);
         }
         finish.addActionListener(e -> {
-            study.complete(session);
+            try {
+                study.complete(session);
+            } catch (RuntimeException ex) {
+                JOptionPane.showMessageDialog(this, "완료 기록을 저장하지 못했어요. 잠시 후 다시 눌러 주세요.",
+                        "저장 실패", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             result = true;
             showResult();
         });
