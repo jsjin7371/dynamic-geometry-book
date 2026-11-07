@@ -6,6 +6,7 @@ import geometrybook.gui.common.*;
 import geometrybook.gui.lesson.animation.LessonAnimation;
 import geometrybook.gui.lesson.animation.TriangleAnimation;
 import geometrybook.gui.lesson.animation.SquareAnimation;
+import geometrybook.gui.lesson.animation.ParallelogramAnimation;
 import java.awt.*;
 import javax.swing.*;
 
@@ -93,6 +94,9 @@ public final class LessonPanel extends JPanel {
                 break;
             case SQUARE:
                 animation = new SquareAnimation(updatePlayback);
+                break;
+            case PARALLELOGRAM:
+                animation = new ParallelogramAnimation(updatePlayback);
                 break;
             default:
                 throw new IllegalArgumentException("지원하지 않는 레슨: " + topic);

@@ -33,6 +33,9 @@ public final class StudyProgress {
         if (topic == LessonTopic.SQUARE && !isCompleted()) {
             throw new IllegalStateException("삼각형을 먼저 완료해 주세요.");
         }
+        if (topic == LessonTopic.PARALLELOGRAM && !isCompleted(LessonTopic.SQUARE)) {
+            throw new IllegalStateException("정사각형을 먼저 완료해 주세요.");
+        }
         return new Session(topic, completed.contains(topic));
     }
 
