@@ -6,3 +6,4 @@ out/
 .vscode/
 .DS_Store
 data/*.lock
+data/progress.csv
