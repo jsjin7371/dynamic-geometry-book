@@ -30,11 +30,11 @@ public final class StudyProgress {
     }
 
     public Session start(LessonTopic topic) {
-        if (topic == LessonTopic.SQUARE && !isCompleted()) {
-            throw new IllegalStateException("삼각형을 먼저 완료해 주세요.");
-        }
-        if (topic == LessonTopic.PARALLELOGRAM && !isCompleted(LessonTopic.SQUARE)) {
-            throw new IllegalStateException("정사각형을 먼저 완료해 주세요.");
+        if (topic.ordinal() > 0) {
+            LessonTopic previous = LessonTopic.values()[topic.ordinal() - 1];
+            if (!isCompleted(previous)) {
+                throw new IllegalStateException(previous.title() + "을 먼저 완료해 주세요.");
+            }
         }
         return new Session(topic, completed.contains(topic));
     }

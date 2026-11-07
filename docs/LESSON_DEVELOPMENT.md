@@ -2,17 +2,17 @@
 
 ## 1. 현재 구조와 작업 범위
 
-새 도형을 추가할 때 학습 화면 전체를 복사하지 않습니다. 공통 화면인 `LessonPanel`을 사용하고, 도형별 콘텐츠와 애니메이션을 추가합니다.
+새 도형을 추가할 때 학습 화면 전체를 복사하지 않습니다. 공통 화면인 `LessonPanel`을 사용하고, 미리 작성된 도형별 콘텐츠를 사용하고 애니메이션을 구현합니다.
 
-애니메이션 클래스만 추가하면 자동으로 연결되는 구조가 아닙니다. **콘텐츠 추가 → 애니메이션 구현 → 화면 연결 → 선행 학습 검증 → 테스트**까지 진행해야 합니다.
+애니메이션 클래스만 추가하면 자동으로 연결되는 구조가 아닙니다. **기존 콘텐츠 확인 → 애니메이션 구현 → 화면 연결 → 선행 학습 검증 → 테스트**까지 진행해야 합니다.
 
 | 구성 요소                                      | 역할 | 새 레슨 추가 시 작업 |
 |--------------------------------------------|---|---|
-| `domain/LessonTopic.java`                  | 도형 이름, 설명, 고정 문제·보기·정답·해설 | 콘텐츠 추가 |
+| `domain/LessonTopic.java`                  | 도형 이름, 설명, 고정 문제·보기·정답·해설 | 기존 콘텐츠 사용 |
 | `gui/lesson/animation/LessonAnimation.java` | 재생 시간, 일시정지·재개·다시 보기, 타이머 정리 | 기존 기능 재사용 |
 | `gui/lesson/animation/(도형)Animation.java`  | 장면 그리기와 시간에 따른 자막 | 클래스 추가 |
 | `gui/lesson/LessonPanel.java`              | 설명·문제·결과·복습 공통 UI | 애니메이션 생성 분기 연결 |
-| `domain/StudyProgress.java`                | 메모리의 레벨별 완료, 답안, 학습일 | 선행 레벨 검사 추가 |
+| `domain/StudyProgress.java`                | 메모리의 레벨별 완료, 답안, 학습일 | 공통 순서 검사 사용 |
 | `gui/level/LevelMapPanel.java`             | 레벨 선택·잠금·상세 정보 | 순서와 연결 확인 |
 | `app/AppNavigation.java`                   | 선택한 레슨을 학습 화면에 전달 | 일반적인 레슨 추가에는 수정 불필요 |
 
@@ -20,9 +20,9 @@
 
 기능은 [기능명세서](기능명세서.md)와 [개발 계획](PLAN.md)을 기준으로 합니다. UI는 [디자인 참고 이미지](design/reference/)를 활용하되 화면 구성은 상황에 맞게 조정할 수 있습니다. 난이도와 보상은 임의로 배정하지 않습니다. 현재 데이터는 메모리에만 유지하며 파일 입출력과 포인트 지급은 별도 작업입니다.
 
-## 2. 학습 콘텐츠 추가
+## 2. 미리 작성된 학습 콘텐츠 사용
 
-`LessonTopic`에 새 enum 항목을 추가합니다. 직사각형의 경우 `RECTANGLE` 같은 이름을 사용합니다.
+`LessonTopic`에는 일곱 도형의 설명과 문제·보기·정답·해설이 이미 작성되어 있습니다. 담당 도형의 enum을 그대로 사용하고 새 항목이나 문제를 중복 추가하지 마세요. 예를 들어 직사각형은 `LessonTopic.RECTANGLE`을 사용합니다. 애니메이션은 기존 설명과 문제에서 다루는 내용을 포함해야 합니다.
 
 - `title`: 도형 이름
 - `nextTitle`: 다음 도형 이름
@@ -34,13 +34,11 @@
 
 문제·보기·정답·해설은 같은 인덱스끼리 대응해야 합니다. **현재 구현은 세 문제, 문제당 세 보기를 전제로 합니다.** 보기 개수를 변경하려면 콘텐츠뿐 아니라 `LessonPanel`과 `StudyProgress.Session`도 함께 수정해야 합니다.
 
-현재 `LessonTopic.number()`는 enum 선언 순서로 레벨 번호를 계산하고, 지도는 `LessonTopic.values()[selected]`로 콘텐츠를 선택합니다. 다음 순서를 유지해 앞에서부터 추가하세요.
+`LessonTopic.number()`와 `StudyProgress.start(topic)`은 enum 선언 순서를 사용합니다. 아래 순서를 변경하지 마세요.
 
 > 삼각형 → 정사각형 → 직사각형 → 마름모 → 사다리꼴 → 평행사변형 → 원
 
-예를 들어 직사각형을 건너뛰고 원을 세 번째 enum 항목으로 추가하면 지도에서 직사각형을 눌렀을 때 원이 열립니다. 순서를 건너뛰어 개발해야 한다면 먼저 지도와 콘텐츠를 명시적인 ID로 연결하도록 팀과 함께 구조를 변경해야 합니다.
-
-마지막 레슨은 다음 단계가 없으므로 `nextTitle`에 임의 값을 넣지 말고, 공통 결과 화면이 마지막 단계 안내를 지원하도록 수정해야 합니다.
+마지막 레슨인 원은 `nextTitle`이 빈 문자열이며, 결과 화면은 마지막 단계 완료 안내를 표시합니다.
 
 ## 3. 애니메이션 구현
 
@@ -96,9 +94,9 @@ public final class RectangleAnimation extends LessonAnimation {
 
 ### 애니메이션 선택
 
-`LessonPanel.showExplanation()`은 `switch`로 도형별 애니메이션을 생성합니다. 새 enum 항목을 추가할 때 해당 `case`도 추가해야 합니다. 연결이 누락된 레슨은 예외로 처리됩니다.
+`LessonPanel.showExplanation()`은 `switch`로 도형별 애니메이션을 생성합니다. 담당 도형의 기존 enum에 해당하는 `case`를 추가해야 합니다. 애니메이션이 연결되지 않은 레슨은 준비 중 안내 후 지도로 돌아갑니다.
 
-직사각형을 추가한 뒤에는 다음처럼 각 도형을 명시적으로 연결할 수 있습니다. 해당 클래스 import도 추가해야 합니다.
+직사각형 애니메이션을 구현한 뒤에는 다음처럼 각 도형을 명시적으로 연결할 수 있습니다. 해당 클래스 import도 추가해야 합니다.
 
 ```java
 switch (topic) {
@@ -112,7 +110,9 @@ switch (topic) {
         animation = new RectangleAnimation(updatePlayback);
         break;
     default:
-        throw new IllegalArgumentException("지원하지 않는 레슨: " + topic);
+        JOptionPane.showMessageDialog(this, "이 레슨의 애니메이션은 준비 중이에요.");
+        onLevel.run();
+        return;
 }
 ```
 
@@ -120,7 +120,7 @@ switch (topic) {
 
 ### 선행 학습과 진도
 
-`StudyProgress.start(LessonTopic)`은 현재 정사각형을 시작할 때 삼각형 완료만 검사합니다. 새 레슨은 이전 레슨을 완료했는지도 이 메서드에서 검사해야 합니다. 예를 들어 직사각형은 정사각형 완료가 필요합니다.
+`StudyProgress.start(LessonTopic)`은 첫 레슨을 제외하고 enum 순서상 바로 앞 레슨의 완료 여부를 공통으로 검사합니다. 도형별 검사 코드를 추가하지 마세요. 직사각형은 정사각형, 평행사변형은 사다리꼴 완료 후 시작할 수 있습니다.
 
 화면의 버튼 잠금만으로는 충분하지 않습니다. 서비스를 직접 호출해도 순서를 건너뛸 수 없도록 도메인 검사와 지도 표시를 함께 맞춥니다. `StudyProgress.isCompleted()`와 `start()`의 인자 없는 버전은 삼각형용이므로, 다른 도형에는 `isCompleted(topic)`과 `start(topic)`을 사용합니다.
 
