@@ -51,6 +51,12 @@ public final class StudyProgressTest {
             throw new AssertionError("선행 학습 없이 평행사변형 시작");
         } catch (IllegalStateException expected) {
         }
+        for (LessonTopic topic : new LessonTopic[]{LessonTopic.RECTANGLE, LessonTopic.RHOMBUS, LessonTopic.TRAPEZOID}) {
+            StudyProgress.Session session = study.start(topic);
+            session.confirmExplanation();
+            for (int i = 0; i < 3; i++) session.submit(i, topic.answer(i));
+            study.complete(session);
+        }
         StudyProgress.Session parallelogram = study.start(LessonTopic.PARALLELOGRAM);
         check(!parallelogram.review && !parallelogram.canQuiz(), "평행사변형 최초 학습");
         parallelogram.confirmExplanation();
@@ -64,10 +70,38 @@ public final class StudyProgressTest {
         parallelogram.submit(1, 1);
         parallelogram.submit(2, 2);
         study.complete(parallelogram);
-        check(study.completedCount() == 3, "평행사변형 완료 기록");
+        check(study.completedCount() == 6, "평행사변형 완료 기록");
         check(study.isCompleted(LessonTopic.TRIANGLE) && study.isCompleted(LessonTopic.SQUARE), "기존 레슨 완료 상태 유지");
         StudyProgress.Session parallelogramReview = study.start(LessonTopic.PARALLELOGRAM);
         check(parallelogramReview.review && parallelogramReview.canQuiz() && !parallelogramReview.allCorrect(), "평행사변형 복습 답안 초기화");
+        StudyProgress sequential = new StudyProgress();
+        for (LessonTopic topic : LessonTopic.values()) {
+            if (topic.ordinal() > 0) {
+                try {
+                    new StudyProgress().start(topic);
+                    throw new AssertionError("선행 완료 없이 시작: " + topic);
+                } catch (IllegalStateException expected) { }
+            }
+            if (topic.ordinal() + 1 < LessonTopic.values().length) {
+                try {
+                    sequential.start(LessonTopic.values()[topic.ordinal() + 1]);
+                    throw new AssertionError("순서 건너뛰기 허용");
+                } catch (IllegalStateException expected) { }
+            }
+            StudyProgress.Session session = sequential.start(topic);
+            session.confirmExplanation();
+            for (int i = 0; i < 3; i++) {
+                check(!topic.prompt(i).isBlank() && !topic.explanation(i).isBlank(), "문제와 해설 필수");
+                int answer = topic.answer(i);
+                check(answer >= 0 && answer < 3, "정답 인덱스");
+                for (int j = 0; j < 3; j++) check(!topic.choice(i, j).isBlank(), "보기 필수");
+                session.submit(i, answer);
+            }
+            sequential.complete(session);
+            check(sequential.start(topic).review, "완료 후 복습");
+        }
+        check(sequential.completedCount() == 7, "일곱 레슨 완료");
+        check(LessonTopic.CIRCLE.nextTitle().isEmpty(), "마지막 레슨");
         System.out.println("StudyProgress tests passed");
     }
 
