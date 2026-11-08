@@ -2,13 +2,28 @@ package geometrybook.domain;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
-/** 실행 중에만 유지하는 레벨별 학습 기록. 파일 저장 및 포인트 계산은 담당하지 않는다. */
+/** 레벨별 학습 기록. 파일 저장은 생성할 때 받은 saver에 맡기고, 포인트 계산은 담당하지 않는다. */
 public final class StudyProgress {
     private final Set<LessonTopic> completed = new HashSet<>();
     private final Set<LocalDate> dates = new HashSet<>();
+    private final Consumer<LessonTopic> saver;
+
+    /** 저장 없이 실행 중에만 유지하는 빈 기록. */
+    public StudyProgress() {
+        this(Set.of(), topic -> { });
+    }
+
+    /** 저장된 완료 레벨로 시작한다. 레벨을 처음 완료하면 saver로 저장하고, 저장에 실패하면 완료로 바꾸지 않는다. */
+    public StudyProgress(Collection<LessonTopic> completed, Consumer<LessonTopic> saver) {
+        this.completed.addAll(completed);
+        this.saver = saver;
+    }
+
     public boolean isCompleted() {
         return completed.contains(LessonTopic.TRIANGLE);
     }
@@ -42,6 +57,7 @@ public final class StudyProgress {
     public void complete(Session session) {
         if (!session.allCorrect()) throw new IllegalStateException("세 문제를 모두 맞혀야 합니다.");
         if (session.saved) return;
+        if (!completed.contains(session.topic)) saver.accept(session.topic);
         session.saved = true;
         completed.add(session.topic);
         dates.add(LocalDate.now(ZoneId.of("Asia/Seoul")));
