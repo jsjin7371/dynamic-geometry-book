@@ -8,6 +8,7 @@ import geometrybook.gui.lesson.animation.TriangleAnimation;
 import geometrybook.gui.lesson.animation.SquareAnimation;
 import geometrybook.gui.lesson.animation.RhombusAnimation;
 import geometrybook.gui.lesson.animation.ParallelogramAnimation;
+import geometrybook.gui.lesson.animation.TrapezoidAnimation;
 import java.awt.*;
 import javax.swing.*;
 
@@ -98,6 +99,9 @@ public final class LessonPanel extends JPanel {
                 break;
             case PARALLELOGRAM:
                 animation = new ParallelogramAnimation(updatePlayback);
+                break;
+            case TRAPEZOID:
+                animation = new TrapezoidAnimation(updatePlayback);
                 break;
             case RHOMBUS:
                 animation = new RhombusAnimation(updatePlayback);
