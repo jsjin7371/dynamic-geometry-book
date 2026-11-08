@@ -6,6 +6,7 @@ import geometrybook.gui.common.*;
 import geometrybook.gui.lesson.animation.LessonAnimation;
 import geometrybook.gui.lesson.animation.TriangleAnimation;
 import geometrybook.gui.lesson.animation.SquareAnimation;
+import geometrybook.gui.lesson.animation.RhombusAnimation;
 import geometrybook.gui.lesson.animation.ParallelogramAnimation;
 import geometrybook.gui.lesson.animation.TrapezoidAnimation;
 import java.awt.*;
@@ -102,6 +103,9 @@ public final class LessonPanel extends JPanel {
             case TRAPEZOID:
                 animation = new TrapezoidAnimation(updatePlayback);
                 break;
+            case RHOMBUS:
+                animation = new RhombusAnimation(updatePlayback);
+                break;
             default:
                 JOptionPane.showMessageDialog(this, "이 레슨의 애니메이션은 준비 중이에요.");
                 onLevel.run();
@@ -194,7 +198,13 @@ public final class LessonPanel extends JPanel {
             gap(page, 14);
         }
         finish.addActionListener(e -> {
-            study.complete(session);
+            try {
+                study.complete(session);
+            } catch (RuntimeException ex) {
+                JOptionPane.showMessageDialog(this, "완료 기록을 저장하지 못했어요. 잠시 후 다시 눌러 주세요.",
+                        "저장 실패", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             result = true;
             showResult();
         });
@@ -209,7 +219,7 @@ public final class LessonPanel extends JPanel {
         card.setAlignmentX(0f);
         card.setBorder(BorderFactory.createEmptyBorder(36, 36, 36, 36));
         card.add(UiComponents.label(topic.title() + (session.review ? " 복습 완료!" : " 탐험 완료!"), 30, Font.BOLD, Theme.GREEN), BorderLayout.NORTH);
-        card.add(UiComponents.label("<html>세 문제를 모두 맞혔어요!<br><br>" + topic.summary() + "<br><br>"+(session.review?"복습으로 추가 포인트는 지급되지 않아요.":(topic.nextTitle().isEmpty() ? "마지막 단계까지 탐험을 마쳤어요!" : "첫 탐험을 마쳤어요. 다음 단계는 " + topic.nextTitle() + "이에요."))+"<br><br>이번 완료 기록은 앱 실행 중에만 유지됩니다.</html>", 18, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
+        card.add(UiComponents.label("<html>세 문제를 모두 맞혔어요!<br><br>" + topic.summary() + "<br><br>"+(session.review?"복습으로 추가 포인트는 지급되지 않아요.":(topic.nextTitle().isEmpty() ? "마지막 단계까지 탐험을 마쳤어요!" : "첫 탐험을 마쳤어요. 다음 단계는 " + topic.nextTitle() + "이에요."))+"</html>", 18, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         actions.setOpaque(false);
         JButton review = UiComponents.roundedPrimaryButton("복습하기");
