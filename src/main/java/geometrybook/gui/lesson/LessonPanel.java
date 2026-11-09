@@ -9,6 +9,7 @@ import geometrybook.gui.lesson.animation.SquareAnimation;
 import geometrybook.gui.lesson.animation.RhombusAnimation;
 import geometrybook.gui.lesson.animation.ParallelogramAnimation;
 import geometrybook.gui.lesson.animation.TrapezoidAnimation;
+import geometrybook.gui.lesson.animation.CircleAnimation;
 import java.awt.*;
 import javax.swing.*;
 
@@ -105,6 +106,9 @@ public final class LessonPanel extends JPanel {
                 break;
             case RHOMBUS:
                 animation = new RhombusAnimation(updatePlayback);
+                break;
+            case CIRCLE:
+                animation = new CircleAnimation(updatePlayback);
                 break;
             default:
                 JOptionPane.showMessageDialog(this, "이 레슨의 애니메이션은 준비 중이에요.");
