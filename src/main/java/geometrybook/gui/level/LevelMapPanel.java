@@ -6,7 +6,7 @@ import geometrybook.domain.LessonTopic;
 import java.util.function.Consumer;
 import geometrybook.gui.common.RoundedPanel;
 import geometrybook.gui.common.Theme;
-import geometrybook.gui.common.TriangleCharacter;
+import geometrybook.gui.common.ShapeCharacter;
 import geometrybook.gui.common.UiComponents;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -115,7 +115,7 @@ public final class LevelMapPanel extends JPanel {
         body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
         body.add(UiComponents.label(String.format("선택한 탐험 · LEVEL %02d", selected + 1), 13, Font.BOLD, Theme.GREEN));
         body.add(Box.createVerticalStrut(16));
-        TriangleCharacter character = new TriangleCharacter();
+        ShapeCharacter character = new ShapeCharacter(LessonTopic.values()[selected]);
         character.setPreferredSize(new Dimension(140, 130));
         character.setMaximumSize(new Dimension(160, 130));
         character.setAlignmentX(LEFT_ALIGNMENT);
