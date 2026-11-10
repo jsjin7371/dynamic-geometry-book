@@ -10,6 +10,7 @@ import geometrybook.gui.lesson.LessonPanel;
 import geometrybook.storage.CsvQuizSource;
 import geometrybook.storage.AuthService;
 import geometrybook.storage.ProgressRepository;
+import geometrybook.storage.WrongAnswerRepository;
 import java.awt.BorderLayout;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ final class AppNavigation {
     private final JFrame frame;
     private final AuthService auth = new AuthService(Path.of("data"));
     private final ProgressRepository progress = new ProgressRepository(Path.of("data"));
+    private final WrongAnswerRepository wrongs = new WrongAnswerRepository(Path.of("data"));
     private StudyProgress study = new StudyProgress();
     private LessonPanel lesson;
     private QuizPanel quiz;
@@ -85,7 +87,11 @@ final class AppNavigation {
 
     private void quizzes() {
         lesson = null;
-        quiz = new QuizPanel(new CsvQuizSource(Path.of("data")), this::home, this::levels, this::login);
+        String studentId = auth.getCurrentStudent().getId();
+        quiz = new QuizPanel(new CsvQuizSource(Path.of("data")), (questionId, correct) -> {
+            if (correct) wrongs.remove(studentId, questionId);   // 다시 맞히면 오답노트에서 삭제
+            else wrongs.add(studentId, questionId);               // 틀린 순간 저장
+        }, this::home, this::levels, this::login);
         show(quiz);
     }
 
