@@ -61,7 +61,6 @@ erDiagram
         string id PK
         string studentId FK
         string levelId FK
-        int lastSceneNo
         bool completed
     }
     wrongAnswer["오답 기록"] {
@@ -85,7 +84,7 @@ erDiagram
 | level | 학습 레벨 | `id, title, sequenceNo, thumbnailKey` |
 | question | 확인 문제 | `id, levelId, type, prompt, reviewSceneNo` |
 | answerChoice | 보기 | `id, questionId, choiceNo, content, isCorrect` |
-| progress | 학습 진도 | `id, studentId, levelId, lastSceneNo, completed` |
+| progress | 학습 진도 | `id, studentId, levelId, completed` |
 | wrongAnswer | 오답 기록 | `id, studentId, questionId` |
 
 | 엔터티 | 실제 파일명 제안 | 필수·선택 속성과 규칙 |
@@ -94,7 +93,7 @@ erDiagram
 | level | levels.csv | title 필수. sequenceNo 유일하며 단원 목록 정렬과 잠금 판단에 사용. thumbnailKey는 단원 목록 카드의 도형 그림 리소스 키 |
 | question | questions.csv | levelId 필수. type=OX 또는 MULTIPLE_CHOICE. prompt 필수. reviewSceneNo는 틀렸을 때 다시 볼 같은 레벨의 설명 장면 순서 번호 |
 | answerChoice | answer_choices.csv | questionId 필수. choiceNo는 같은 문제 내 유일, content 필수, isCorrect는 정답 여부. OX 문제는 보기 O·X 두 개로 표현 |
-| progress | progress.csv | 학생·레벨당 한 행. studentId·levelId 필수. lastSceneNo는 마지막으로 본 설명 장면 순서 번호. completed는 레벨 완료 여부, 기본 false |
+| progress | progress.csv | 학생·레벨당 한 행. studentId·levelId 필수. levelId는 `LessonTopic` 이름(TRIANGLE 등). completed는 레벨 완료 여부, 기본 false |
 | wrongAnswer | wrong_answers.csv | 틀린 문제를 기록한다. studentId·questionId 필수. 오답노트에서 다시 맞히면 해당 행을 삭제한다 |
 
 id는 UUID 등 변경되지 않는 문자열을 제안한다.
@@ -117,7 +116,7 @@ id는 UUID 등 변경되지 않는 문자열을 제안한다.
 
 1. 모든 ID는 해당 파일에서 유일하며, 빈 값이 허용되지 않는 참조는 실제 행을 가리켜야 한다.
 2. progress와 wrongAnswer는 로그인 학생에 귀속된다.
-3. question.reviewSceneNo와 progress.lastSceneNo는 1 이상, 해당 레벨의 설명 장면 수 이하여야 한다.
+3. question.reviewSceneNo는 1 이상, 해당 레벨의 설명 장면 수 이하여야 한다.
 4. OX 문제의 보기는 O·X 두 개이며 그중 하나만 isCorrect=true.
 
 ## 5. 진도·잠금·오답노트
