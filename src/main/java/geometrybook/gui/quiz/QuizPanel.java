@@ -13,11 +13,13 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
 import java.util.concurrent.CancellationException;
+import java.util.function.BiConsumer;
 import javax.swing.*;
 
 /** 단원 선택, 한 문제씩 채점, 결과와 오답 재도전을 제공한다. */
 public final class QuizPanel extends JPanel {
     private final QuizSource source;
+    private final BiConsumer<String, Boolean> onGraded;
     private final JPanel content = new JPanel();
     private QuizAttempt attempt;
     private SwingWorker<List<QuizQuestion>, Void> loader;
@@ -26,8 +28,15 @@ public final class QuizPanel extends JPanel {
     private String levelTitle;
 
     public QuizPanel(QuizSource source, Runnable onHome, Runnable onLevel, Runnable onLogout) {
+        this(source, (questionId, correct) -> { }, onHome, onLevel, onLogout);
+    }
+
+    /** onGraded: 한 문제를 채점할 때마다 (문제 ID, 정답 여부)를 받는다. 오답 기록 저장에 쓴다. */
+    public QuizPanel(QuizSource source, BiConsumer<String, Boolean> onGraded,
+                     Runnable onHome, Runnable onLevel, Runnable onLogout) {
         super(new BorderLayout());
         this.source = source;
+        this.onGraded = onGraded;
         AppShell shell = new AppShell(AppShell.Page.QUIZ, () -> leave(onHome),
                 () -> leave(onLevel), () -> {}, () -> leave(onLogout));
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
@@ -201,6 +210,12 @@ public final class QuizPanel extends JPanel {
                 return;
             }
             boolean correct = attempt.submit(group.getSelection().getActionCommand());
+            try {
+                onGraded.accept(question.id, correct);
+            } catch (RuntimeException ex) {
+                JOptionPane.showMessageDialog(this, "오답 기록을 저장하지 못했어요. 퀴즈는 계속할 수 있어요.",
+                        "저장 실패", JOptionPane.WARNING_MESSAGE);
+            }
             feedback.setText(correct ? "정답이에요!" : "아쉬워요. 정답은 " + question.correctChoice().content + "입니다.");
             submit.setEnabled(false);
             java.util.Collections.list(group.getElements()).forEach(button -> button.setEnabled(false));
