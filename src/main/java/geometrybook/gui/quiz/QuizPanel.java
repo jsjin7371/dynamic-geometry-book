@@ -27,10 +27,9 @@ public final class QuizPanel extends JPanel {
     private boolean retry;
     private String levelTitle;
 
-    public QuizPanel(QuizSource source, Runnable onHome, Runnable onLevel, Runnable onLogout) {
+        public QuizPanel(QuizSource source, Runnable onHome, Runnable onLevel, Runnable onLogout) {
         this(source, (questionId, correct) -> { }, onHome, onLevel, onLogout);
     }
-
     /** onGraded: 한 문제를 채점할 때마다 (문제 ID, 정답 여부)를 받는다. 오답 기록 저장에 쓴다. */
     public QuizPanel(QuizSource source, BiConsumer<String, Boolean> onGraded,
                      Runnable onHome, Runnable onLevel, Runnable onLogout) {
