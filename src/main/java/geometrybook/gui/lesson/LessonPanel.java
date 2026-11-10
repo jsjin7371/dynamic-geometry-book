@@ -1,15 +1,16 @@
 package geometrybook.gui.lesson;
 
-import geometrybook.domain.StudyProgress;
 import geometrybook.domain.LessonTopic;
+import geometrybook.domain.StudyProgress;
 import geometrybook.gui.common.*;
-import geometrybook.gui.lesson.animation.LessonAnimation;
-import geometrybook.gui.lesson.animation.TriangleAnimation;
-import geometrybook.gui.lesson.animation.SquareAnimation;
-import geometrybook.gui.lesson.animation.RhombusAnimation;
-import geometrybook.gui.lesson.animation.ParallelogramAnimation;
-import geometrybook.gui.lesson.animation.TrapezoidAnimation;
 import geometrybook.gui.lesson.animation.CircleAnimation;
+import geometrybook.gui.lesson.animation.LessonAnimation;
+import geometrybook.gui.lesson.animation.ParallelogramAnimation;
+import geometrybook.gui.lesson.animation.RectangleAnimation;
+import geometrybook.gui.lesson.animation.RhombusAnimation;
+import geometrybook.gui.lesson.animation.SquareAnimation;
+import geometrybook.gui.lesson.animation.TrapezoidAnimation;
+import geometrybook.gui.lesson.animation.TriangleAnimation;
 import java.awt.*;
 import javax.swing.*;
 
@@ -97,6 +98,9 @@ public final class LessonPanel extends JPanel {
                 break;
             case SQUARE:
                 animation = new SquareAnimation(updatePlayback);
+                break;
+            case RECTANGLE:
+                animation = new RectangleAnimation(updatePlayback);
                 break;
             case PARALLELOGRAM:
                 animation = new ParallelogramAnimation(updatePlayback);
