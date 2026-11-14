@@ -12,7 +12,7 @@ import java.util.UUID;
 
 /**
  * 학생별 레벨 완료 기록(data/progress.csv) 읽기·쓰기.
- * 열: id, studentId, levelId, completed. levelId는 LessonTopic 이름(TRIANGLE 등)이다.
+ * 열: id, studentId, levelId, completed. levelId는 Level 이름(TRIANGLE 등)이다.
  *
  * 사용 예:
  *   ProgressRepository progress = new ProgressRepository(Path.of("data"));

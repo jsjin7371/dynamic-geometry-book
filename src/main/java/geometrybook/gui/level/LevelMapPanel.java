@@ -2,7 +2,7 @@ package geometrybook.gui.level;
 
 import geometrybook.gui.common.AppShell;
 import geometrybook.domain.StudyProgress;
-import geometrybook.domain.LessonTopic;
+import geometrybook.domain.Level;
 import java.util.function.Consumer;
 import geometrybook.gui.common.RoundedPanel;
 import geometrybook.gui.common.Theme;
@@ -26,13 +26,13 @@ public final class LevelMapPanel extends JPanel {
         "삼각형", "정사각형", "직사각형", "마름모", "사다리꼴", "평행사변형", "원"
     };
     private final StudyProgress study;
-    private final Consumer<LessonTopic> onLesson;
+    private final Consumer<Level> onLesson;
     private int COMPLETED;
     private final JPanel levelList = new JPanel(new GridLayout(0, 1, 0, 8));
     private final JPanel details = new JPanel(new BorderLayout());
     private int selected = 0;
 
-    public LevelMapPanel(StudyProgress study, Consumer<LessonTopic> onLesson, Runnable onHome, Runnable onQuiz, Runnable onLogout) {
+    public LevelMapPanel(StudyProgress study, Consumer<Level> onLesson, Runnable onHome, Runnable onQuiz, Runnable onLogout) {
         super(new BorderLayout());
         this.study = study;
         this.onLesson = onLesson;
@@ -115,7 +115,7 @@ public final class LevelMapPanel extends JPanel {
         body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
         body.add(UiComponents.label(String.format("선택한 탐험 · LEVEL %02d", selected + 1), 13, Font.BOLD, Theme.GREEN));
         body.add(Box.createVerticalStrut(16));
-        ShapeCharacter character = new ShapeCharacter(LessonTopic.values()[selected]);
+        ShapeCharacter character = new ShapeCharacter(Level.values()[selected]);
         character.setPreferredSize(new Dimension(140, 130));
         character.setMaximumSize(new Dimension(160, 130));
         character.setAlignmentX(LEFT_ALIGNMENT);
@@ -130,8 +130,8 @@ public final class LevelMapPanel extends JPanel {
         body.add(UiComponents.label(selected < COMPLETED ? "완료 · 복습 가능" : selected == COMPLETED ? "학습 가능" : "이전 단계를 완료하면 열려요", 14, Font.PLAIN, Theme.MUTED));
         body.add(Box.createVerticalStrut(20));
         JButton start = UiComponents.roundedPrimaryButton(selected < COMPLETED ? "복습하러 가기  →" : "탐험 시작하기  →");
-        start.setEnabled(selected < LessonTopic.values().length && selected <= COMPLETED);
-        start.addActionListener(e -> onLesson.accept(LessonTopic.values()[selected]));
+        start.setEnabled(selected < Level.values().length && selected <= COMPLETED);
+        start.addActionListener(e -> onLesson.accept(Level.values()[selected]));
         start.setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
         body.add(start);
         card.add(body, BorderLayout.NORTH);

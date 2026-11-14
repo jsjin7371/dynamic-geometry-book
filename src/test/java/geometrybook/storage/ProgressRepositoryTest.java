@@ -1,6 +1,6 @@
 package geometrybook.storage;
 
-import geometrybook.domain.LessonTopic;
+import geometrybook.domain.Level;
 import geometrybook.domain.StudyProgress;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,27 +20,27 @@ public final class ProgressRepositoryTest {
         check(new ProgressRepository(dir).findCompletedLevelIds("a").equals(Set.of("TRIANGLE")), "재시작 후에도 완료 유지");
         check(repo.findCompletedLevelIds("b").isEmpty(), "학생별 진도 분리");
 
-        StudyProgress study = new StudyProgress(List.of(LessonTopic.TRIANGLE),
+        StudyProgress study = new StudyProgress(List.of(Level.TRIANGLE),
                 topic -> repo.markCompleted("a", topic.name()));
-        check(study.start(LessonTopic.SQUARE) != null, "저장된 완료로 다음 레벨 열림");
-        StudyProgress.Session square = study.start(LessonTopic.SQUARE);
+        check(study.start(Level.SQUARE) != null, "저장된 완료로 다음 레벨 열림");
+        StudyProgress.Session square = study.start(Level.SQUARE);
         square.confirmExplanation();
-        for (int i = 0; i < 3; i++) square.submit(i, LessonTopic.SQUARE.answer(i));
+        for (int i = 0; i < 3; i++) square.submit(i, Level.SQUARE.answer(i));
         study.complete(square);
         check(repo.findCompletedLevelIds("a").equals(Set.of("TRIANGLE", "SQUARE")), "레벨 완료 시 파일에 저장");
 
         StudyProgress failing = new StudyProgress(List.of(), topic -> {
             throw new IllegalStateException("디스크 오류");
         });
-        StudyProgress.Session triangle = failing.start(LessonTopic.TRIANGLE);
+        StudyProgress.Session triangle = failing.start(Level.TRIANGLE);
         triangle.confirmExplanation();
-        for (int i = 0; i < 3; i++) triangle.submit(i, LessonTopic.TRIANGLE.answer(i));
+        for (int i = 0; i < 3; i++) triangle.submit(i, Level.TRIANGLE.answer(i));
         try {
             failing.complete(triangle);
             throw new AssertionError("저장 실패인데 예외 없음");
         } catch (IllegalStateException expected) {
         }
-        check(!failing.isCompleted(LessonTopic.TRIANGLE), "저장 실패면 완료로 표시하지 않음");
+        check(!failing.isCompleted(Level.TRIANGLE), "저장 실패면 완료로 표시하지 않음");
         System.out.println("ProgressRepositoryTest 통과");
     }
 
