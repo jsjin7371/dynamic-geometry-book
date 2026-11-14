@@ -146,7 +146,7 @@ public final class LessonPanel extends JPanel {
         JButton quiz = UiComponents.roundedPrimaryButton(session.review?"설명 생략하고 문제 풀기 →":"설명 학습 완료 · 문제 풀기 →");
         quiz.addActionListener(e -> {
             session.confirmExplanation();
-            showQuiz();
+            showQuizPanel();
         });
         page.add(quiz);
         animation.play();
@@ -154,7 +154,7 @@ public final class LessonPanel extends JPanel {
         repaint();
     }
 
-    private void showQuiz() {
+    private void showQuizPanel() {
         JPanel page = page(2);
         page.add(UiComponents.label("세 문제를 모두 맞혀 보세요. 맞힌 문제는 그대로 유지돼요.", 16, Font.PLAIN, Theme.TEXT));
         gap(page, 16);

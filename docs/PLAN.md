@@ -95,6 +95,6 @@ storage → (퀴즈 문제 읽기를 붙일 때) application, domain
 ## 6. 결정 대기
 
 - 일곱 레벨의 최종 순서: 세부페이지를 합칠 때 정한다.
-- 레벨과 코드의 연결 방식: 지금은 `LevelMapPanel`, `QuizPanel`, `Level`이 순서로 짝을 맞춘다. 순서를 바꿔도 맞도록 레벨 ID로 연결할지 정한다.
+- 레벨과 코드의 연결 방식: 지금은 `LevelMapPanel`, `QuizPage`, `Level`이 순서로 짝을 맞춘다. 순서를 바꿔도 맞도록 레벨 ID로 연결할지 정한다.
 - ERD의 `progress.lastSceneNo`, `question.reviewSceneNo`: A안 정책에서 쓰지 않는다. CSV 구현 전에 열을 뺄지 빈 값으로 둘지 정한다.
 - 퀴즈페이지의 레벨당 문제 수와 작성 담당: 문제 작성 전에 정한다.
