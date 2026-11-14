@@ -4,7 +4,9 @@ import geometrybook.application.quiz.QuizSource;
 import geometrybook.domain.quiz.QuizQuestion;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,6 +43,26 @@ public final class CsvQuizSource implements QuizSource {
      */
     @Override
     public List<QuizQuestion> findByLevelId(String levelId) {
+        List<QuizQuestion> result = new ArrayList<>();
+        for (QuizQuestion question : readAllQuestions()) {
+            if (question.levelId.equals(levelId)) result.add(question);
+        }
+        return List.copyOf(result);
+    }
+
+    /** 문제 ID 목록 순서대로 문제를 돌려준다. 파일에 없는 ID는 건너뛴다. (오답노트용) */
+    public List<QuizQuestion> findByIds(Collection<String> ids) {
+        Map<String, QuizQuestion> byId = new HashMap<>();
+        for (QuizQuestion question : readAllQuestions()) byId.put(question.id, question);
+        List<QuizQuestion> result = new ArrayList<>();
+        for (String id : ids) {
+            if (byId.containsKey(id)) result.add(byId.get(id));
+        }
+        return List.copyOf(result);
+    }
+
+    /** 두 파일을 읽어 모든 문제를 questions.csv 행 순서대로 조립한다. */
+    private List<QuizQuestion> readAllQuestions() {
         List<QuestionRow> questions = new QuestionReader(dataDir).readAll();
         List<QuizQuestion.Choice> choices = new ChoiceReader(dataDir).readAll();
 
@@ -58,7 +80,6 @@ public final class CsvQuizSource implements QuizSource {
             list.add(c);
         }
 
-        // 모든 문제를 조립해 데이터 전체를 검사하고, 요청한 레벨만 돌려준다.
         List<QuizQuestion> result = new ArrayList<>();
         for (QuestionRow q : questions) {
             List<QuizQuestion.Choice> list = choicesByQuestion.get(q.id);
@@ -70,11 +91,9 @@ public final class CsvQuizSource implements QuizSource {
                 throw new DataFileException(CHOICE_FILE + ": 문제 " + q.id + "의 보기 구성이 올바르지 않습니다. "
                         + "(보기 2개 이상, 정답 정확히 1개, OX 문제는 O·X 두 개) - " + e.getMessage());
             }
-            if (question.levelId.equals(levelId)) {
-                result.add(question);
-            }
+            result.add(question);
         }
-        return List.copyOf(result);
+        return result;
     }
 
     /** questions.csv 한 행 (보기와 합치기 전의 중간 값) */

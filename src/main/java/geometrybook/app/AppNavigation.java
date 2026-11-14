@@ -88,10 +88,12 @@ final class AppNavigation {
     private void quizzes() {
         lesson = null;
         String studentId = auth.getCurrentStudent().getId();
-        quiz = new QuizPanel(new CsvQuizSource(Path.of("data")), (questionId, correct) -> {
+        CsvQuizSource source = new CsvQuizSource(Path.of("data"));
+        quiz = new QuizPanel(source, (questionId, correct) -> {
             if (correct) wrongs.remove(studentId, questionId);   // 다시 맞히면 오답노트에서 삭제
             else wrongs.add(studentId, questionId);               // 틀린 순간 저장
-        }, this::home, this::levels, this::login);
+        }, () -> source.findByIds(wrongs.findQuestionIds(studentId)),   // 오답노트: 내 오답 문제
+                this::home, this::levels, this::login);
         show(quiz);
     }
 

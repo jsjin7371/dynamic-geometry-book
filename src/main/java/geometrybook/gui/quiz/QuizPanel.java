@@ -14,12 +14,15 @@ import java.awt.Font;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javax.swing.*;
 
 /** 단원 선택, 한 문제씩 채점, 결과와 오답 재도전을 제공한다. */
 public final class QuizPanel extends JPanel {
     private final QuizSource source;
     private final BiConsumer<String, Boolean> onGraded;
+    private final Supplier<List<QuizQuestion>> wrongNote;
     private final JPanel content = new JPanel();
     private QuizAttempt attempt;
     private SwingWorker<List<QuizQuestion>, Void> loader;
@@ -27,12 +30,16 @@ public final class QuizPanel extends JPanel {
     private boolean retry;
     private String levelTitle;
 
-    /** onGraded: 한 문제를 채점할 때마다 (문제 ID, 정답 여부)를 받는다. 오답 기록 저장에 쓴다. */
-    public QuizPanel(QuizSource source, BiConsumer<String, Boolean> onGraded,
+    /**
+     * onGraded: 한 문제를 채점할 때마다 (문제 ID, 정답 여부)를 받는다. 오답 기록 저장에 쓴다.
+     * wrongNote: 현재 학생의 오답 문제를 틀린 순서대로 돌려준다. 오답노트에 쓴다.
+     */
+    public QuizPanel(QuizSource source, BiConsumer<String, Boolean> onGraded, Supplier<List<QuizQuestion>> wrongNote,
                      Runnable onHome, Runnable onLevel, Runnable onLogout) {
         super(new BorderLayout());
         this.source = source;
         this.onGraded = onGraded;
+        this.wrongNote = wrongNote;
         AppShell shell = new AppShell(AppShell.Page.QUIZ, () -> leave(onHome),
                 () -> leave(onLevel), () -> {}, () -> leave(onLogout));
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
@@ -76,6 +83,10 @@ public final class QuizPanel extends JPanel {
         banner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
         content.add(banner);
         gap(16);
+        JButton note = UiComponents.roundedPrimaryButton("오답노트 보기 →");
+        note.addActionListener(event -> load(wrongNote, this::showWrongNote));
+        content.add(note);
+        gap(16);
 
         RoundedPanel list = new RoundedPanel(null, Color.WHITE, 28);
         list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
@@ -90,7 +101,7 @@ public final class QuizPanel extends JPanel {
             final String title = titles[i];
             list.add(levelCard(i + 1, title, () -> {
                 levelTitle = title;
-                load(id);
+                load(() -> source.findByLevelId(id), this::startLevel);
             }));
             if (i < titles.length - 1) list.add(Box.createVerticalStrut(14));
         }
@@ -131,30 +142,24 @@ public final class QuizPanel extends JPanel {
         return row;
     }
 
-    private void load(String levelId) {
+    /** finder로 문제를 백그라운드에서 불러온 뒤 onLoaded로 화면을 그린다. */
+    private void load(Supplier<List<QuizQuestion>> finder, Consumer<List<QuizQuestion>> onLoaded) {
         heading("문제를 불러오고 있어요", "잠시만 기다려 주세요.");
         refresh();
         loader = new SwingWorker<>() {
             @Override protected List<QuizQuestion> doInBackground() {
-                return source.findByLevelId(levelId);
+                return finder.get();
             }
             @Override protected void done() {
                 if (!active || isCancelled()) return;
                 try {
-                    List<QuizQuestion> questions = get();
-                    if (questions.isEmpty()) {
-                        heading("퀴즈 준비 중", "이 단원의 문제는 아직 준비 중이에요.");
-                        backButton();
-                    } else {
-                        attempt = new QuizAttempt(questions);
-                        showQuestion();
-                    }
+                    onLoaded.accept(get());
                 } catch (CancellationException ignored) {
                     return;
                 } catch (Exception exception) {
                     heading("문제를 불러오지 못했어요", "잠시 후 다시 시도해 주세요.");
                     JButton reload = UiComponents.roundedPrimaryButton("다시 시도");
-                    reload.addActionListener(event -> load(levelId));
+                    reload.addActionListener(event -> load(finder, onLoaded));
                     content.add(reload);
                     backButton();
                 }
@@ -162,6 +167,45 @@ public final class QuizPanel extends JPanel {
             }
         };
         loader.execute();
+    }
+
+    /** 틀린 문제 목록을 보여 주고 다시 풀게 한다. 맞히면 onGraded가 오답 기록을 지운다. */
+    private void showWrongNote(List<QuizQuestion> questions) {
+        if (questions.isEmpty()) {
+            heading("오답노트", "틀린 문제가 없어요. 퀴즈에 도전해 봐요!");
+            backButton();
+            return;
+        }
+        heading("오답노트", "틀린 문제 " + questions.size() + "개 · 다시 풀어서 맞히면 오답노트에서 사라져요.");
+        int number = 1;
+        for (QuizQuestion question : questions) {
+            RoundedPanel row = new RoundedPanel(new BorderLayout(), Color.WHITE, 20);
+            row.setAlignmentX(LEFT_ALIGNMENT);
+            row.setBorder(BorderFactory.createEmptyBorder(14, 20, 14, 20));
+            row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 56));
+            row.add(UiComponents.label(number++ + ". " + question.prompt, 17, Font.PLAIN, Theme.TEXT));
+            content.add(row);
+            gap(10);
+        }
+        gap(10);
+        JButton again = UiComponents.roundedPrimaryButton("오답 다시 풀기");
+        again.addActionListener(event -> {
+            retry = true;
+            attempt = new QuizAttempt(questions);
+            showQuestion();
+        });
+        content.add(again);
+        backButton();
+    }
+
+    private void startLevel(List<QuizQuestion> questions) {
+        if (questions.isEmpty()) {
+            heading("퀴즈 준비 중", "이 단원의 문제는 아직 준비 중이에요.");
+            backButton();
+        } else {
+            attempt = new QuizAttempt(questions);
+            showQuestion();
+        }
     }
 
     private void showQuestion() {
