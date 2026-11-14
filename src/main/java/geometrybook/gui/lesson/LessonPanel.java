@@ -1,6 +1,6 @@
 package geometrybook.gui.lesson;
 
-import geometrybook.domain.LessonTopic;
+import geometrybook.domain.Level;
 import geometrybook.domain.StudyProgress;
 import geometrybook.gui.common.*;
 import geometrybook.gui.lesson.animation.CircleAnimation;
@@ -20,9 +20,9 @@ public final class LessonPanel extends JPanel {
     private StudyProgress.Session session;
     private final Runnable onHome, onLevel, onQuiz, onLogout;
     private LessonAnimation animation;
-    private final LessonTopic topic;
+    private final Level topic;
     private boolean result;
-    public LessonPanel(StudyProgress study, LessonTopic topic, Runnable onHome, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
+    public LessonPanel(StudyProgress study, Level topic, Runnable onHome, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
         super(new BorderLayout());
         this.study = study;
         this.topic = topic;

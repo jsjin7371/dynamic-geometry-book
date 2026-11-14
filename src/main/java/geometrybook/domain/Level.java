@@ -1,7 +1,7 @@
 package geometrybook.domain;
 
 /** 화면 문구와 고정 확인 문제를 담는 임시 콘텐츠. 파일 입출력과 분리한다. */
-public enum LessonTopic {
+public enum Level {
     TRIANGLE("삼각형", "정사각형", "변과 꼭짓점은 3개, 세 내각의 합은 180도예요.",
             new String[]{"삼각형의 변은 몇 개일까요?", "삼각형의 꼭짓점은 몇 개일까요?", "삼각형의 세 내각을 모두 더하면 몇 도일까요?"},
             new String[][]{{"2개", "3개", "4개"}, {"1개", "2개", "3개"}, {"180도", "90도", "360도"}},
@@ -46,7 +46,7 @@ public enum LessonTopic {
     private final int[] answers;
     private final String[] explanations;
 
-    LessonTopic(String title, String nextTitle, String summary, String[] prompts,
+    Level(String title, String nextTitle, String summary, String[] prompts,
                 String[][] choices, int[] answers, String[] explanations) {
         this.title = title;
         this.nextTitle = nextTitle;

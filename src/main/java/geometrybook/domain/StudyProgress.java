@@ -9,9 +9,9 @@ import java.util.function.Consumer;
 
 /** 레벨별 학습 기록. 파일 저장은 생성할 때 받은 saver에 맡기고, 포인트 계산은 담당하지 않는다. */
 public final class StudyProgress {
-    private final Set<LessonTopic> completed = new HashSet<>();
+    private final Set<Level> completed = new HashSet<>();
     private final Set<LocalDate> dates = new HashSet<>();
-    private final Consumer<LessonTopic> saver;
+    private final Consumer<Level> saver;
 
     /** 저장 없이 실행 중에만 유지하는 빈 기록. */
     public StudyProgress() {
@@ -19,13 +19,13 @@ public final class StudyProgress {
     }
 
     /** 저장된 완료 레벨로 시작한다. 레벨을 처음 완료하면 saver로 저장하고, 저장에 실패하면 완료로 바꾸지 않는다. */
-    public StudyProgress(Collection<LessonTopic> completed, Consumer<LessonTopic> saver) {
+    public StudyProgress(Collection<Level> completed, Consumer<Level> saver) {
         this.completed.addAll(completed);
         this.saver = saver;
     }
 
     public boolean isCompleted() {
-        return completed.contains(LessonTopic.TRIANGLE);
+        return completed.contains(Level.TRIANGLE);
     }
 
     public Set<LocalDate> studyDates() {
@@ -33,10 +33,10 @@ public final class StudyProgress {
     }
 
     public Session start() {
-        return start(LessonTopic.TRIANGLE);
+        return start(Level.TRIANGLE);
     }
 
-    public boolean isCompleted(LessonTopic topic) {
+    public boolean isCompleted(Level topic) {
         return completed.contains(topic);
     }
 
@@ -44,9 +44,9 @@ public final class StudyProgress {
         return completed.size();
     }
 
-    public Session start(LessonTopic topic) {
+    public Session start(Level topic) {
         if (topic.ordinal() > 0) {
-            LessonTopic previous = LessonTopic.values()[topic.ordinal() - 1];
+            Level previous = Level.values()[topic.ordinal() - 1];
             if (!isCompleted(previous)) {
                 throw new IllegalStateException(previous.title() + "을 먼저 완료해 주세요.");
             }
@@ -69,8 +69,8 @@ public final class StudyProgress {
         private boolean explanationConfirmed;
         private boolean saved;
         private final boolean[] correct = new boolean[3];
-        private final LessonTopic topic;
-        private Session(LessonTopic topic, boolean review) {
+        private final Level topic;
+        private Session(Level topic, boolean review) {
             this.topic = topic;
             this.review = review;
         }

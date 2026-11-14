@@ -2,7 +2,7 @@ package geometrybook.app;
 
 import geometrybook.domain.StudyProgress;
 import geometrybook.gui.quiz.QuizPanel;
-import geometrybook.domain.LessonTopic;
+import geometrybook.domain.Level;
 import geometrybook.gui.auth.LoginPanel;
 import geometrybook.gui.home.HomePanel;
 import geometrybook.gui.level.LevelMapPanel;
@@ -53,8 +53,8 @@ final class AppNavigation {
         String studentId = auth.getCurrentStudent().getId();
         try {
             Set<String> doneIds = progress.findCompletedLevelIds(studentId);
-            List<LessonTopic> done = new ArrayList<>();
-            for (LessonTopic topic : LessonTopic.values()) {
+            List<Level> done = new ArrayList<>();
+            for (Level topic : Level.values()) {
                 if (doneIds.contains(topic.name())) done.add(topic);
             }
             study = new StudyProgress(done, topic -> progress.markCompleted(studentId, topic.name()));
@@ -79,7 +79,7 @@ final class AppNavigation {
         show(new LevelMapPanel(study, this::startLesson, this::home, this::quizzes, this::login));
     }
 
-    private void startLesson(LessonTopic topic) {
+    private void startLesson(Level topic) {
         lesson = new LessonPanel(study, topic, this::home, this::levels, this::quizzes, this::login);
         show(lesson);
         lesson.begin();

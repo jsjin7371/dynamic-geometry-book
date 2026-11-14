@@ -5,7 +5,7 @@ public final class StudyProgressTest {
     public static void main(String[] args) {
         StudyProgress study = new StudyProgress();
         try {
-            study.start(LessonTopic.SQUARE);
+            study.start(Level.SQUARE);
             throw new AssertionError("선행 학습 없이 정사각형 시작");
         } catch (IllegalStateException expected) {
         }
@@ -35,7 +35,7 @@ public final class StudyProgressTest {
         study.complete(review);
         check(study.studyDates().size() == 1, "복습 학습일 중복 제거");
         check(!new StudyProgress().isCompleted(), "새 로그인 세션에서 초기화");
-        StudyProgress.Session square = study.start(LessonTopic.SQUARE);
+        StudyProgress.Session square = study.start(Level.SQUARE);
         check(!square.review && !square.canQuiz(), "정사각형 최초 학습");
         square.confirmExplanation();
         check(!square.submit(0, 0), "정사각형 오답");
@@ -44,20 +44,20 @@ public final class StudyProgressTest {
         square.submit(2, 0);
         study.complete(square);
         check(study.completedCount() == 2, "레벨별 완료 기록 분리");
-        check(study.start(LessonTopic.SQUARE).review, "정사각형 복습 가능");
-        check(!study.start(LessonTopic.SQUARE).allCorrect(), "복습 답안 초기화");
+        check(study.start(Level.SQUARE).review, "정사각형 복습 가능");
+        check(!study.start(Level.SQUARE).allCorrect(), "복습 답안 초기화");
         try {
-            new StudyProgress().start(LessonTopic.PARALLELOGRAM);
+            new StudyProgress().start(Level.PARALLELOGRAM);
             throw new AssertionError("선행 학습 없이 평행사변형 시작");
         } catch (IllegalStateException expected) {
         }
-        for (LessonTopic topic : new LessonTopic[]{LessonTopic.RECTANGLE, LessonTopic.RHOMBUS, LessonTopic.TRAPEZOID}) {
+        for (Level topic : new Level[]{Level.RECTANGLE, Level.RHOMBUS, Level.TRAPEZOID}) {
             StudyProgress.Session session = study.start(topic);
             session.confirmExplanation();
             for (int i = 0; i < 3; i++) session.submit(i, topic.answer(i));
             study.complete(session);
         }
-        StudyProgress.Session parallelogram = study.start(LessonTopic.PARALLELOGRAM);
+        StudyProgress.Session parallelogram = study.start(Level.PARALLELOGRAM);
         check(!parallelogram.review && !parallelogram.canQuiz(), "평행사변형 최초 학습");
         parallelogram.confirmExplanation();
         check(!parallelogram.submit(0, 1), "평행사변형 오답");
@@ -71,20 +71,20 @@ public final class StudyProgressTest {
         parallelogram.submit(2, 2);
         study.complete(parallelogram);
         check(study.completedCount() == 6, "평행사변형 완료 기록");
-        check(study.isCompleted(LessonTopic.TRIANGLE) && study.isCompleted(LessonTopic.SQUARE), "기존 레슨 완료 상태 유지");
-        StudyProgress.Session parallelogramReview = study.start(LessonTopic.PARALLELOGRAM);
+        check(study.isCompleted(Level.TRIANGLE) && study.isCompleted(Level.SQUARE), "기존 레슨 완료 상태 유지");
+        StudyProgress.Session parallelogramReview = study.start(Level.PARALLELOGRAM);
         check(parallelogramReview.review && parallelogramReview.canQuiz() && !parallelogramReview.allCorrect(), "평행사변형 복습 답안 초기화");
         StudyProgress sequential = new StudyProgress();
-        for (LessonTopic topic : LessonTopic.values()) {
+        for (Level topic : Level.values()) {
             if (topic.ordinal() > 0) {
                 try {
                     new StudyProgress().start(topic);
                     throw new AssertionError("선행 완료 없이 시작: " + topic);
                 } catch (IllegalStateException expected) { }
             }
-            if (topic.ordinal() + 1 < LessonTopic.values().length) {
+            if (topic.ordinal() + 1 < Level.values().length) {
                 try {
-                    sequential.start(LessonTopic.values()[topic.ordinal() + 1]);
+                    sequential.start(Level.values()[topic.ordinal() + 1]);
                     throw new AssertionError("순서 건너뛰기 허용");
                 } catch (IllegalStateException expected) { }
             }
@@ -101,7 +101,7 @@ public final class StudyProgressTest {
             check(sequential.start(topic).review, "완료 후 복습");
         }
         check(sequential.completedCount() == 7, "일곱 레슨 완료");
-        check(LessonTopic.CIRCLE.nextTitle().isEmpty(), "마지막 레슨");
+        check(Level.CIRCLE.nextTitle().isEmpty(), "마지막 레슨");
         System.out.println("StudyProgress tests passed");
     }
 

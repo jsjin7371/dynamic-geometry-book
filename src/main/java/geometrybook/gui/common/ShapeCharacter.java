@@ -1,6 +1,6 @@
 package geometrybook.gui.common;
 
-import geometrybook.domain.LessonTopic;
+import geometrybook.domain.Level;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -17,10 +17,10 @@ import javax.swing.JComponent;
 
 
 public final class ShapeCharacter extends JComponent {
-    private final LessonTopic topic;
+    private final Level topic;
 
     /** @param topic 표시할 도형의 레슨 */
-    public ShapeCharacter(LessonTopic topic) {
+    public ShapeCharacter(Level topic) {
         this.topic = Objects.requireNonNull(topic);
         setPreferredSize(new Dimension(150, 130));
         setOpaque(false);
@@ -41,7 +41,7 @@ public final class ShapeCharacter extends JComponent {
         g.translate(insets.left + (width - 132 * scale) / 2,
                 insets.top + (height - 115 * scale) / 2);
         g.scale(scale, scale);
-        if (topic == LessonTopic.TRIANGLE) {
+        if (topic == Level.TRIANGLE) {
             TriangleCharacter.draw(g);
         } else {
             g.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
