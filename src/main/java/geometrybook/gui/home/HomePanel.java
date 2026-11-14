@@ -80,12 +80,20 @@ public final class HomePanel extends JPanel {
         return content;
     }
 
+    /** 레벨은 순서대로만 완료되므로 완료 수가 곧 다음 레벨의 위치다. */
+    private String nextLabel() {
+        int done = study.completedCount();
+        if (done == 0) return "첫 탐험 · LEVEL 01";
+        if (done >= Level.values().length) return "배운 도형을 복습해요";
+        return "다음 탐험 · " + Level.values()[done].title();
+    }
+
     private JPanel lessonCard() {
         RoundedPanel card = new RoundedPanel(new BorderLayout(), Theme.MINT, 28);
         card.setBorder(BorderFactory.createEmptyBorder(22, 26, 22, 26));
         card.setAlignmentX(0f);
         JPanel text = vertical();
-        text.add(UiComponents.label(study.completedCount() == 0 ? "첫 탐험 · LEVEL 01" : study.completedCount() == 1 ? "다음 탐험 · 정사각형" : "배운 도형을 복습해요", 13, Font.BOLD, Theme.GREEN));
+        text.add(UiComponents.label(nextLabel(), 13, Font.BOLD, Theme.GREEN));
         text.add(Box.createVerticalStrut(10));
         text.add(UiComponents.label("새로운 도형을 만나봐요!", 23, Font.BOLD, Theme.TEXT));
         text.add(Box.createVerticalStrut(8));

@@ -24,16 +24,8 @@ public final class StudyProgress {
         this.saver = saver;
     }
 
-    public boolean isCompleted() {
-        return completed.contains(Level.TRIANGLE);
-    }
-
     public Set<LocalDate> studyDates() {
         return Set.copyOf(dates);
-    }
-
-    public Session start() {
-        return start(Level.TRIANGLE);
     }
 
     public boolean isCompleted(Level topic) {
