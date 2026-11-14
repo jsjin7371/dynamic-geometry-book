@@ -17,7 +17,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -52,7 +51,7 @@ public final class LoginPanel extends JPanel {
     private JPanel createWelcome() {
         RoundedPanel card = new RoundedPanel(new BorderLayout(), Theme.MINT, 32);
         card.setBorder(BorderFactory.createEmptyBorder(42, 42, 42, 42));
-        JPanel content = column();
+        JPanel content = UiComponents.column();
         content.add(UiComponents.label("△  도형탐험대", 25, Font.BOLD, Theme.GREEN));
         content.add(Box.createVerticalStrut(30));
         content.add(UiComponents.label("초등학생을 위한 도형 탐험", 14, Font.BOLD, Theme.GREEN));
@@ -76,7 +75,7 @@ public final class LoginPanel extends JPanel {
     private JPanel createForm() {
         JPanel wrapper = new JPanel(new GridBagLayout());
         wrapper.setOpaque(false);
-        JPanel form = column();
+        JPanel form = UiComponents.column();
         form.setPreferredSize(new Dimension(430, 440));
         form.add(UiComponents.label("반가워, 탐험가!", 32, Font.BOLD, Theme.TEXT));
         form.add(Box.createVerticalStrut(14));
@@ -161,12 +160,6 @@ public final class LoginPanel extends JPanel {
                 "로그인 오류", JOptionPane.ERROR_MESSAGE);
     }
 
-    private static JPanel column() {
-        JPanel panel = new JPanel();
-        panel.setOpaque(false);
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        return panel;
-    }
 
     private static void addField(JPanel form, String title, JTextField field) {
         JLabel label = UiComponents.label(title, 16, Font.BOLD, Theme.TEXT);

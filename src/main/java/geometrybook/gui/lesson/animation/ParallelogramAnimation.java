@@ -5,9 +5,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
@@ -38,24 +36,14 @@ public final class ParallelogramAnimation extends LessonAnimation {
         return "평행사변형의 넓이는 밑변 × 높이예요!";
     }
 
-    @Override protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        Graphics2D g = (Graphics2D) graphics.create();
-        try {
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            double scale = Math.min(getWidth() / 600.0, getHeight() / 340.0);
-            g.translate((getWidth() - 600 * scale) / 2, (getHeight() - 340 * scale) / 2);
-            g.scale(scale, scale);
-            double move = Math.max(0, Math.min(1, (elapsed - 18000) / 4000.0));
-            if (elapsed < 18000) {
-                paintWhole(g);
-            } else {
-                paintCut(g, move);
-            }
-            paintLabels(g, move);
-        } finally {
-            g.dispose();
+    @Override protected void draw(Graphics2D g) {
+        double move = Math.max(0, Math.min(1, (elapsed - 18000) / 4000.0));
+        if (elapsed < 18000) {
+            paintWhole(g);
+        } else {
+            paintCut(g, move);
         }
+        paintLabels(g, move);
     }
 
     private void paintWhole(Graphics2D g) {
@@ -213,11 +201,6 @@ public final class ParallelogramAnimation extends LessonAnimation {
         g.draw(outline);
         g.setColor(color);
         g.fill(outline);
-    }
-
-    private static void centered(Graphics2D g, String text, double cx, double y) {
-        FontMetrics metrics = g.getFontMetrics();
-        g.drawString(text, (float) (cx - metrics.stringWidth(text) / 2.0), (float) y);
     }
 
     private static Path2D parallelogram() {

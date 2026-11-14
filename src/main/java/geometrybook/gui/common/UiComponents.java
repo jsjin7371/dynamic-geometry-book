@@ -4,8 +4,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 
@@ -78,5 +80,14 @@ public final class UiComponents {
         button.setFocusPainted(false);
         button.setAlignmentX(0f);
         return button;
+    }
+
+    /** 자식을 위에서 아래로 쌓는 투명한 왼쪽 정렬 패널을 만든다. */
+    public static JPanel column() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setOpaque(false);
+        panel.setAlignmentX(0f);
+        return panel;
     }
 }

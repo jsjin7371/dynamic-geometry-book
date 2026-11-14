@@ -4,10 +4,8 @@ import geometrybook.gui.common.Theme;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.awt.RenderingHints;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 
@@ -30,34 +28,24 @@ public final class RhombusAnimation extends LessonAnimation {
         return "한 변이 4cm이면, 네 변을 더한 둘레는 16cm예요.";
     }
 
-    @Override protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        Graphics2D g = (Graphics2D) graphics.create();
-        try {
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            double scale = Math.min(getWidth() / 600.0, getHeight() / 340.0);
-            g.translate((getWidth() - 600 * scale) / 2, (getHeight() - 340 * scale) / 2);
-            g.scale(scale, scale);
-            if (elapsed >= 6000) {
-                g.setColor(Theme.MINT);
-                g.fill(new Polygon(X, Y, 4));
-            }
-            if (elapsed >= 12000 && elapsed < 18000) drawAngles(g);
-            g.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            for (int i = 0; i < 4; i++) {
-                int next = (i + 1) % 4;
-                double fraction = Math.max(0, Math.min(1, (elapsed - i * 1500) / 1500.0));
-                g.setColor(Theme.GREEN);
-                g.draw(new Line2D.Double(X[i], Y[i], X[i] + (X[next] - X[i]) * fraction,
-                        Y[i] + (Y[next] - Y[i]) * fraction));
-            }
-            if (elapsed >= 6000) drawEqualSides(g);
-            if (elapsed >= 18000) drawPerimeter(g);
-            g.setColor(MARK);
-            for (int i = 0; i < 4; i++) g.fillOval(X[i] - 5, Y[i] - 5, 10, 10);
-        } finally {
-            g.dispose();
+    @Override protected void draw(Graphics2D g) {
+        if (elapsed >= 6000) {
+            g.setColor(Theme.MINT);
+            g.fill(new Polygon(X, Y, 4));
         }
+        if (elapsed >= 12000 && elapsed < 18000) drawAngles(g);
+        g.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        for (int i = 0; i < 4; i++) {
+            int next = (i + 1) % 4;
+            double fraction = Math.max(0, Math.min(1, (elapsed - i * 1500) / 1500.0));
+            g.setColor(Theme.GREEN);
+            g.draw(new Line2D.Double(X[i], Y[i], X[i] + (X[next] - X[i]) * fraction,
+                    Y[i] + (Y[next] - Y[i]) * fraction));
+        }
+        if (elapsed >= 6000) drawEqualSides(g);
+        if (elapsed >= 18000) drawPerimeter(g);
+        g.setColor(MARK);
+        for (int i = 0; i < 4; i++) g.fillOval(X[i] - 5, Y[i] - 5, 10, 10);
     }
 
     private void drawEqualSides(Graphics2D g) {

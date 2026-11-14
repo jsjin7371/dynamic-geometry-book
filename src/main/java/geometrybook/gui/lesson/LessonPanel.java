@@ -57,7 +57,7 @@ public final class LessonPanel extends JPanel {
         stop();
         removeAll();
         AppShell shell = new AppShell(AppShell.Page.LESSON, () -> leave(onHome), () -> leave(onLevel), () -> leave(onQuiz), () -> leave(onLogout));
-        JPanel page = column();
+        JPanel page = UiComponents.column();
         page.setBorder(BorderFactory.createEmptyBorder(24, 28, 24, 28));
         page.setBackground(Theme.BACKGROUND);
         page.setOpaque(true);
@@ -121,7 +121,7 @@ public final class LessonPanel extends JPanel {
         }
         playback.add(UiComponents.label(topic.title() + "의 비밀을 알아볼까요?", 24, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
         playback.add(animation, BorderLayout.CENTER);
-        JPanel controls = column();
+        JPanel controls = UiComponents.column();
         controls.add(caption);
         gap(controls, 12);
         controls.add(progress);
@@ -166,7 +166,7 @@ public final class LessonPanel extends JPanel {
             card.setAlignmentX(0f);
             card.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
             card.add(UiComponents.label((i+1)+". "+topic.prompt(i), 18, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
-            JPanel options = column();
+            JPanel options = UiComponents.column();
             ButtonGroup group = new ButtonGroup();
             JRadioButton[] radios = new JRadioButton[3];
             for (int j = 0; j<3; j++) {
@@ -178,7 +178,7 @@ public final class LessonPanel extends JPanel {
                 options.add(radios[j]);
             }
             card.add(options, BorderLayout.CENTER);
-            JPanel footer = column();
+            JPanel footer = UiComponents.column();
             JLabel feedback = UiComponents.label(session.isCorrect(i)?"정답! "+topic.explanation(i):" ", 14, Font.PLAIN, Theme.GREEN);
             JButton submit = UiComponents.roundedPrimaryButton(session.isCorrect(i)?"정답 확인 완료":"정답 확인");
             submit.setEnabled(!session.isCorrect(i));
@@ -242,13 +242,6 @@ public final class LessonPanel extends JPanel {
         repaint();
     }
 
-    private static JPanel column() {
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.setOpaque(false);
-        p.setAlignmentX(0f);
-        return p;
-    }
 
     private static void gap(JPanel p, int height) {
         p.add(Box.createVerticalStrut(height));

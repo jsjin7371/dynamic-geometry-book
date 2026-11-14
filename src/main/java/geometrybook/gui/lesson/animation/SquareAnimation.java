@@ -4,9 +4,7 @@ import geometrybook.gui.common.Theme;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 
 /** 같은 길이의 네 변과 네 직각을 강조하는 정사각형 애니메이션. */
@@ -22,13 +20,8 @@ public final class SquareAnimation extends LessonAnimation {
         return "돌려도 네 변의 길이와 네 직각은 그대로예요!";
     }
 
-    @Override protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        Graphics2D g = (Graphics2D) graphics.create();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        double scale = Math.min(getWidth() / 600.0, getHeight() / 340.0);
-        g.translate(getWidth() / 2.0, getHeight() / 2.0);
-        g.scale(scale, scale);
+    @Override protected void draw(Graphics2D g) {
+        g.translate(300, 170);   // 화면 가운데를 원점으로 그린다
         double rotation = Math.max(0, Math.min(1, (elapsed - 18000) / 5000.0));
         g.rotate(rotation * Math.PI / 4);
         int[] x = {-100, 100, 100, -100};
@@ -69,6 +62,5 @@ public final class SquareAnimation extends LessonAnimation {
         for (int i = 0; i < 4; i++) {
             g.fillOval(x[i] - 6, y[i] - 6, 12, 12);
         }
-        g.dispose();
     }
 }

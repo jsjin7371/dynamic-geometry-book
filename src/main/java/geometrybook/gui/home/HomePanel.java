@@ -92,7 +92,7 @@ public final class HomePanel extends JPanel {
         RoundedPanel card = new RoundedPanel(new BorderLayout(), Theme.MINT, 28);
         card.setBorder(BorderFactory.createEmptyBorder(22, 26, 22, 26));
         card.setAlignmentX(0f);
-        JPanel text = vertical();
+        JPanel text = UiComponents.column();
         text.add(UiComponents.label(nextLabel(), 13, Font.BOLD, Theme.GREEN));
         text.add(Box.createVerticalStrut(10));
         text.add(UiComponents.label("새로운 도형을 만나봐요!", 23, Font.BOLD, Theme.TEXT));
@@ -188,12 +188,5 @@ public final class HomePanel extends JPanel {
             return background;
         }
         return cell;
-    }
-
-    private JPanel vertical() {
-        JPanel panel = new JPanel();
-        panel.setOpaque(false);
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        return panel;
     }
 }
