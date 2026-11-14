@@ -22,9 +22,7 @@ import geometrybook.gui.common.RoundedProgressBar;
 import javax.swing.JScrollPane;
 
 public final class LevelMapPanel extends JPanel {
-    private static final String[] TITLES = {
-        "삼각형", "정사각형", "직사각형", "마름모", "사다리꼴", "평행사변형", "원"
-    };
+    private static final Level[] LEVELS = Level.values();
     private final StudyProgress study;
     private final Consumer<Level> onLesson;
     private int COMPLETED;
@@ -80,8 +78,8 @@ public final class LevelMapPanel extends JPanel {
         RoundedPanel card = new RoundedPanel(new BorderLayout(20, 0), Theme.MINT, 24);
         card.setBorder(BorderFactory.createEmptyBorder(18, 22, 18, 22));
         card.setAlignmentX(LEFT_ALIGNMENT);
-        card.add(UiComponents.label("전체 7단계 중 " + COMPLETED + "단계 완료", 16, Font.BOLD, Theme.TEXT), BorderLayout.WEST);
-        RoundedProgressBar bar = new RoundedProgressBar(0, TITLES.length);
+        card.add(UiComponents.label("전체 " + LEVELS.length + "단계 중 " + COMPLETED + "단계 완료", 16, Font.BOLD, Theme.TEXT), BorderLayout.WEST);
+        RoundedProgressBar bar = new RoundedProgressBar(0, LEVELS.length);
         bar.setValue(COMPLETED);
         bar.setForeground(Theme.GREEN);
         bar.setBackground(new Color(0xDCE6DF));
@@ -93,10 +91,10 @@ public final class LevelMapPanel extends JPanel {
 
     private void refreshSelection() {
         levelList.removeAll();
-        for (int i = 0; i < TITLES.length; i++) {
+        for (int i = 0; i < LEVELS.length; i++) {
             final int index = i;
             String status = i < COMPLETED ? "완료 · 복습 가능" : i == COMPLETED ? "학습 가능" : "잠김";
-            JButton row = UiComponents.roundedPrimaryButton(String.format("%02d    %s    ·    %s", i + 1, TITLES[i], status));
+            JButton row = UiComponents.roundedPrimaryButton(String.format("%02d    %s    ·    %s", i + 1, LEVELS[i].title(), status));
             row.setHorizontalAlignment(JButton.LEFT);
             row.setBackground(i == selected ? new Color(0xFFF1C9) : i < COMPLETED ? Theme.MINT : Theme.BACKGROUND);
             row.setForeground(i > COMPLETED ? Theme.MUTED : Theme.TEXT);
@@ -115,13 +113,13 @@ public final class LevelMapPanel extends JPanel {
         body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
         body.add(UiComponents.label(String.format("선택한 탐험 · LEVEL %02d", selected + 1), 13, Font.BOLD, Theme.GREEN));
         body.add(Box.createVerticalStrut(16));
-        ShapeCharacter character = new ShapeCharacter(Level.values()[selected]);
+        ShapeCharacter character = new ShapeCharacter(LEVELS[selected]);
         character.setPreferredSize(new Dimension(140, 130));
         character.setMaximumSize(new Dimension(160, 130));
         character.setAlignmentX(LEFT_ALIGNMENT);
         body.add(character);
         body.add(Box.createVerticalStrut(16));
-        body.add(UiComponents.label(TITLES[selected], 24, Font.BOLD, Theme.TEXT));
+        body.add(UiComponents.label(LEVELS[selected].title(), 24, Font.BOLD, Theme.TEXT));
         body.add(Box.createVerticalStrut(14));
         body.add(UiComponents.label("난이도 · 미정", 15, Font.PLAIN, Theme.TEXT));
         body.add(Box.createVerticalStrut(8));
@@ -130,8 +128,8 @@ public final class LevelMapPanel extends JPanel {
         body.add(UiComponents.label(selected < COMPLETED ? "완료 · 복습 가능" : selected == COMPLETED ? "학습 가능" : "이전 단계를 완료하면 열려요", 14, Font.PLAIN, Theme.MUTED));
         body.add(Box.createVerticalStrut(20));
         JButton start = UiComponents.roundedPrimaryButton(selected < COMPLETED ? "복습하러 가기  →" : "탐험 시작하기  →");
-        start.setEnabled(selected < Level.values().length && selected <= COMPLETED);
-        start.addActionListener(e -> onLesson.accept(Level.values()[selected]));
+        start.setEnabled(selected <= COMPLETED);
+        start.addActionListener(e -> onLesson.accept(LEVELS[selected]));
         start.setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
         body.add(start);
         card.add(body, BorderLayout.NORTH);

@@ -1,6 +1,7 @@
 package geometrybook.gui.home;
 
 import geometrybook.gui.common.RoundedPanel;
+import geometrybook.domain.Level;
 import geometrybook.domain.StudyProgress;
 import geometrybook.gui.common.AppShell;
 import geometrybook.gui.common.Theme;
@@ -68,7 +69,7 @@ public final class HomePanel extends JPanel {
         JPanel stats = new JPanel(new GridLayout(1, 3, 16, 0));
         stats.setOpaque(false);
         stats.setAlignmentX(0f);
-        stats.add(statCard("전체 진도", study.completedCount() + " / 7 단계", Theme.LAVENDER));
+        stats.add(statCard("전체 진도", study.completedCount() + " / " + Level.values().length + " 단계", Theme.LAVENDER));
         stats.add(statCard("모은 포인트", "미정", new Color(0xFFF1C9)));
         stats.add(statCard("연속 학습", studyDates.isEmpty()?"아직 기록 없음":"1일째 탐험 중", new Color(0xFCE6DC)));
         stats.setPreferredSize(new Dimension(0, 115));
