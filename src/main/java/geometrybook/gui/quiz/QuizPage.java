@@ -1,6 +1,7 @@
 package geometrybook.gui.quiz;
 
 import geometrybook.application.quiz.QuizSource;
+import geometrybook.domain.Level;
 import geometrybook.domain.quiz.QuizAttempt;
 import geometrybook.domain.quiz.QuizQuestion;
 import geometrybook.gui.common.AppShell;
@@ -94,16 +95,12 @@ public final class QuizPage extends JPanel {
         list.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
         list.add(UiComponents.label("단원별 퀴즈 선택", 21, Font.BOLD, Theme.TEXT));
         list.add(Box.createVerticalStrut(20));
-        String[] titles = {"삼각형", "정사각형", "직사각형", "마름모", "사다리꼴", "평행사변형", "원"};
-        String[] ids = {"TRIANGLE", "SQUARE", "RECTANGLE", "RHOMBUS", "TRAPEZOID", "PARALLELOGRAM", "CIRCLE"};
-        for (int i = 0; i < titles.length; i++) {
-            final String id = ids[i];
-            final String title = titles[i];
-            list.add(levelCard(i + 1, title, () -> {
-                levelTitle = title;
-                load(() -> source.findByLevelId(id), this::startLevel);
+        for (Level level : Level.values()) {
+            if (level.number() > 1) list.add(Box.createVerticalStrut(14));
+            list.add(levelCard(level.number(), level.title(), () -> {
+                levelTitle = level.title();
+                load(() -> source.findByLevelId(level.name()), this::startLevel);
             }));
-            if (i < titles.length - 1) list.add(Box.createVerticalStrut(14));
         }
         content.add(list);
         refresh();

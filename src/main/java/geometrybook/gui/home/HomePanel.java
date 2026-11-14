@@ -1,6 +1,7 @@
 package geometrybook.gui.home;
 
 import geometrybook.gui.common.RoundedPanel;
+import geometrybook.domain.Level;
 import geometrybook.domain.StudyProgress;
 import geometrybook.gui.common.AppShell;
 import geometrybook.gui.common.Theme;
@@ -68,7 +69,7 @@ public final class HomePanel extends JPanel {
         JPanel stats = new JPanel(new GridLayout(1, 3, 16, 0));
         stats.setOpaque(false);
         stats.setAlignmentX(0f);
-        stats.add(statCard("전체 진도", study.completedCount() + " / 7 단계", Theme.LAVENDER));
+        stats.add(statCard("전체 진도", study.completedCount() + " / " + Level.values().length + " 단계", Theme.LAVENDER));
         stats.add(statCard("모은 포인트", "미정", new Color(0xFFF1C9)));
         stats.add(statCard("연속 학습", studyDates.isEmpty()?"아직 기록 없음":"1일째 탐험 중", new Color(0xFCE6DC)));
         stats.setPreferredSize(new Dimension(0, 115));
@@ -79,12 +80,20 @@ public final class HomePanel extends JPanel {
         return content;
     }
 
+    /** 레벨은 순서대로만 완료되므로 완료 수가 곧 다음 레벨의 위치다. */
+    private String nextLabel() {
+        int done = study.completedCount();
+        if (done == 0) return "첫 탐험 · LEVEL 01";
+        if (done >= Level.values().length) return "배운 도형을 복습해요";
+        return "다음 탐험 · " + Level.values()[done].title();
+    }
+
     private JPanel lessonCard() {
         RoundedPanel card = new RoundedPanel(new BorderLayout(), Theme.MINT, 28);
         card.setBorder(BorderFactory.createEmptyBorder(22, 26, 22, 26));
         card.setAlignmentX(0f);
         JPanel text = vertical();
-        text.add(UiComponents.label(study.completedCount() == 0 ? "첫 탐험 · LEVEL 01" : study.completedCount() == 1 ? "다음 탐험 · 정사각형" : "배운 도형을 복습해요", 13, Font.BOLD, Theme.GREEN));
+        text.add(UiComponents.label(nextLabel(), 13, Font.BOLD, Theme.GREEN));
         text.add(Box.createVerticalStrut(10));
         text.add(UiComponents.label("새로운 도형을 만나봐요!", 23, Font.BOLD, Theme.TEXT));
         text.add(Box.createVerticalStrut(8));
