@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;

@@ -11,7 +11,6 @@ import geometrybook.storage.CsvQuizSource;
 import geometrybook.storage.AuthService;
 import geometrybook.storage.ProgressRepository;
 import geometrybook.storage.WrongAnswerRepository;
-import java.awt.BorderLayout;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;

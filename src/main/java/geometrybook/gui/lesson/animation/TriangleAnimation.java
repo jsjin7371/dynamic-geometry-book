@@ -3,7 +3,6 @@ package geometrybook.gui.lesson.animation;
 import geometrybook.gui.common.Theme;
 import java.awt.*;
 import java.awt.geom.*;
-import javax.swing.*;
 
 /** 세 점, 변, 꼭짓점, 내각을 모으는 장면을 순서대로 그리는 애니메이션. */
 public final class TriangleAnimation extends LessonAnimation {
