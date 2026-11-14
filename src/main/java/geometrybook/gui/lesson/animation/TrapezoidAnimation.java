@@ -14,7 +14,6 @@ public final class TrapezoidAnimation extends LessonAnimation {
     private static final double[] Y = {85, 85, 245, 245};
     private static final Color ORANGE = new Color(0xD98A30);
     private static final Color PURPLE = new Color(0x8D71C8);
-    private static final Color LIGHT_PURPLE = new Color(0xDED5F3);
 
     public TrapezoidAnimation(Runnable onUpdate) {
         super(onUpdate);
