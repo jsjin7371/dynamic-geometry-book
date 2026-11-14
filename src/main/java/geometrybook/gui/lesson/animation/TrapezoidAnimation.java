@@ -4,10 +4,7 @@ import geometrybook.gui.common.Theme;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -33,46 +30,31 @@ public final class TrapezoidAnimation extends LessonAnimation {
     }
 
     @Override
-    protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        Graphics2D g = (Graphics2D) graphics.create();
-        try {
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            double scale = Math.min(getWidth() / 600.0, getHeight() / 340.0);
-            g.translate((getWidth() - 600 * scale) / 2,
-                    (getHeight() - 340 * scale) / 2);
-            g.scale(scale, scale);
-
-            if (elapsed >= 6000) {
-                g.setColor(Theme.MINT);
-                g.fill(trapezoid());
-            }
-
-            paintSides(g);
-
-            if (elapsed >= 6000) {
-                paintParallelMarks(g);
-            }
-
-            if (elapsed >= 11000) {
-                paintHeight(g);
-            }
-
-            if (elapsed >= 16000) {
-                paintBaseLabels(g);
-            }
-
-            if (elapsed >= 20000) {
-                paintFormula(g);
-            }
-
-            paintVertices(g);
-
-        } finally {
-            g.dispose();
+    protected void draw(Graphics2D g) {
+        if (elapsed >= 6000) {
+            g.setColor(Theme.MINT);
+            g.fill(trapezoid());
         }
+
+        paintSides(g);
+
+        if (elapsed >= 6000) {
+            paintParallelMarks(g);
+        }
+
+        if (elapsed >= 11000) {
+            paintHeight(g);
+        }
+
+        if (elapsed >= 16000) {
+            paintBaseLabels(g);
+        }
+
+        if (elapsed >= 20000) {
+            paintFormula(g);
+        }
+
+        paintVertices(g);
     }
 
     private void paintSides(Graphics2D g) {
@@ -169,13 +151,6 @@ public final class TrapezoidAnimation extends LessonAnimation {
         mark.lineTo(x + 15, y - 15);
         mark.lineTo(x, y - 15);
         g.draw(mark);
-    }
-
-    private static void centered(Graphics2D g, String text,double centerX, double y) {
-        FontMetrics metrics = g.getFontMetrics();
-        g.drawString(text,
-                (float) (centerX - metrics.stringWidth(text) / 2.0),
-                (float) y);
     }
 
     private static Path2D trapezoid() {

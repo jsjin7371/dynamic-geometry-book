@@ -4,9 +4,7 @@ import geometrybook.gui.common.Theme;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
@@ -30,47 +28,37 @@ public final class CircleAnimation extends LessonAnimation {
         return "중심을 지나는 지름은 반지름의 두 배예요. 3cm의 두 배는 6cm!";
     }
 
-    @Override protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        Graphics2D g = (Graphics2D) graphics.create();
-        try {
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            double scale = Math.min(getWidth() / 600.0, getHeight() / 340.0);
-            g.translate((getWidth() - 600 * scale) / 2, (getHeight() - 340 * scale) / 2);
-            g.scale(scale, scale);
-            if (elapsed >= 6000) {
-                g.setColor(Theme.MINT);
-                g.fill(new Ellipse2D.Double(CX - RADIUS, CY - RADIUS, RADIUS * 2, RADIUS * 2));
-            }
-            g.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g.setColor(Theme.GREEN);
-            double sweep = Math.min(1, elapsed / 6000.0) * 360;
-            g.draw(new Arc2D.Double(CX - RADIUS, CY - RADIUS, RADIUS * 2, RADIUS * 2,
-                    0, sweep, Arc2D.OPEN));
-            g.setFont(Theme.font(Font.BOLD, 19));
-            if (elapsed < 6000) {
-                drawRadius(g, Math.toRadians(sweep), RADIUS_COLOR);
-            } else if (elapsed < 12000) {
-                drawRadius(g, 0, RADIUS_COLOR);
-                g.drawString("반지름", CX + 28, CY - 15);
-                g.setColor(Theme.TEXT);
-                g.drawString("원 위의 점", CX + RADIUS + 12, CY + 6);
-            } else if (elapsed < 18000) {
-                drawRadius(g, 0, RADIUS_COLOR);
-                double rotation = (elapsed - 12000) / 6000.0 * Math.PI * 2;
-                drawRadius(g, rotation, SECOND_RADIUS_COLOR);
-                g.setColor(Theme.TEXT);
-                centeredText(g, "두 선분의 길이를 비교해 보세요", 304);
-            } else {
-                drawDiameter(g);
-            }
-            g.setColor(Theme.GREEN);
-            g.fill(new Ellipse2D.Double(CX - 5, CY - 5, 10, 10));
-            g.setFont(Theme.font(Font.BOLD, 17));
-            g.drawString("중심", CX - 16, CY + 28);
-        } finally {
-            g.dispose();
+    @Override protected void draw(Graphics2D g) {
+        if (elapsed >= 6000) {
+            g.setColor(Theme.MINT);
+            g.fill(new Ellipse2D.Double(CX - RADIUS, CY - RADIUS, RADIUS * 2, RADIUS * 2));
         }
+        g.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setColor(Theme.GREEN);
+        double sweep = Math.min(1, elapsed / 6000.0) * 360;
+        g.draw(new Arc2D.Double(CX - RADIUS, CY - RADIUS, RADIUS * 2, RADIUS * 2,
+                0, sweep, Arc2D.OPEN));
+        g.setFont(Theme.font(Font.BOLD, 19));
+        if (elapsed < 6000) {
+            drawRadius(g, Math.toRadians(sweep), RADIUS_COLOR);
+        } else if (elapsed < 12000) {
+            drawRadius(g, 0, RADIUS_COLOR);
+            g.drawString("반지름", CX + 28, CY - 15);
+            g.setColor(Theme.TEXT);
+            g.drawString("원 위의 점", CX + RADIUS + 12, CY + 6);
+        } else if (elapsed < 18000) {
+            drawRadius(g, 0, RADIUS_COLOR);
+            double rotation = (elapsed - 12000) / 6000.0 * Math.PI * 2;
+            drawRadius(g, rotation, SECOND_RADIUS_COLOR);
+            g.setColor(Theme.TEXT);
+            centeredText(g, "두 선분의 길이를 비교해 보세요", 304);
+        } else {
+            drawDiameter(g);
+        }
+        g.setColor(Theme.GREEN);
+        g.fill(new Ellipse2D.Double(CX - 5, CY - 5, 10, 10));
+        g.setFont(Theme.font(Font.BOLD, 17));
+        g.drawString("중심", CX - 16, CY + 28);
     }
 
     private void drawRadius(Graphics2D g, double angle, Color color) {

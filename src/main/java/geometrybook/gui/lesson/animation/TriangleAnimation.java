@@ -18,13 +18,7 @@ public final class TriangleAnimation extends LessonAnimation {
         if (elapsed < 18000) return "세 꼭짓점 안쪽에 있는 각을 내각이라고 해요.";
         return "세 내각을 한 점에 모으면 곧은 각, 180도가 돼요!";
     }
-    @Override protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        Graphics2D g = (Graphics2D) graphics.create();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        double scale = Math.min(getWidth()/600.0, getHeight()/340.0);
-        g.translate((getWidth()-600*scale)/2, (getHeight()-340*scale)/2);
-        g.scale(scale, scale);
+    @Override protected void draw(Graphics2D g) {
         double[] x = {
             300, 150, 450
         };
@@ -78,6 +72,5 @@ public final class TriangleAnimation extends LessonAnimation {
                 g.drawString("세 내각의 합 = 180°", 205, 310);
             }
         }
-        g.dispose();
     }
 }

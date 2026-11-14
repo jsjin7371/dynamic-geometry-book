@@ -4,9 +4,7 @@ import geometrybook.gui.common.Theme;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 
 public final class RectangleAnimation extends LessonAnimation {
@@ -28,40 +26,29 @@ public final class RectangleAnimation extends LessonAnimation {
         return "가로 5cm, 세로 3cm이면 넓이는 15cm²예요.";
     }
 
-    @Override protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        Graphics2D g = (Graphics2D) graphics.create();
-        try {
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            double scale = Math.min(getWidth() / 600.0, getHeight() / 340.0);
-            g.translate((getWidth() - 600 * scale) / 2, (getHeight() - 340 * scale) / 2);
-            g.scale(scale, scale);
+    @Override protected void draw(Graphics2D g) {
+        int[] x = {LEFT, LEFT + WIDTH, LEFT + WIDTH, LEFT};
+        int[] y = {TOP, TOP, TOP + HEIGHT, TOP + HEIGHT};
 
-            int[] x = {LEFT, LEFT + WIDTH, LEFT + WIDTH, LEFT};
-            int[] y = {TOP, TOP, TOP + HEIGHT, TOP + HEIGHT};
-
-            if (elapsed >= 6000) {
-                g.setColor(Theme.MINT);
-                g.fillRect(LEFT, TOP, WIDTH, HEIGHT);
-            }
-
-            g.setColor(Theme.GREEN);
-            g.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-
-            for (int i = 0; i < 4; i++) {
-                int next = (i + 1) % 4;
-                double fraction = Math.max(0, Math.min(1, (elapsed - i * 1500) / 1500.0));
-                g.draw(new Line2D.Double(x[i], y[i],
-                        x[i] + (x[next] - x[i]) * fraction,
-                        y[i] + (y[next] - y[i]) * fraction));
-            }
-
-            if (elapsed >= 6000) drawVertices(g, x, y);
-            if (elapsed >= 12000) drawRightAngles(g);
-            if (elapsed >= 18000) drawLengths(g);
-        } finally {
-            g.dispose();
+        if (elapsed >= 6000) {
+            g.setColor(Theme.MINT);
+            g.fillRect(LEFT, TOP, WIDTH, HEIGHT);
         }
+
+        g.setColor(Theme.GREEN);
+        g.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+        for (int i = 0; i < 4; i++) {
+            int next = (i + 1) % 4;
+            double fraction = Math.max(0, Math.min(1, (elapsed - i * 1500) / 1500.0));
+            g.draw(new Line2D.Double(x[i], y[i],
+                    x[i] + (x[next] - x[i]) * fraction,
+                    y[i] + (y[next] - y[i]) * fraction));
+        }
+
+        if (elapsed >= 6000) drawVertices(g, x, y);
+        if (elapsed >= 12000) drawRightAngles(g);
+        if (elapsed >= 18000) drawLengths(g);
     }
 
     private void drawVertices(Graphics2D g, int[] x, int[] y) {

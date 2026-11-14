@@ -46,9 +46,7 @@
 ```java
 package geometrybook.gui.lesson.animation;
 
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 
 public final class RectangleAnimation extends LessonAnimation {
     public RectangleAnimation(Runnable onUpdate) {
@@ -64,17 +62,9 @@ public final class RectangleAnimation extends LessonAnimation {
     }
 
     @Override
-    protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        Graphics2D g = (Graphics2D) graphics.create();
-        try {
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-            // elapsed에 따라 도형의 선분, 각 표시 등을 그립니다.
-            // 실제 구현은 SquareAnimation의 비율 유지와 장면 전환을 참고하세요.
-        } finally {
-            g.dispose();
-        }
+    protected void draw(Graphics2D g) {
+        // elapsed에 따라 도형의 선분, 각 표시 등을 그립니다.
+        // 좌표는 600×340 기준으로 적습니다. 실제 구현은 SquareAnimation의 장면 전환을 참고하세요.
     }
 }
 ```
@@ -83,9 +73,9 @@ public final class RectangleAnimation extends LessonAnimation {
 
 - `elapsed`는 경과 시간이며 단위는 밀리초입니다. 현재 공통 재생 시간은 `DURATION = 24000`, 즉 24초입니다.
 - 장면별 시작·종료 시점을 정하고 그 시간에 맞춰 도형과 `caption()`을 함께 바꿉니다.
-- `paintComponent()`에서는 현재 시간에 해당하는 장면만 그립니다. 여기서 시간을 증가시키거나 타이머를 시작하지 않습니다.
-- 기존 애니메이션처럼 논리 좌표와 배율을 사용해 창 크기가 달라도 도형 비율을 유지합니다.
-- `Graphics2D`는 복사해서 사용한 뒤 정리합니다. UI 갱신은 Swing EDT에서 수행하며 `Thread.sleep()`으로 재생하지 않습니다.
+- `draw()`에서는 현재 시간에 해당하는 장면만 그립니다. 여기서 시간을 증가시키거나 타이머를 시작하지 않습니다.
+- 좌표는 600×340 기준으로 적습니다. 창 크기에 맞춘 확대·축소와 가운데 정렬은 부모 클래스가 합니다.
+- `Graphics2D` 복사와 정리, 안티에일리어싱도 부모 클래스가 하므로 `paintComponent()`는 재정의하지 않습니다. 가운데 정렬 글자는 `centered()`를 씁니다. UI 갱신은 Swing EDT에서 수행하며 `Thread.sleep()`으로 재생하지 않습니다.
 - 부모 클래스의 `play()`, `pause()`, `restart()`, `playing()`, `elapsed()`를 그대로 사용합니다. 화면 제거 시 타이머 정리도 부모 클래스가 담당합니다.
 - `DURATION`을 바꾸면 기존 레슨의 재생 길이도 바뀝니다. 도형별 재생 시간이 필요하면 공통 클래스와 진행률 표시를 함께 설계해야 합니다.
 
