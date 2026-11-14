@@ -1,6 +1,6 @@
 # 심화 퀴즈 CSV 작성 가이드
 
-심화 퀴즈 화면(`QuizPanel`)은 `data/questions.csv`(문제)와 `data/answer_choices.csv`(보기)를 읽어서 문제를 보여 줍니다. 코드를 고치지 않고 **두 CSV에 줄을 추가**하면 새 문제가 나옵니다.
+심화 퀴즈 화면(`QuizPage`)은 `data/questions.csv`(문제)와 `data/answer_choices.csv`(보기)를 읽어서 문제를 보여 줍니다. 코드를 고치지 않고 **두 CSV에 줄을 추가**하면 새 문제가 나옵니다.
 
 읽는 코드는 `storage/CsvQuizSource`이고, 팀의 `QuizSource` 인터페이스를 구현합니다.
 

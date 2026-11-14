@@ -1,7 +1,7 @@
 package geometrybook.app;
 
 import geometrybook.domain.StudyProgress;
-import geometrybook.gui.quiz.QuizPanel;
+import geometrybook.gui.quiz.QuizPage;
 import geometrybook.domain.Level;
 import geometrybook.gui.auth.LoginPanel;
 import geometrybook.gui.home.HomePanel;
@@ -28,7 +28,7 @@ final class AppNavigation {
     private final WrongAnswerRepository wrongs = new WrongAnswerRepository(Path.of("data"));
     private StudyProgress study = new StudyProgress();
     private LessonPanel lesson;
-    private QuizPanel quiz;
+    private QuizPage quiz;
     AppNavigation(JFrame frame) {
         this.frame = frame;
         login();
@@ -89,7 +89,7 @@ final class AppNavigation {
         lesson = null;
         String studentId = auth.getCurrentStudent().getId();
         CsvQuizSource source = new CsvQuizSource(Path.of("data"));
-        quiz = new QuizPanel(source, (questionId, correct) -> {
+        quiz = new QuizPage(source, (questionId, correct) -> {
             if (correct) wrongs.remove(studentId, questionId);   // 다시 맞히면 오답노트에서 삭제
             else wrongs.add(studentId, questionId);               // 틀린 순간 저장
         }, () -> source.findByIds(wrongs.findQuestionIds(studentId)),   // 오답노트: 내 오답 문제

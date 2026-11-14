@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 import javax.swing.*;
 
 /** 단원 선택, 한 문제씩 채점, 결과와 오답 재도전을 제공한다. */
-public final class QuizPanel extends JPanel {
+public final class QuizPage extends JPanel {
     private final QuizSource source;
     private final BiConsumer<String, Boolean> onGraded;
     private final Supplier<List<QuizQuestion>> wrongNote;
@@ -34,7 +34,7 @@ public final class QuizPanel extends JPanel {
      * onGraded: 한 문제를 채점할 때마다 (문제 ID, 정답 여부)를 받는다. 오답 기록 저장에 쓴다.
      * wrongNote: 현재 학생의 오답 문제를 틀린 순서대로 돌려준다. 오답노트에 쓴다.
      */
-    public QuizPanel(QuizSource source, BiConsumer<String, Boolean> onGraded, Supplier<List<QuizQuestion>> wrongNote,
+    public QuizPage(QuizSource source, BiConsumer<String, Boolean> onGraded, Supplier<List<QuizQuestion>> wrongNote,
                      Runnable onHome, Runnable onLevel, Runnable onLogout) {
         super(new BorderLayout());
         this.source = source;
