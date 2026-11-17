@@ -232,6 +232,7 @@ public final class QuizPage extends JPanel {
         options.setOpaque(false);
         options.setAlignmentX(LEFT_ALIGNMENT);
         List<ChoiceTile> tiles = new ArrayList<>();
+        QuizBuddy buddy = new QuizBuddy();
         selectedChoiceId = null;
         for (QuizQuestion.Choice choice : question.choices) {
             ChoiceTile tile = new ChoiceTile(choice.choiceNo, choice.content, ox);
@@ -240,6 +241,7 @@ public final class QuizPage extends JPanel {
                 for (ChoiceTile other : tiles) {
                     other.setState(other == tile ? ChoiceTile.State.SELECTED : ChoiceTile.State.IDLE);
                 }
+                buddy.react(QuizBuddy.Mood.HOP);
             });
             tiles.add(tile);
             options.add(tile);
@@ -249,6 +251,12 @@ public final class QuizPage extends JPanel {
         JPanel answerColumn = UiComponents.column();
         answerColumn.add(options);
         TriangleFigure figure = TriangleFigure.of(question.figure);
+        if (figure != null) {
+            figure.onEvent(event -> {
+                if (event.equals("done")) buddy.react(QuizBuddy.Mood.HAPPY);
+                else if (event.equals("tap") || event.equals("snap")) buddy.react(QuizBuddy.Mood.HOP);
+            });
+        }
         if (!question.hint.isBlank()) {
             answerColumn.add(Box.createVerticalStrut(18));
             RoundedPanel hintBox = new RoundedPanel(new BorderLayout(), Theme.YELLOW, 20);
@@ -262,6 +270,7 @@ public final class QuizPage extends JPanel {
             hint.addActionListener(event -> {
                 hintBox.setVisible(true);
                 hint.setVisible(false);
+                buddy.react(QuizBuddy.Mood.THINK);
                 if (figure != null) figure.showHint();
                 refresh();
             });
@@ -278,10 +287,15 @@ public final class QuizPage extends JPanel {
         body.add(answerArea, BorderLayout.CENTER);
         card.add(body, BorderLayout.CENTER);
 
-        RoundedPanel result = new RoundedPanel(new BorderLayout(0, 8), Theme.BACKGROUND, 20);
-        result.setBorder(BorderFactory.createEmptyBorder(14, 20, 14, 20));
+        RoundedPanel result = new RoundedPanel(new BorderLayout(18, 0), Theme.BACKGROUND, 20);
+        result.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 20));
+        result.add(buddy, BorderLayout.WEST);
+        JPanel resultText = new JPanel(new BorderLayout(0, 8));
+        resultText.setOpaque(false);
+        resultText.setBorder(BorderFactory.createEmptyBorder(16, 0, 0, 0));
         JLabel feedback = UiComponents.label("보기를 고르고 정답을 확인하세요.", 20, Font.BOLD, Theme.GREEN);
-        result.add(feedback, BorderLayout.NORTH);
+        resultText.add(feedback, BorderLayout.NORTH);
+        result.add(resultText, BorderLayout.CENTER);
         card.add(result, BorderLayout.SOUTH);
         content.add(card);
         gap(20);
@@ -306,8 +320,9 @@ public final class QuizPage extends JPanel {
             feedback.setForeground(correct ? new Color(0x1F7A52) : new Color(0xB23B35));
             feedback.setText(correct ? "정답이에요! 멋져요!" : "아쉬워요. 정답은 " + question.correctChoice().content + "예요.");
             if (!question.explanation.isBlank()) {
-                result.add(wrappedText(question.explanation, 19, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
+                resultText.add(wrappedText(question.explanation, 19, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
             }
+            buddy.react(correct ? QuizBuddy.Mood.HAPPY : QuizBuddy.Mood.SAD);
             if (figure != null) figure.reveal(correct);
             submit.setEnabled(false);
             for (int i = 0; i < tiles.size(); i++) {
