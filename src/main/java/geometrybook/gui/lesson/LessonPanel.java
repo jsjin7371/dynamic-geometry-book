@@ -21,11 +21,13 @@ public final class LessonPanel extends JPanel {
     private final Runnable onHome, onLevel, onQuiz, onLogout;
     private LessonAnimation animation;
     private final Level topic;
+    private final String name;
     private boolean result;
-    public LessonPanel(StudyProgress study, Level topic, Runnable onHome, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
+    public LessonPanel(String name, StudyProgress study, Level topic, Runnable onHome, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
         super(new BorderLayout());
         this.study = study;
         this.topic = topic;
+        this.name = name;
         this.onHome = onHome;
         this.onLevel = onLevel;
         this.onQuiz = onQuiz;
@@ -56,7 +58,7 @@ public final class LessonPanel extends JPanel {
     private JPanel page(int step) {
         stop();
         removeAll();
-        AppShell shell = new AppShell(AppShell.Page.LESSON, () -> leave(onHome), () -> leave(onLevel), () -> leave(onQuiz), () -> leave(onLogout));
+        AppShell shell = new AppShell(AppShell.Page.LESSON, name, () -> leave(onHome), () -> leave(onLevel), () -> leave(onQuiz), () -> leave(onLogout));
         JPanel page = UiComponents.column();
         page.setBorder(BorderFactory.createEmptyBorder(24, 28, 24, 28));
         page.setBackground(Theme.BACKGROUND);

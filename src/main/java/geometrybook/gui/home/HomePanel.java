@@ -37,15 +37,15 @@ public final class HomePanel extends JPanel {
     private final JLabel monthLabel = UiComponents.label("", 17, Font.BOLD, Theme.TEXT);
     private final JPanel calendarGrid = new JPanel(new GridLayout(0, 7, 4, 4));
 
-    public HomePanel(StudyProgress study, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
+    public HomePanel(String name, StudyProgress study, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
         super(new BorderLayout());
         this.study = study;
         this.studyDates = study.studyDates();
         this.onLevel = onLevel;
         setBackground(Theme.BACKGROUND);
-        AppShell shell = new AppShell(AppShell.Page.HOME, () -> {
+        AppShell shell = new AppShell(AppShell.Page.HOME, name, () -> {
         }, onLevel, onQuiz, onLogout);
-        JScrollPane scroll = new JScrollPane(content());
+        JScrollPane scroll = new JScrollPane(content(name));
         scroll.setBorder(null);
         scroll.getViewport().setBackground(Theme.BACKGROUND);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
@@ -53,14 +53,14 @@ public final class HomePanel extends JPanel {
         add(shell);
     }
 
-    private JPanel content() {
+    private JPanel content(String name) {
         JPanel content = new JPanel();
         content.setBackground(Theme.BACKGROUND);
         content.setBorder(BorderFactory.createEmptyBorder(30, 32, 32, 32));
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.add(UiComponents.label("MY ADVENTURE", 12, Font.BOLD, Theme.GREEN));
         content.add(Box.createVerticalStrut(10));
-        content.add(UiComponents.label("초록별, 오늘은 어떤 도형을 만날까?", 28, Font.BOLD, Theme.TEXT));
+        content.add(UiComponents.label(name + ", 오늘은 어떤 도형을 만날까?", 28, Font.BOLD, Theme.TEXT));
         content.add(Box.createVerticalStrut(10));
         content.add(UiComponents.label("도형 친구들과 함께 탐험해요.", 16, Font.PLAIN, Theme.MUTED));
         content.add(Box.createVerticalStrut(20));

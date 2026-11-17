@@ -11,7 +11,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-/** 로그인 후 화면에서 공유하는 헤더와 탐색 메뉴. 사용자 정보는 현재 임시 값이다. */
+/** 로그인 후 화면에서 공유하는 헤더와 탐색 메뉴. 포인트는 B안 전까지 임시 값이다. */
 public final class AppShell extends JPanel {
     /** 사이드바에서 강조할 현재 화면. */
     public enum Page { HOME, LEVEL, LESSON, QUIZ }
@@ -19,19 +19,16 @@ public final class AppShell extends JPanel {
     /**
      * 공통 헤더와 사이드바를 구성한다. 화면 전환과 로그아웃 처리는 호출자가 연결한다.
      * @param selected 사이드바에서 강조할 화면
+     * @param name 헤더에 표시할 학생 이름
      * @param onHome 나의 탐험 메뉴를 선택했을 때 실행할 동작
      * @param onLevel 레벨 지도 메뉴를 선택했을 때 실행할 동작
+     * @param onQuiz 퀴즈 메뉴를 선택했을 때 실행할 동작
      * @param onLogout 로그아웃을 선택했을 때 실행할 동작
      */
-    public AppShell(Page selected, Runnable onHome, Runnable onLevel, Runnable onLogout) {
-        this(selected, onHome, onLevel, null, onLogout);
-    }
-
-    /** 퀴즈 메뉴의 이동 동작도 함께 연결하는 공통 화면. */
-    public AppShell(Page selected, Runnable onHome, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
+    public AppShell(Page selected, String name, Runnable onHome, Runnable onLevel, Runnable onQuiz, Runnable onLogout) {
         super(new BorderLayout());
         setBackground(Theme.BACKGROUND);
-        add(header(), BorderLayout.NORTH);
+        add(header(name), BorderLayout.NORTH);
         add(sidebar(selected, onHome, onLevel, onQuiz, onLogout), BorderLayout.WEST);
     }
 
@@ -43,8 +40,8 @@ public final class AppShell extends JPanel {
         add(content, BorderLayout.CENTER);
     }
 
-    /** 앱 이름과 임시 학생 요약 정보를 표시하는 헤더를 만든다. */
-    private JPanel header() {
+    /** 앱 이름과 학생 요약 정보를 표시하는 헤더를 만든다. */
+    private JPanel header(String name) {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(Color.WHITE);
         header.setBorder(BorderFactory.createEmptyBorder(20, 28, 20, 28));
@@ -53,7 +50,7 @@ public final class AppShell extends JPanel {
         info.setOpaque(false);
         info.add(UiComponents.label("학습 탐험", 15, Font.BOLD, Theme.GREEN));
         info.add(UiComponents.label("포인트 · 미정", 15, Font.BOLD, Theme.GREEN));
-        info.add(UiComponents.label("초록별", 15, Font.BOLD, Theme.TEXT));
+        info.add(UiComponents.label(name, 15, Font.BOLD, Theme.TEXT));
         header.add(info, BorderLayout.EAST);
         return header;
     }

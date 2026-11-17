@@ -35,13 +35,13 @@ public final class QuizPage extends JPanel {
      * onGraded: 한 문제를 채점할 때마다 (문제 ID, 정답 여부)를 받는다. 오답 기록 저장에 쓴다.
      * wrongNote: 현재 학생의 오답 문제를 틀린 순서대로 돌려준다. 오답노트에 쓴다.
      */
-    public QuizPage(QuizSource source, BiConsumer<String, Boolean> onGraded, Supplier<List<QuizQuestion>> wrongNote,
+    public QuizPage(String name, QuizSource source, BiConsumer<String, Boolean> onGraded, Supplier<List<QuizQuestion>> wrongNote,
                      Runnable onHome, Runnable onLevel, Runnable onLogout) {
         super(new BorderLayout());
         this.source = source;
         this.onGraded = onGraded;
         this.wrongNote = wrongNote;
-        AppShell shell = new AppShell(AppShell.Page.QUIZ, () -> leave(onHome),
+        AppShell shell = new AppShell(AppShell.Page.QUIZ, name, () -> leave(onHome),
                 () -> leave(onLevel), () -> {}, () -> leave(onLogout));
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBackground(Theme.BACKGROUND);

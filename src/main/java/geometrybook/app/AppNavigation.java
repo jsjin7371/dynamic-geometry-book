@@ -69,17 +69,17 @@ final class AppNavigation {
     private void home() {
         lesson = null;
         quiz = null;
-        show(new HomePanel(study, this::levels, this::quizzes, this::login));
+        show(new HomePanel(name(), study, this::levels, this::quizzes, this::login));
     }
 
     private void levels() {
         lesson = null;
         quiz = null;
-        show(new LevelMapPanel(study, this::startLesson, this::home, this::quizzes, this::login));
+        show(new LevelMapPanel(name(), study, this::startLesson, this::home, this::quizzes, this::login));
     }
 
     private void startLesson(Level topic) {
-        lesson = new LessonPanel(study, topic, this::home, this::levels, this::quizzes, this::login);
+        lesson = new LessonPanel(name(), study, topic, this::home, this::levels, this::quizzes, this::login);
         show(lesson);
         lesson.begin();
     }
@@ -88,12 +88,17 @@ final class AppNavigation {
         lesson = null;
         String studentId = auth.getCurrentStudent().getId();
         CsvQuizSource source = new CsvQuizSource(Path.of("data"));
-        quiz = new QuizPage(source, (questionId, correct) -> {
+        quiz = new QuizPage(name(), source, (questionId, correct) -> {
             if (correct) wrongs.remove(studentId, questionId);   // 다시 맞히면 오답노트에서 삭제
             else wrongs.add(studentId, questionId);               // 틀린 순간 저장
         }, () -> source.findByIds(wrongs.findQuestionIds(studentId)),   // 오답노트: 내 오답 문제
                 this::home, this::levels, this::login);
         show(quiz);
+    }
+
+    /** 화면 헤더와 인사말에 표시할 로그인 학생 이름. */
+    private String name() {
+        return auth.getCurrentStudent().getLoginId();
     }
 
     void close() {
