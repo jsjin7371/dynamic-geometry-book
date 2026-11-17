@@ -21,6 +21,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 import javax.swing.JComponent;
 import javax.swing.Timer;
 
@@ -33,6 +34,10 @@ import javax.swing.Timer;
  * - grow: 오른쪽 꼭짓점의 노란 점을 끌어 크기를 바꿔도 각은 그대로다.
  * - 두 각의 합이 180° 이상: 노란 점을 끌어 올려도 두 변이 만나지 않는다.
  * 채점하면 남은 장면을 자동으로 끝내고 ?가 답으로 바뀌며, 맞히면 별이 터지고 틀리면 흔들린다.
+ * 힌트 전에 꼭짓점을 누르면 그 각이 반짝이며 크기를 알려 준다.
+ *
+ * 화면이 소리나 캐릭터로 반응할 수 있게 사건을 알린다:
+ * tap(각 누름), pick(잡음), snap(선에 놓음), back(제자리로 돌아감), done(장면 완성).
  */
 public final class TriangleFigure extends JComponent {
     private static final double W = 460, H = 340;
@@ -52,6 +57,8 @@ public final class TriangleFigure extends JComponent {
     private long doneAt = -1;
     private boolean correct;
     private final List<double[]> stars = new ArrayList<>();
+    private final long[] tappedAt = {-1, -1, -1};
+    private Consumer<String> listener = event -> { };
 
     /** 각 조각 (보통 삼각형의 끌기 장면). */
     private final Piece[] pieces = new Piece[3];
@@ -109,6 +116,11 @@ public final class TriangleFigure extends JComponent {
         addMouseMotionListener(mouse);
     }
 
+    /** tap·pick·snap·back·done 사건을 받을 곳을 정한다. */
+    public void onEvent(Consumer<String> listener) {
+        this.listener = listener;
+    }
+
     /** 힌트 장면을 시작한다. 이때부터 끌 수 있다. */
     public void showHint() {
         if (hintAt < 0) hintAt = System.currentTimeMillis();
@@ -124,6 +136,7 @@ public final class TriangleFigure extends JComponent {
         handleHeld = false;
         if (!impossible && !grow) {
             for (Piece piece : pieces) if (!piece.snapped) piece.moveTo(true, revealAt);
+            if (doneAt < 0) doneAt = revealAt + 250;   // 자동으로 모은 뒤 식을 보여 준다 (사건은 알리지 않음)
         }
         if (correct) {
             Random random = new Random();
@@ -151,6 +164,7 @@ public final class TriangleFigure extends JComponent {
     }
 
     private boolean grabbable(Point2D.Double m) {
+        if (hintAt < 0 && revealAt < 0) return cornerAt(m) >= 0;
         if (!canDrag()) return false;
         if (impossible || grow) return handle().distance(m) < 30;
         return pieceAt(m) >= 0;
@@ -164,14 +178,35 @@ public final class TriangleFigure extends JComponent {
         return -1;
     }
 
+    /** 힌트 전에는 꼭짓점 근처를 누르면 그 각이 반짝인다. */
+    private int cornerAt(Point2D.Double m) {
+        Point2D.Double[] corners = impossible
+                ? new Point2D.Double[]{new Point2D.Double(230, 170), new Point2D.Double(124, 236), new Point2D.Double(336, 236)}
+                : vertices(currentSize(System.currentTimeMillis()));
+        for (int i = 0; i < 3; i++) {
+            if (corners[i].distance(m) < 60) return i;
+        }
+        return -1;
+    }
+
     private void press(Point2D.Double m) {
+        if (hintAt < 0 && revealAt < 0) {
+            int corner = cornerAt(m);
+            if (corner >= 0) {
+                tappedAt[corner] = System.currentTimeMillis();
+                listener.accept("tap");
+            }
+            return;
+        }
         if (!canDrag()) return;
         if (impossible || grow) {
             handleHeld = handle().distance(m) < 30;
+            if (handleHeld) listener.accept("pick");
             return;
         }
         dragging = pieceAt(m);
         if (dragging >= 0) {
+            listener.accept("pick");
             Point2D.Double c = pieces[dragging].center(System.currentTimeMillis());
             grabX = m.x - c.x;
             grabY = m.y - c.y;
@@ -182,10 +217,10 @@ public final class TriangleFigure extends JComponent {
         if (!canDrag()) return;
         if (handleHeld && grow) {
             size = Math.max(0.5, Math.min(1.2, (m.x - 230) / (vertices(1)[2].x - 230)));
-            if (Math.abs(size - 1) > 0.15 && doneAt < 0) doneAt = System.currentTimeMillis();
+            if (Math.abs(size - 1) > 0.15 && doneAt < 0) finish(System.currentTimeMillis());
         } else if (handleHeld) {
             rise = Math.max(0, Math.min(1, (110 - m.y) / 90));
-            if (rise > 0.97 && doneAt < 0) doneAt = System.currentTimeMillis();
+            if (rise > 0.97 && doneAt < 0) finish(System.currentTimeMillis());
         } else if (dragging >= 0) {
             pieces[dragging].hold(m.x - grabX, m.y - grabY);
         }
@@ -199,9 +234,15 @@ public final class TriangleFigure extends JComponent {
         boolean close = piece.center(now).distance(GATHER_X, GATHER_Y) < 80;
         piece.moveTo(close, now);
         dragging = -1;
+        listener.accept(close ? "snap" : "back");
         boolean all = true;
         for (Piece p : pieces) all &= p.snapped;
-        if (all && doneAt < 0) doneAt = now + 250;
+        if (all && doneAt < 0) finish(now + 250);
+    }
+
+    private void finish(long at) {
+        doneAt = at;
+        listener.accept("done");
     }
 
     private Point2D.Double handle() {
@@ -232,6 +273,7 @@ public final class TriangleFigure extends JComponent {
             }
             if (impossible) drawNeverMeet(g, now);
             else drawTriangle(g, now);
+            drawTaps(g, now);
             drawStars(g, now);
         } finally {
             g.dispose();
@@ -408,6 +450,34 @@ public final class TriangleFigure extends JComponent {
         g.setFont(Theme.font(Font.BOLD, unknown[i] ? 28 : 23));
         centered(g, label(i), 0, 8);
         g.setTransform(saved);
+    }
+
+    /** 누른 꼭짓점에 퍼지는 고리와 말풍선을 그린다. */
+    private void drawTaps(Graphics2D g, long now) {
+        Point2D.Double[] corners = impossible
+                ? new Point2D.Double[]{new Point2D.Double(230, 170), new Point2D.Double(124, 236), new Point2D.Double(336, 236)}
+                : vertices(currentSize(now));
+        for (int i = 0; i < 3; i++) {
+            long t = now - tappedAt[i];
+            if (tappedAt[i] < 0 || t > 1400) continue;
+            Point2D.Double c = corners[i];
+            double ring = 26 + 40 * Math.min(1, t / 500.0);
+            g.setColor(withAlpha(INK[i], (int) (200 * Math.max(0, 1 - t / 500.0))));
+            g.setStroke(new BasicStroke(4));
+            g.draw(new Ellipse2D.Double(c.x - ring, c.y - ring, ring * 2, ring * 2));
+
+            String text = unknown[i] ? "이 각을 구해 봐요!" : "이 각은 " + label(i);
+            g.setFont(Theme.font(Font.BOLD, 18));
+            double w = g.getFontMetrics().stringWidth(text) + 24, h = 34;
+            double bx = Math.max(4, Math.min(W - w - 4, c.x - w / 2)), by = Math.max(4, c.y - 92);
+            int alpha = (int) (255 * Math.min(1, Math.max(0, (1400 - t) / 300.0)));
+            g.setColor(withAlpha(Color.WHITE, alpha));
+            g.fill(new java.awt.geom.RoundRectangle2D.Double(bx, by, w, h, 16, 16));
+            g.setColor(withAlpha(INK[i], alpha));
+            g.setStroke(new BasicStroke(2.5f));
+            g.draw(new java.awt.geom.RoundRectangle2D.Double(bx, by, w, h, 16, 16));
+            g.drawString(text, (float) (bx + 12), (float) (by + 24));
+        }
     }
 
     private void drawStars(Graphics2D g, long now) {
