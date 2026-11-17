@@ -12,6 +12,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.function.BiConsumer;
@@ -30,6 +32,7 @@ public final class QuizPage extends JPanel {
     private boolean active = true;
     private boolean retry;
     private String levelTitle;
+    private String selectedChoiceId;
 
     /**
      * onGraded: 한 문제를 채점할 때마다 (문제 ID, 정답 여부)를 받는다. 오답 기록 저장에 쓴다.
@@ -220,21 +223,24 @@ public final class QuizPage extends JPanel {
         prompt.setEditable(false);
         prompt.setRows(3);
         card.add(prompt, BorderLayout.NORTH);
-        JPanel options = new JPanel();
+        JLabel feedback = UiComponents.label("보기를 고르고 정답을 확인하세요.", 16, Font.PLAIN, Theme.GREEN);
+        boolean ox = question.type == QuizQuestion.Type.OX;
+        JPanel options = new JPanel(ox ? new GridLayout(1, 2, 16, 0) : new GridLayout(0, 1, 0, 12));
         options.setOpaque(false);
-        options.setLayout(new BoxLayout(options, BoxLayout.Y_AXIS));
-        ButtonGroup group = new ButtonGroup();
+        List<ChoiceTile> tiles = new ArrayList<>();
+        selectedChoiceId = null;
         for (QuizQuestion.Choice choice : question.choices) {
-            JRadioButton radio = new JRadioButton(choice.content);
-            radio.setActionCommand(choice.id);
-            radio.setOpaque(false);
-            radio.setFont(Theme.font(Font.PLAIN, 19));
-            radio.setBorder(BorderFactory.createEmptyBorder(12, 0, 12, 0));
-            group.add(radio);
-            options.add(radio);
+            ChoiceTile tile = new ChoiceTile(choice.choiceNo, choice.content, ox);
+            tile.addActionListener(event -> {
+                selectedChoiceId = choice.id;
+                for (ChoiceTile other : tiles) {
+                    other.setState(other == tile ? ChoiceTile.State.SELECTED : ChoiceTile.State.IDLE);
+                }
+            });
+            tiles.add(tile);
+            options.add(tile);
         }
         card.add(options, BorderLayout.CENTER);
-        JLabel feedback = UiComponents.label("보기를 선택하고 정답을 확인하세요.", 16, Font.PLAIN, Theme.GREEN);
         card.add(feedback, BorderLayout.SOUTH);
         content.add(card);
         gap(20);
@@ -242,11 +248,11 @@ public final class QuizPage extends JPanel {
         JButton next = UiComponents.roundedPrimaryButton(attempt.number() == attempt.total() ? "결과 보기" : "다음 문제 →");
         next.setEnabled(false);
         submit.addActionListener(event -> {
-            if (group.getSelection() == null) {
-                feedback.setText("보기를 먼저 선택해 주세요.");
+            if (selectedChoiceId == null) {
+                feedback.setText("보기를 먼저 골라 주세요.");
                 return;
             }
-            boolean correct = attempt.submit(group.getSelection().getActionCommand());
+            boolean correct = attempt.submit(selectedChoiceId);
             try {
                 onGraded.accept(question.id, correct);
             } catch (RuntimeException ex) {
@@ -255,7 +261,14 @@ public final class QuizPage extends JPanel {
             }
             feedback.setText(correct ? "정답이에요!" : "아쉬워요. 정답은 " + question.correctChoice().content + "입니다.");
             submit.setEnabled(false);
-            java.util.Collections.list(group.getElements()).forEach(button -> button.setEnabled(false));
+            for (int i = 0; i < tiles.size(); i++) {
+                QuizQuestion.Choice choice = question.choices.get(i);
+                ChoiceTile tile = tiles.get(i);
+                tile.setEnabled(false);
+                if (choice.isCorrect) tile.setState(ChoiceTile.State.CORRECT);
+                else if (choice.id.equals(selectedChoiceId)) tile.setState(ChoiceTile.State.WRONG);
+                else tile.setState(ChoiceTile.State.DIMMED);
+            }
             next.setEnabled(true);
         });
         next.addActionListener(event -> {
