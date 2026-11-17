@@ -6,13 +6,16 @@ import geometrybook.domain.quiz.QuizAttempt;
 import geometrybook.domain.quiz.QuizQuestion;
 import geometrybook.gui.common.AppShell;
 import geometrybook.gui.common.RoundedPanel;
+import geometrybook.gui.common.RoundedProgressBar;
 import geometrybook.gui.common.Theme;
 import geometrybook.gui.common.UiComponents;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -26,7 +29,7 @@ public final class QuizPage extends JPanel {
     private final QuizSource source;
     private final BiConsumer<String, Boolean> onGraded;
     private final Supplier<List<QuizQuestion>> wrongNote;
-    private final JPanel content = new JPanel();
+    private final JPanel content = new ViewportWidthPanel();
     private QuizAttempt attempt;
     private SwingWorker<List<QuizQuestion>, Void> loader;
     private boolean active = true;
@@ -51,6 +54,7 @@ public final class QuizPage extends JPanel {
         content.setBorder(BorderFactory.createEmptyBorder(30, 32, 32, 32));
         JScrollPane scroll = new JScrollPane(content);
         scroll.setBorder(null);
+        scroll.getViewport().setBackground(Theme.BACKGROUND);   // 내용이 짧을 때 아래 빈 곳도 같은 배경
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         shell.setContent(scroll);
         add(shell);
@@ -212,21 +216,21 @@ public final class QuizPage extends JPanel {
         QuizQuestion question = attempt.current();
         heading(retry ? "오답에 다시 도전해요" : levelTitle + " 심화 퀴즈",
                 attempt.number() + " / " + attempt.total() + " 문제 · " + (question.type == QuizQuestion.Type.OX ? "OX" : "객관식"));
-        RoundedPanel card = new RoundedPanel(new BorderLayout(0, 24), Color.WHITE, 24);
+        RoundedProgressBar progressBar = new RoundedProgressBar(0, attempt.total());
+        progressBar.setValue(attempt.number());
+        progressBar.setAlignmentX(LEFT_ALIGNMENT);
+        content.add(progressBar);
+        gap(20);
+
+        RoundedPanel card = new RoundedPanel(new BorderLayout(0, 22), Color.WHITE, 24);
         card.setAlignmentX(LEFT_ALIGNMENT);
-        card.setBorder(BorderFactory.createEmptyBorder(28, 28, 28, 28));
-        JTextArea prompt = new JTextArea(question.prompt);
-        prompt.setFont(Theme.font(Font.BOLD, 22));
-        prompt.setForeground(Theme.TEXT);
-        prompt.setLineWrap(true);
-        prompt.setWrapStyleWord(true);
-        prompt.setEditable(false);
-        prompt.setRows(3);
-        card.add(prompt, BorderLayout.NORTH);
-        JLabel feedback = UiComponents.label("보기를 고르고 정답을 확인하세요.", 16, Font.PLAIN, Theme.GREEN);
+        card.setBorder(BorderFactory.createEmptyBorder(28, 30, 28, 30));
+        card.add(wrappedText(question.prompt, 25, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
+
         boolean ox = question.type == QuizQuestion.Type.OX;
         JPanel options = new JPanel(ox ? new GridLayout(1, 2, 16, 0) : new GridLayout(0, 1, 0, 12));
         options.setOpaque(false);
+        options.setAlignmentX(LEFT_ALIGNMENT);
         List<ChoiceTile> tiles = new ArrayList<>();
         selectedChoiceId = null;
         for (QuizQuestion.Choice choice : question.choices) {
@@ -240,10 +244,48 @@ public final class QuizPage extends JPanel {
             tiles.add(tile);
             options.add(tile);
         }
-        card.add(options, BorderLayout.CENTER);
-        card.add(feedback, BorderLayout.SOUTH);
+        options.setMaximumSize(new Dimension(Integer.MAX_VALUE, options.getPreferredSize().height));
+
+        JPanel answerColumn = UiComponents.column();
+        answerColumn.add(options);
+        TriangleFigure figure = TriangleFigure.of(question.figure);
+        if (!question.hint.isBlank()) {
+            answerColumn.add(Box.createVerticalStrut(18));
+            RoundedPanel hintBox = new RoundedPanel(new BorderLayout(), Theme.YELLOW, 20);
+            hintBox.setAlignmentX(LEFT_ALIGNMENT);
+            hintBox.setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
+            hintBox.add(wrappedText("힌트  " + question.hint, 17, Font.BOLD, Theme.TEXT));
+            hintBox.setVisible(false);
+            JButton hint = UiComponents.roundedPrimaryButton("힌트 보기");
+            hint.setBackground(Theme.YELLOW);
+            hint.setForeground(Theme.TEXT);
+            hint.addActionListener(event -> {
+                hintBox.setVisible(true);
+                hint.setVisible(false);
+                if (figure != null) figure.showHint();
+                refresh();
+            });
+            answerColumn.add(hint);
+            answerColumn.add(hintBox);
+        }
+
+        JPanel answerArea = new JPanel(new BorderLayout());
+        answerArea.setOpaque(false);
+        answerArea.add(answerColumn, BorderLayout.NORTH);
+        JPanel body = new JPanel(new BorderLayout(28, 0));
+        body.setOpaque(false);
+        if (figure != null) body.add(figure, BorderLayout.WEST);
+        body.add(answerArea, BorderLayout.CENTER);
+        card.add(body, BorderLayout.CENTER);
+
+        RoundedPanel result = new RoundedPanel(new BorderLayout(0, 8), Theme.BACKGROUND, 20);
+        result.setBorder(BorderFactory.createEmptyBorder(14, 20, 14, 20));
+        JLabel feedback = UiComponents.label("보기를 고르고 정답을 확인하세요.", 18, Font.BOLD, Theme.GREEN);
+        result.add(feedback, BorderLayout.NORTH);
+        card.add(result, BorderLayout.SOUTH);
         content.add(card);
         gap(20);
+
         JButton submit = UiComponents.roundedPrimaryButton("정답 확인");
         JButton next = UiComponents.roundedPrimaryButton(attempt.number() == attempt.total() ? "결과 보기" : "다음 문제 →");
         next.setEnabled(false);
@@ -259,7 +301,14 @@ public final class QuizPage extends JPanel {
                 JOptionPane.showMessageDialog(this, "오답 기록을 저장하지 못했어요. 퀴즈는 계속할 수 있어요.",
                         "저장 실패", JOptionPane.WARNING_MESSAGE);
             }
-            feedback.setText(correct ? "정답이에요!" : "아쉬워요. 정답은 " + question.correctChoice().content + "입니다.");
+            result.setBackground(correct ? new Color(0xD6F5E3) : new Color(0xFBE0DE));
+            feedback.setFont(Theme.font(Font.BOLD, 22));
+            feedback.setForeground(correct ? new Color(0x1F7A52) : new Color(0xB23B35));
+            feedback.setText(correct ? "정답이에요! 멋져요!" : "아쉬워요. 정답은 " + question.correctChoice().content + "예요.");
+            if (!question.explanation.isBlank()) {
+                result.add(wrappedText(question.explanation, 17, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
+            }
+            if (figure != null) figure.reveal(correct);
             submit.setEnabled(false);
             for (int i = 0; i < tiles.size(); i++) {
                 QuizQuestion.Choice choice = question.choices.get(i);
@@ -270,16 +319,36 @@ public final class QuizPage extends JPanel {
                 else tile.setState(ChoiceTile.State.DIMMED);
             }
             next.setEnabled(true);
+            refresh();
         });
         next.addActionListener(event -> {
             attempt.next();
             if (attempt.isFinished()) showResult();
             else showQuestion();
         });
-        content.add(submit);
-        gap(12);
-        content.add(next);
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        buttons.setOpaque(false);
+        buttons.setAlignmentX(LEFT_ALIGNMENT);
+        buttons.add(submit);
+        buttons.add(Box.createHorizontalStrut(12));
+        buttons.add(next);
+        content.add(buttons);
         refresh();
+    }
+
+    /** 줄바꿈되는 읽기 전용 글. 배경은 부모를 따른다. */
+    private static JTextArea wrappedText(String text, int size, int style, Color color) {
+        JTextArea area = new JTextArea(text);
+        area.setFont(Theme.font(style, size));
+        area.setForeground(color);
+        area.setOpaque(false);
+        area.setEditable(false);
+        area.setFocusable(false);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setColumns(10);   // 선호 너비를 작게 둬야 부모 너비에 맞춰 줄바꿈한다
+        area.setAlignmentX(LEFT_ALIGNMENT);
+        return area;
     }
 
     private void showResult() {
@@ -320,5 +389,14 @@ public final class QuizPage extends JPanel {
     }
 
     private void gap(int height) { content.add(Box.createVerticalStrut(height)); }
+
+    /** 가로는 스크롤 영역 너비를 따라가서, 세로 스크롤이 생겨도 글이 줄바꿈되고 가로 스크롤이 생기지 않는 패널. */
+    private static final class ViewportWidthPanel extends JPanel implements Scrollable {
+        @Override public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+        @Override public int getScrollableUnitIncrement(Rectangle visible, int orientation, int direction) { return 16; }
+        @Override public int getScrollableBlockIncrement(Rectangle visible, int orientation, int direction) { return visible.height; }
+        @Override public boolean getScrollableTracksViewportWidth() { return true; }
+        @Override public boolean getScrollableTracksViewportHeight() { return false; }
+    }
     private void refresh() { content.revalidate(); content.repaint(); }
 }
