@@ -46,7 +46,7 @@ final class ChoiceTile extends JButton {
         setOpaque(false);
         setRolloverEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        setPreferredSize(ox ? new Dimension(200, 150) : new Dimension(320, 68));
+        setPreferredSize(ox ? new Dimension(200, 160) : new Dimension(320, 76));
         getAccessibleContext().setAccessibleName("보기 " + number + ": " + text);
     }
 
@@ -105,16 +105,16 @@ final class ChoiceTile extends JButton {
                     g.draw(new Line2D.Double(cx + size / 2, cy - size / 2, cx - size / 2, cy + size / 2));
                 }
             } else {
-                double d = 38, bx = 18, by = (h - d) / 2;
+                double d = 42, bx = 18, by = (h - d) / 2;
                 g.setColor(fade(state == State.SELECTED ? Theme.GREEN : Theme.MINT, alpha));
                 g.fill(new Ellipse2D.Double(bx, by, d, d));
-                g.setFont(Theme.font(Font.BOLD, 18));
+                g.setFont(Theme.font(Font.BOLD, 20));
                 g.setColor(fade(state == State.SELECTED ? Color.WHITE : Theme.GREEN, alpha));
                 String n = String.valueOf(number);
-                g.drawString(n, (float) (bx + (d - g.getFontMetrics().stringWidth(n)) / 2), (float) (by + d / 2 + 6));
-                g.setFont(Theme.font(Font.BOLD, 22));
+                g.drawString(n, (float) (bx + (d - g.getFontMetrics().stringWidth(n)) / 2), (float) (by + d / 2 + 7));
+                g.setFont(Theme.font(Font.BOLD, 26));
                 g.setColor(fade(Theme.TEXT, alpha));
-                g.drawString(getText(), (float) (bx + d + 18), (float) (h / 2 + 8));
+                g.drawString(getText(), (float) (bx + d + 18), (float) (h / 2 + 9));
             }
             if (state == State.CORRECT) drawMark(g, w, true);
             if (state == State.WRONG) drawMark(g, w, false);

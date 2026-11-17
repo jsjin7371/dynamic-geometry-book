@@ -225,7 +225,7 @@ public final class QuizPage extends JPanel {
         RoundedPanel card = new RoundedPanel(new BorderLayout(0, 22), Color.WHITE, 24);
         card.setAlignmentX(LEFT_ALIGNMENT);
         card.setBorder(BorderFactory.createEmptyBorder(28, 30, 28, 30));
-        card.add(wrappedText(question.prompt, 25, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
+        card.add(wrappedText(question.prompt, 28, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
 
         boolean ox = question.type == QuizQuestion.Type.OX;
         JPanel options = new JPanel(ox ? new GridLayout(1, 2, 16, 0) : new GridLayout(0, 1, 0, 12));
@@ -254,7 +254,7 @@ public final class QuizPage extends JPanel {
             RoundedPanel hintBox = new RoundedPanel(new BorderLayout(), Theme.YELLOW, 20);
             hintBox.setAlignmentX(LEFT_ALIGNMENT);
             hintBox.setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
-            hintBox.add(wrappedText("힌트  " + question.hint, 17, Font.BOLD, Theme.TEXT));
+            hintBox.add(wrappedText("힌트  " + question.hint, 19, Font.BOLD, Theme.TEXT));
             hintBox.setVisible(false);
             JButton hint = UiComponents.roundedPrimaryButton("힌트 보기");
             hint.setBackground(Theme.YELLOW);
@@ -280,7 +280,7 @@ public final class QuizPage extends JPanel {
 
         RoundedPanel result = new RoundedPanel(new BorderLayout(0, 8), Theme.BACKGROUND, 20);
         result.setBorder(BorderFactory.createEmptyBorder(14, 20, 14, 20));
-        JLabel feedback = UiComponents.label("보기를 고르고 정답을 확인하세요.", 18, Font.BOLD, Theme.GREEN);
+        JLabel feedback = UiComponents.label("보기를 고르고 정답을 확인하세요.", 20, Font.BOLD, Theme.GREEN);
         result.add(feedback, BorderLayout.NORTH);
         card.add(result, BorderLayout.SOUTH);
         content.add(card);
@@ -302,11 +302,11 @@ public final class QuizPage extends JPanel {
                         "저장 실패", JOptionPane.WARNING_MESSAGE);
             }
             result.setBackground(correct ? new Color(0xD6F5E3) : new Color(0xFBE0DE));
-            feedback.setFont(Theme.font(Font.BOLD, 22));
+            feedback.setFont(Theme.font(Font.BOLD, 24));
             feedback.setForeground(correct ? new Color(0x1F7A52) : new Color(0xB23B35));
             feedback.setText(correct ? "정답이에요! 멋져요!" : "아쉬워요. 정답은 " + question.correctChoice().content + "예요.");
             if (!question.explanation.isBlank()) {
-                result.add(wrappedText(question.explanation, 17, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
+                result.add(wrappedText(question.explanation, 19, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
             }
             if (figure != null) figure.reveal(correct);
             submit.setEnabled(false);

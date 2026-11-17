@@ -182,12 +182,12 @@ public final class TriangleFigure extends JComponent {
             g.setColor(Theme.GREEN);
             g.setStroke(new BasicStroke(3));
             g.draw(new Line2D.Double(130, 300, 330, 300));
-            g.setFont(Theme.font(Font.BOLD, 20));
-            centered(g, label(1) + " + " + label(0) + " + " + label(2) + " = 180°", 230, 332);
+            g.setFont(Theme.font(Font.BOLD, 22));
+            centered(g, label(1) + " + " + label(0) + " + " + label(2) + " = 180°", 230, 334);
         }
         if (grow && hintAt >= 0) {
             g.setColor(Theme.GREEN);
-            g.setFont(Theme.font(Font.BOLD, 20));
+            g.setFont(Theme.font(Font.BOLD, 22));
             centered(g, "크기가 바뀌어도 각은 그대로!", 230, 320);
         }
     }
@@ -210,13 +210,13 @@ public final class TriangleFigure extends JComponent {
             g.setColor(withAlpha(FILL[i], 200));
             g.fill(new java.awt.geom.Rectangle2D.Double(x, 222, 28, 28));
             g.setColor(INK[i]);
-            g.setFont(Theme.font(Font.BOLD, 20));
-            centered(g, label(i), i == 1 ? 150 : 310, 238);
+            g.setFont(Theme.font(Font.BOLD, 22));
+            centered(g, label(i), i == 1 ? 152 : 308, 240);
         }
         drawLabel(g, 0, new Point2D.Double(230, 150), Double.NaN, 0, now);
         if (rise >= 1) {
             g.setColor(new Color(0xC2453D));
-            g.setFont(Theme.font(Font.BOLD, 22));
+            g.setFont(Theme.font(Font.BOLD, 24));
             centered(g, "두 변이 만나지 않아요!", 230, 300);
         }
     }
@@ -249,7 +249,7 @@ public final class TriangleFigure extends JComponent {
         g.translate(x, y);
         g.scale(pop, pop);
         g.setColor(unknown[i] ? Theme.GREEN : INK[i]);
-        g.setFont(Theme.font(Font.BOLD, unknown[i] ? 24 : 20));
+        g.setFont(Theme.font(Font.BOLD, unknown[i] ? 28 : 23));
         centered(g, label(i), 0, 8);
         g.setTransform(saved);
     }
