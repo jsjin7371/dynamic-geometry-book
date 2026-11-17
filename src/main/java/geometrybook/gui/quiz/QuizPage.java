@@ -242,6 +242,7 @@ public final class QuizPage extends JPanel {
                     other.setState(other == tile ? ChoiceTile.State.SELECTED : ChoiceTile.State.IDLE);
                 }
                 buddy.react(QuizBuddy.Mood.HOP);
+                QuizSounds.play(QuizSounds.Sound.TICK);
             });
             tiles.add(tile);
             options.add(tile);
@@ -255,6 +256,12 @@ public final class QuizPage extends JPanel {
             figure.onEvent(event -> {
                 if (event.equals("done")) buddy.react(QuizBuddy.Mood.HAPPY);
                 else if (event.equals("tap") || event.equals("snap")) buddy.react(QuizBuddy.Mood.HOP);
+                switch (event) {
+                    case "pick": QuizSounds.play(QuizSounds.Sound.PICK); break;
+                    case "snap": QuizSounds.play(QuizSounds.Sound.SNAP); break;
+                    case "done": QuizSounds.play(QuizSounds.Sound.DONE); break;
+                    default: QuizSounds.play(QuizSounds.Sound.TICK);
+                }
             });
         }
         if (!question.hint.isBlank()) {
@@ -271,6 +278,7 @@ public final class QuizPage extends JPanel {
                 hintBox.setVisible(true);
                 hint.setVisible(false);
                 buddy.react(QuizBuddy.Mood.THINK);
+                QuizSounds.play(QuizSounds.Sound.PICK);
                 if (figure != null) figure.showHint();
                 refresh();
             });
@@ -323,6 +331,7 @@ public final class QuizPage extends JPanel {
                 resultText.add(wrappedText(question.explanation, 19, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
             }
             buddy.react(correct ? QuizBuddy.Mood.HAPPY : QuizBuddy.Mood.SAD);
+            QuizSounds.play(correct ? QuizSounds.Sound.CORRECT : QuizSounds.Sound.WRONG);
             if (figure != null) figure.reveal(correct);
             submit.setEnabled(false);
             for (int i = 0; i < tiles.size(); i++) {
