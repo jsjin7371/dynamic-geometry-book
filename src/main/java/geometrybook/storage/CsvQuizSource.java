@@ -86,7 +86,8 @@ public final class CsvQuizSource implements QuizSource {
             list.sort(Comparator.comparingInt(c -> c.choiceNo));
             QuizQuestion question;
             try {
-                question = new QuizQuestion(q.id, q.levelId, q.type, q.prompt, q.reviewSceneNo, list);
+                question = new QuizQuestion(q.id, q.levelId, q.type, q.prompt, q.reviewSceneNo, list,
+                        q.figure, q.hint, q.explanation);
             } catch (IllegalArgumentException e) {
                 throw new DataFileException(CHOICE_FILE + ": 문제 " + q.id + "의 보기 구성이 올바르지 않습니다. "
                         + "(보기 2개 이상, 정답 정확히 1개, OX 문제는 O·X 두 개) - " + e.getMessage());
@@ -103,19 +104,27 @@ public final class CsvQuizSource implements QuizSource {
         final QuizQuestion.Type type;
         final String prompt;
         final int reviewSceneNo;
+        final String figure;
+        final String hint;
+        final String explanation;
 
-        QuestionRow(String id, String levelId, QuizQuestion.Type type, String prompt, int reviewSceneNo) {
+        QuestionRow(String id, String levelId, QuizQuestion.Type type, String prompt, int reviewSceneNo,
+                    String figure, String hint, String explanation) {
             this.id = id;
             this.levelId = levelId;
             this.type = type;
             this.prompt = prompt;
             this.reviewSceneNo = reviewSceneNo;
+            this.figure = figure;
+            this.hint = hint;
+            this.explanation = explanation;
         }
     }
 
-    /** questions.csv 읽기. 열: id, levelId, type, prompt, reviewSceneNo */
+    /** questions.csv 읽기. 열: id, levelId, type, prompt, reviewSceneNo, figure, hint, explanation (뒤의 셋은 비워도 됨) */
     private static final class QuestionReader extends CsvRecordReader<QuestionRow> {
-        private static final List<String> HEADER = List.of("id", "levelId", "type", "prompt", "reviewSceneNo");
+        private static final List<String> HEADER = List.of("id", "levelId", "type", "prompt", "reviewSceneNo",
+                "figure", "hint", "explanation");
 
         QuestionReader(Path dataDir) {
             super(dataDir, QUESTION_FILE);
@@ -133,7 +142,10 @@ public final class CsvQuizSource implements QuizSource {
                     r.get(1).trim(),
                     QuizQuestion.Type.valueOf(r.get(2).trim()),
                     r.get(3).trim(),
-                    Integer.parseInt(r.get(4).trim()));
+                    Integer.parseInt(r.get(4).trim()),
+                    r.get(5).trim(),
+                    r.get(6).trim(),
+                    r.get(7).trim());
         }
 
         @Override
