@@ -49,6 +49,9 @@ erDiagram
         string type
         string prompt
         int reviewSceneNo
+        string figure
+        string hint
+        string explanation
     }
     answerChoice["보기"] {
         string id PK
@@ -82,7 +85,7 @@ erDiagram
 |---|---|---|
 | student | 학생 계정 | `id, loginId, passwordHash` |
 | level | 학습 레벨 | `id, title, sequenceNo, thumbnailKey` |
-| question | 확인 문제 | `id, levelId, type, prompt, reviewSceneNo` |
+| question | 확인 문제 | `id, levelId, type, prompt, reviewSceneNo, figure, hint, explanation` |
 | answerChoice | 보기 | `id, questionId, choiceNo, content, isCorrect` |
 | progress | 학습 진도 | `id, studentId, levelId, completed` |
 | wrongAnswer | 오답 기록 | `id, studentId, questionId` |
@@ -91,7 +94,7 @@ erDiagram
 |---|---|---|
 | student | students.csv | id는 변경하지 않는 식별자. loginId 유일·필수. passwordHash에 salt·방식·작업량 포함 |
 | level | levels.csv | title 필수. sequenceNo 유일하며 단원 목록 정렬과 잠금 판단에 사용. thumbnailKey는 단원 목록 카드의 도형 그림 리소스 키 |
-| question | questions.csv | levelId 필수. type=OX 또는 MULTIPLE_CHOICE. prompt 필수. reviewSceneNo는 틀렸을 때 다시 볼 같은 레벨의 설명 장면 순서 번호 |
+| question | questions.csv | levelId 필수. type=OX 또는 MULTIPLE_CHOICE. prompt 필수. reviewSceneNo는 틀렸을 때 다시 볼 같은 레벨의 설명 장면 순서 번호. figure·hint·explanation은 선택(빈칸 가능): figure는 문제 그림 설명(삼각형은 `angles:꼭대기,왼쪽,오른쪽`, 모르는 각은 `?`, 크기 변화 장면은 끝에 `;grow`), hint는 힌트 버튼 글, explanation은 채점 후 해설 |
 | answerChoice | answer_choices.csv | questionId 필수. choiceNo는 같은 문제 내 유일, content 필수, isCorrect는 정답 여부. OX 문제는 보기 O·X 두 개로 표현 |
 | progress | progress.csv | 학생·레벨당 한 행. studentId·levelId 필수. levelId는 `LessonTopic` 이름(TRIANGLE 등). completed는 레벨 완료 여부, 기본 false |
 | wrongAnswer | wrong_answers.csv | 틀린 문제를 기록한다. studentId·questionId 필수. 오답노트에서 다시 맞히면 해당 행을 삭제한다 |

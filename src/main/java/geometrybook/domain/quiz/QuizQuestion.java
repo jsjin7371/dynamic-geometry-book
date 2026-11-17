@@ -30,15 +30,30 @@ public final class QuizQuestion {
     public final String prompt;
     public final int reviewSceneNo;
     public final List<Choice> choices;
+    /** 문제 옆에 그릴 그림 설명 (예: angles:?,50,60). 없으면 빈 문자열. */
+    public final String figure;
+    /** 힌트 버튼을 누르면 보여 줄 글. 없으면 빈 문자열. */
+    public final String hint;
+    /** 채점 후 보여 줄 해설. 없으면 빈 문자열. */
+    public final String explanation;
 
+    /** 그림·힌트·해설이 없는 문제. */
     public QuizQuestion(String id, String levelId, Type type, String prompt,
                         int reviewSceneNo, List<Choice> choices) {
+        this(id, levelId, type, prompt, reviewSceneNo, choices, "", "", "");
+    }
+
+    public QuizQuestion(String id, String levelId, Type type, String prompt, int reviewSceneNo,
+                        List<Choice> choices, String figure, String hint, String explanation) {
         this.id = id;
         this.levelId = levelId;
         this.type = type;
         this.prompt = prompt;
         this.reviewSceneNo = reviewSceneNo;
         this.choices = List.copyOf(choices);
+        this.figure = figure;
+        this.hint = hint;
+        this.explanation = explanation;
         Set<Integer> numbers = new HashSet<>();
         Set<String> ids = new HashSet<>();
         if (type == null || prompt == null || prompt.isBlank() || reviewSceneNo < 1

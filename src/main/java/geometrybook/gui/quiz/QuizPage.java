@@ -6,12 +6,17 @@ import geometrybook.domain.quiz.QuizAttempt;
 import geometrybook.domain.quiz.QuizQuestion;
 import geometrybook.gui.common.AppShell;
 import geometrybook.gui.common.RoundedPanel;
+import geometrybook.gui.common.RoundedProgressBar;
 import geometrybook.gui.common.Theme;
 import geometrybook.gui.common.UiComponents;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.function.BiConsumer;
@@ -24,12 +29,13 @@ public final class QuizPage extends JPanel {
     private final QuizSource source;
     private final BiConsumer<String, Boolean> onGraded;
     private final Supplier<List<QuizQuestion>> wrongNote;
-    private final JPanel content = new JPanel();
+    private final JPanel content = new ViewportWidthPanel();
     private QuizAttempt attempt;
     private SwingWorker<List<QuizQuestion>, Void> loader;
     private boolean active = true;
     private boolean retry;
     private String levelTitle;
+    private String selectedChoiceId;
 
     /**
      * onGraded: 한 문제를 채점할 때마다 (문제 ID, 정답 여부)를 받는다. 오답 기록 저장에 쓴다.
@@ -48,6 +54,7 @@ public final class QuizPage extends JPanel {
         content.setBorder(BorderFactory.createEmptyBorder(30, 32, 32, 32));
         JScrollPane scroll = new JScrollPane(content);
         scroll.setBorder(null);
+        scroll.getViewport().setBackground(Theme.BACKGROUND);   // 내용이 짧을 때 아래 빈 곳도 같은 배경
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         shell.setContent(scroll);
         add(shell);
@@ -209,64 +216,163 @@ public final class QuizPage extends JPanel {
         QuizQuestion question = attempt.current();
         heading(retry ? "오답에 다시 도전해요" : levelTitle + " 심화 퀴즈",
                 attempt.number() + " / " + attempt.total() + " 문제 · " + (question.type == QuizQuestion.Type.OX ? "OX" : "객관식"));
-        RoundedPanel card = new RoundedPanel(new BorderLayout(0, 24), Color.WHITE, 24);
+        RoundedProgressBar progressBar = new RoundedProgressBar(0, attempt.total());
+        progressBar.setValue(attempt.number());
+        progressBar.setAlignmentX(LEFT_ALIGNMENT);
+        content.add(progressBar);
+        gap(20);
+
+        RoundedPanel card = new RoundedPanel(new BorderLayout(0, 22), Color.WHITE, 24);
         card.setAlignmentX(LEFT_ALIGNMENT);
-        card.setBorder(BorderFactory.createEmptyBorder(28, 28, 28, 28));
-        JTextArea prompt = new JTextArea(question.prompt);
-        prompt.setFont(Theme.font(Font.BOLD, 22));
-        prompt.setForeground(Theme.TEXT);
-        prompt.setLineWrap(true);
-        prompt.setWrapStyleWord(true);
-        prompt.setEditable(false);
-        prompt.setRows(3);
-        card.add(prompt, BorderLayout.NORTH);
-        JPanel options = new JPanel();
+        card.setBorder(BorderFactory.createEmptyBorder(28, 30, 28, 30));
+        card.add(wrappedText(question.prompt, 28, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
+
+        boolean ox = question.type == QuizQuestion.Type.OX;
+        JPanel options = new JPanel(ox ? new GridLayout(1, 2, 16, 0) : new GridLayout(0, 1, 0, 12));
         options.setOpaque(false);
-        options.setLayout(new BoxLayout(options, BoxLayout.Y_AXIS));
-        ButtonGroup group = new ButtonGroup();
+        options.setAlignmentX(LEFT_ALIGNMENT);
+        List<ChoiceTile> tiles = new ArrayList<>();
+        QuizBuddy buddy = new QuizBuddy();
+        selectedChoiceId = null;
         for (QuizQuestion.Choice choice : question.choices) {
-            JRadioButton radio = new JRadioButton(choice.content);
-            radio.setActionCommand(choice.id);
-            radio.setOpaque(false);
-            radio.setFont(Theme.font(Font.PLAIN, 19));
-            radio.setBorder(BorderFactory.createEmptyBorder(12, 0, 12, 0));
-            group.add(radio);
-            options.add(radio);
+            ChoiceTile tile = new ChoiceTile(choice.choiceNo, choice.content, ox);
+            tile.addActionListener(event -> {
+                selectedChoiceId = choice.id;
+                for (ChoiceTile other : tiles) {
+                    other.setState(other == tile ? ChoiceTile.State.SELECTED : ChoiceTile.State.IDLE);
+                }
+                buddy.react(QuizBuddy.Mood.HOP);
+                QuizSounds.play(QuizSounds.Sound.TICK);
+            });
+            tiles.add(tile);
+            options.add(tile);
         }
-        card.add(options, BorderLayout.CENTER);
-        JLabel feedback = UiComponents.label("보기를 선택하고 정답을 확인하세요.", 16, Font.PLAIN, Theme.GREEN);
-        card.add(feedback, BorderLayout.SOUTH);
+        options.setMaximumSize(new Dimension(Integer.MAX_VALUE, options.getPreferredSize().height));
+
+        JPanel answerColumn = UiComponents.column();
+        answerColumn.add(options);
+        TriangleFigure figure = TriangleFigure.of(question.figure);
+        if (figure != null) {
+            figure.onEvent(event -> {
+                if (event.equals("done")) buddy.react(QuizBuddy.Mood.HAPPY);
+                else if (event.equals("tap") || event.equals("snap")) buddy.react(QuizBuddy.Mood.HOP);
+                switch (event) {
+                    case "pick": QuizSounds.play(QuizSounds.Sound.PICK); break;
+                    case "snap": QuizSounds.play(QuizSounds.Sound.SNAP); break;
+                    case "done": QuizSounds.play(QuizSounds.Sound.DONE); break;
+                    default: QuizSounds.play(QuizSounds.Sound.TICK);
+                }
+            });
+        }
+        if (!question.hint.isBlank()) {
+            answerColumn.add(Box.createVerticalStrut(18));
+            RoundedPanel hintBox = new RoundedPanel(new BorderLayout(), Theme.YELLOW, 20);
+            hintBox.setAlignmentX(LEFT_ALIGNMENT);
+            hintBox.setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
+            hintBox.add(wrappedText("힌트  " + question.hint, 19, Font.BOLD, Theme.TEXT));
+            hintBox.setVisible(false);
+            JButton hint = UiComponents.roundedPrimaryButton("힌트 보기");
+            hint.setBackground(Theme.YELLOW);
+            hint.setForeground(Theme.TEXT);
+            hint.addActionListener(event -> {
+                hintBox.setVisible(true);
+                hint.setVisible(false);
+                buddy.react(QuizBuddy.Mood.THINK);
+                QuizSounds.play(QuizSounds.Sound.PICK);
+                if (figure != null) figure.showHint();
+                refresh();
+            });
+            answerColumn.add(hint);
+            answerColumn.add(hintBox);
+        }
+
+        JPanel answerArea = new JPanel(new BorderLayout());
+        answerArea.setOpaque(false);
+        answerArea.add(answerColumn, BorderLayout.NORTH);
+        JPanel body = new JPanel(new BorderLayout(28, 0));
+        body.setOpaque(false);
+        if (figure != null) body.add(figure, BorderLayout.WEST);
+        body.add(answerArea, BorderLayout.CENTER);
+        card.add(body, BorderLayout.CENTER);
+
+        RoundedPanel result = new RoundedPanel(new BorderLayout(18, 0), Theme.BACKGROUND, 20);
+        result.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 20));
+        result.add(buddy, BorderLayout.WEST);
+        JPanel resultText = new JPanel(new BorderLayout(0, 8));
+        resultText.setOpaque(false);
+        resultText.setBorder(BorderFactory.createEmptyBorder(16, 0, 0, 0));
+        JLabel feedback = UiComponents.label("보기를 고르고 정답을 확인하세요.", 20, Font.BOLD, Theme.GREEN);
+        resultText.add(feedback, BorderLayout.NORTH);
+        result.add(resultText, BorderLayout.CENTER);
+        card.add(result, BorderLayout.SOUTH);
         content.add(card);
         gap(20);
+
         JButton submit = UiComponents.roundedPrimaryButton("정답 확인");
         JButton next = UiComponents.roundedPrimaryButton(attempt.number() == attempt.total() ? "결과 보기" : "다음 문제 →");
         next.setEnabled(false);
         submit.addActionListener(event -> {
-            if (group.getSelection() == null) {
-                feedback.setText("보기를 먼저 선택해 주세요.");
+            if (selectedChoiceId == null) {
+                feedback.setText("보기를 먼저 골라 주세요.");
                 return;
             }
-            boolean correct = attempt.submit(group.getSelection().getActionCommand());
+            boolean correct = attempt.submit(selectedChoiceId);
             try {
                 onGraded.accept(question.id, correct);
             } catch (RuntimeException ex) {
                 JOptionPane.showMessageDialog(this, "오답 기록을 저장하지 못했어요. 퀴즈는 계속할 수 있어요.",
                         "저장 실패", JOptionPane.WARNING_MESSAGE);
             }
-            feedback.setText(correct ? "정답이에요!" : "아쉬워요. 정답은 " + question.correctChoice().content + "입니다.");
+            result.setBackground(correct ? new Color(0xD6F5E3) : new Color(0xFBE0DE));
+            feedback.setFont(Theme.font(Font.BOLD, 24));
+            feedback.setForeground(correct ? new Color(0x1F7A52) : new Color(0xB23B35));
+            feedback.setText(correct ? "정답이에요! 멋져요!" : "아쉬워요. 정답은 " + question.correctChoice().content + "예요.");
+            if (!question.explanation.isBlank()) {
+                resultText.add(wrappedText(question.explanation, 19, Font.PLAIN, Theme.TEXT), BorderLayout.CENTER);
+            }
+            buddy.react(correct ? QuizBuddy.Mood.HAPPY : QuizBuddy.Mood.SAD);
+            QuizSounds.play(correct ? QuizSounds.Sound.CORRECT : QuizSounds.Sound.WRONG);
+            if (figure != null) figure.reveal(correct);
             submit.setEnabled(false);
-            java.util.Collections.list(group.getElements()).forEach(button -> button.setEnabled(false));
+            for (int i = 0; i < tiles.size(); i++) {
+                QuizQuestion.Choice choice = question.choices.get(i);
+                ChoiceTile tile = tiles.get(i);
+                tile.setEnabled(false);
+                if (choice.isCorrect) tile.setState(ChoiceTile.State.CORRECT);
+                else if (choice.id.equals(selectedChoiceId)) tile.setState(ChoiceTile.State.WRONG);
+                else tile.setState(ChoiceTile.State.DIMMED);
+            }
             next.setEnabled(true);
+            refresh();
         });
         next.addActionListener(event -> {
             attempt.next();
             if (attempt.isFinished()) showResult();
             else showQuestion();
         });
-        content.add(submit);
-        gap(12);
-        content.add(next);
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        buttons.setOpaque(false);
+        buttons.setAlignmentX(LEFT_ALIGNMENT);
+        buttons.add(submit);
+        buttons.add(Box.createHorizontalStrut(12));
+        buttons.add(next);
+        content.add(buttons);
         refresh();
+    }
+
+    /** 줄바꿈되는 읽기 전용 글. 배경은 부모를 따른다. */
+    private static JTextArea wrappedText(String text, int size, int style, Color color) {
+        JTextArea area = new JTextArea(text);
+        area.setFont(Theme.font(style, size));
+        area.setForeground(color);
+        area.setOpaque(false);
+        area.setEditable(false);
+        area.setFocusable(false);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setColumns(10);   // 선호 너비를 작게 둬야 부모 너비에 맞춰 줄바꿈한다
+        area.setAlignmentX(LEFT_ALIGNMENT);
+        return area;
     }
 
     private void showResult() {
@@ -307,5 +413,14 @@ public final class QuizPage extends JPanel {
     }
 
     private void gap(int height) { content.add(Box.createVerticalStrut(height)); }
+
+    /** 가로는 스크롤 영역 너비를 따라가서, 세로 스크롤이 생겨도 글이 줄바꿈되고 가로 스크롤이 생기지 않는 패널. */
+    private static final class ViewportWidthPanel extends JPanel implements Scrollable {
+        @Override public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+        @Override public int getScrollableUnitIncrement(Rectangle visible, int orientation, int direction) { return 16; }
+        @Override public int getScrollableBlockIncrement(Rectangle visible, int orientation, int direction) { return visible.height; }
+        @Override public boolean getScrollableTracksViewportWidth() { return true; }
+        @Override public boolean getScrollableTracksViewportHeight() { return false; }
+    }
     private void refresh() { content.revalidate(); content.repaint(); }
 }
