@@ -1,0 +1,18 @@
+theorem,diagram,drag,relation,caption
+T01,X01,A free|B free|C free|D free,"네 점 중 두 점을 고르는 방법: 4 × 3 ÷ 2 = {4*3/2}가지|그어진 직선 AB, AC, AD, BC, BD, CD → 점을 어디로 옮겨도 두 점을 지나는 직선은 하나뿐",점을 옮겨도 두 점마다 지나는 직선은 딱 하나예요.
+T02,X02,A free|B free,"AM = {len(A,M)} m,  MB = {len(M,B)} m|AB의 절반 = {len(A,B)} ÷ 2 = {len(A,B)/2} m → 중점은 언제나 선분을 똑같이 둘로 나눈다",선분의 양 끝을 옮겨도 중점은 늘 한가운데에 있어요.
+T03,X03,P free|Q hline,"수선 PH = {len(P,H)} m,  비스듬한 PQ = {len(P,Q)} m|PQ − PH = {len(P,Q)-len(P,H)} m (언제나 0 이상) → 점과 직선 사이의 거리는 수선의 길이",Q를 직선 위에서 움직여 보세요. PQ가 PH보다 짧아지는 순간이 있을까요?
+T04,X04,C free,"∠AOC = {ang(A,O,C)}°  →  {kind:ang(A,O,C)}|예각 < 90° = 직각 < 둔각 < 180° = 평각",C를 돌려 가며 각의 이름이 언제 바뀌는지 찾아보세요.
+T05,X05,A free|B free,"∠AOB = {ang(A,O,B)}°,  맞꼭지각 ∠COD = {ang(C,O,D)}° → 언제나 같다|이웃한 두 각 ∠AOB + ∠BOC = {ang(A,O,B)+ang(B,O,C)}°",두 막대를 돌려도 마주 보는 각은 늘 같아요.
+T06,X06,P hline|Q hline,"엇각: {ang(L2,P,Q)}° = {ang(M1,Q,P)}°|같은 쪽 내각: {ang(L2,P,Q)}° + {ang(M2,Q,P)}° = {ang(L2,P,Q)+ang(M2,Q,P)}°","가로지르는 기둥의 기울기를 바꿔 보세요. 평행선 l, m은 그대로예요."
+T07,X07,A arc O 190 265|B arc O 275 350|C arc O 20 160,"중심각 ∠AOB = {ang(A,O,B)}°|원주각 ∠ACB = {ang(A,C,B)}°  =  중심각의 ½ ({ang(A,O,B)/2}°)","A, B로 호의 크기를 바꾸고 C를 원 위에서 옮겨 보세요."
+T08,X08,P arc O 15 165|Q arc O 15 165|A arc O 195 265|B arc O 275 345,"∠APB = {ang(A,P,B)}°,  ∠AQB = {ang(A,Q,B)}°|같은 호 AB 위의 원주각은 P, Q가 어디 있든 모두 같다",P와 Q를 원 위에서 따로따로 움직여 보세요.
+T09,X09,A arc O 100 175|B arc O 185 260|C arc O 280 355|D arc O 5 80,"∠A + ∠C = {ang(D,A,B)}° + {ang(B,C,D)}° = {ang(D,A,B)+ang(B,C,D)}°|∠B + ∠D = {ang(A,B,C)}° + {ang(C,D,A)}° = {ang(A,B,C)+ang(C,D,A)}°",네 꼭짓점을 원 위에서 움직여도 마주 보는 두 각의 합은 그대로예요.
+T10,X10,A free|B free|C free,"∠A + ∠B + ∠C = {ang(B,A,C)}° + {ang(C,B,A)}° + {ang(A,C,B)}° = {ang(B,A,C)+ang(C,B,A)+ang(A,C,B)}°",어떤 모양의 삼각형이든 세 내각의 합을 확인해 보세요.
+T11,X11,A free|B free|C free,"외각 ∠CBD = {ang(C,B,D)}°|이웃하지 않는 두 내각 ∠A + ∠C = {ang(B,A,C)}° + {ang(A,C,B)}° = {ang(B,A,C)+ang(A,C,B)}°",꼭짓점을 옮겨도 외각은 언제나 이웃하지 않는 두 내각의 합이에요.
+T12,X12,A vline,"밑각 ∠B = {ang(C,B,A)}°,  ∠C = {ang(A,C,B)}° → 언제나 같다|꼭지각 ∠A = {ang(B,A,C)}° = 180° − 2 × 밑각",꼭짓점 A를 위아래로 움직여 지붕의 높이를 바꿔 보세요.
+T13,X13,A vline 40|B hline 40,"BC² + AC² = {len(B,C)}² + {len(A,C)}² = {len(B,C)^2+len(A,C)^2}|AB² = {len(A,B)}² = {len(A,B)^2}","A와 B를 1m 간격으로 움직여 보세요. 3·4·5, 6·8·10을 찾을 수 있나요?"
+T14,X14,A arc O 190 260|B arc O 280 350,"AM = {len(A,M)} cm,  MB = {len(M,B)} cm → 중심에서 내린 수선은 현을 이등분|∠OMB = {ang(O,M,B)}° → 중심과 현의 중점을 잇는 선은 현에 수직","현의 양 끝 A, B를 원 위에서 움직여 보세요. M은 늘 한가운데, OM은 늘 직각이에요."
+T15,X15,P free,"PA = {len(P,A)} cm,  PB = {len(P,B)} cm → 두 접선의 길이는 언제나 같다|∠OAP = {ang(O,A,P)}°,  ∠OBP = {ang(O,B,P)}° → 접선은 반지름에 수직",원 밖의 점 P를 이리저리 옮겨 보세요. 두 접선의 길이를 비교해 봐요.
+T16,X16,B arc O 290 80|C arc O 100 250,"접선과 현이 이루는 각 ∠BAR = {ang(B,A,R)}°|반대편 원주각 ∠ACB = {ang(A,C,B)}° → 언제나 같다","B로 현의 기울기를 바꾸고, C를 원 위에서 옮겨 보세요."
+T17,X17,B arc O 30 200,"중심각 {ang(A,O,B)}° → 원의 {ang(A,O,B)}/360|넓이 = π × 10² × {ang(A,O,B)}/360 ≈ {3.1416*100*ang(A,O,B)/360} cm²",B를 원 위에서 움직여 중심각을 바꿔 보세요. 넓이는 중심각에 정비례해요.

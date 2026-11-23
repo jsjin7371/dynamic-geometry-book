@@ -1,0 +1,1362 @@
+diagram,layer,cmd,args
+# ===== 좌표계: 640 x 440, y는 아래로. polar 각도는 수학 관례(반시계 방향). 너비 끝에 d = 점선
+# ----- CHAPTER I : 선의 정원
+D101,base,pt,A 170 130
+D101,base,pt,B 470 100
+D101,base,pt,C 530 330
+D101,base,pt,D 140 320
+D101,base,text,320 415 '어느 세 점도 한 직선 위에 있지 않다' dim 16
+D101,aux,line,A B gold 2d 30
+D101,aux,line,A C gold 2d 30
+D101,aux,line,A D gold 2d 30
+D101,aux,line,B C gold 2d 30
+D101,aux,line,B D gold 2d 30
+D101,aux,line,C D gold 2d 30
+D101,base,dot,A nw
+D101,base,dot,B ne
+D101,base,dot,C se
+D101,base,dot,D sw
+D102,base,pt,A 150 240
+D102,base,pt,B 320 240
+D102,base,pt,C 490 240
+D102,base,line,A C chalk 3 100
+D102,aux,pt,R1 150 190
+D102,aux,pt,R1e 610 190
+D102,aux,arrow,R1 R1e gold 3
+D102,aux,text,105 190 AB gold 17
+D102,aux,pt,R2 320 160
+D102,aux,pt,R2e 610 160
+D102,aux,arrow,R2 R2e gold 3
+D102,aux,text,275 160 BC gold 17
+D102,aux,pt,R3 320 300
+D102,aux,pt,R3e 30 300
+D102,aux,arrow,R3 R3e red 3
+D102,aux,text,365 300 BA red 17
+D102,aux,pt,R4 490 330
+D102,aux,pt,R4e 30 330
+D102,aux,arrow,R4 R4e red 3
+D102,aux,text,535 330 CB red 17
+D102,base,dot,A s
+D102,base,dot,B s
+D102,base,dot,C s
+D103,base,pt,A 220 240
+D103,base,pt,B 420 240
+D103,base,seg,A B chalk 4
+D103,base,line,A B dim 2d 120
+D103,aux,pt,S1 220 180
+D103,aux,pt,E1 610 180
+D103,aux,arrow,S1 E1 gold 3
+D103,aux,text,145 180 '반직선 AB' gold 17
+D103,aux,pt,S2 420 310
+D103,aux,pt,E2 30 310
+D103,aux,arrow,S2 E2 red 3
+D103,aux,text,500 310 '반직선 BA' red 17
+D103,base,dot,A s
+D103,base,dot,B s
+D104,base,pt,A 80 230
+D104,base,pt,B 560 230
+D104,base,along,M A B 0.5
+D104,base,along,N A M 0.5
+D104,base,seg,A B chalk 4
+D104,base,len,A B 24m -1 chalk 46
+D104,base,len,N B 'NB = ?' 1 red 74
+D104,aux,tick,A N 1 gold
+D104,aux,tick,N M 1 gold
+D104,aux,tick,M B 2 gold
+D104,base,dot,A s
+D104,base,dot,N s
+D104,base,dot,M s
+D104,base,dot,B s
+D105,base,pt,A 80 230
+D105,base,pt,B 560 230
+D105,base,along,M A B 0.5
+D105,base,along,N M B 0.5
+D105,base,seg,A B chalk 4
+D105,base,len,M N 5m -1 gold 40
+D105,base,len,A B 'AB = ?' 1 red 74
+D105,aux,tick,A M 2 gold
+D105,aux,tick,M N 1 gold
+D105,aux,tick,N B 1 gold
+D105,base,dot,A s
+D105,base,dot,M s
+D105,base,dot,N s
+D105,base,dot,B s
+D106,base,pt,A 120 230
+D106,base,pt,B 520 230
+D106,base,along,M A B 0.5
+D106,base,seg,A B chalk 4
+D106,base,len,A M 7m -1 chalk 40
+D106,base,len,M B 7m -1 chalk 40
+D106,aux,tick,A M 1 gold
+D106,aux,tick,M B 1 gold
+D106,base,dot,A s
+D106,base,dot,M s
+D106,base,dot,B s
+D107,base,pt,L1 40 340
+D107,base,pt,L2 590 340
+D107,base,pt,P 330 100
+D107,base,pt,H 330 340
+D107,base,pt,A 180 340
+D107,base,pt,B 520 340
+D107,base,seg,L1 L2 chalk 3
+D107,base,seg,P A chalk 2d
+D107,base,seg,P B chalk 2d
+D107,base,seg,P H red 3
+D107,base,right,P H B chalk 16
+D107,base,len,P A 10m 1 chalk 28
+D107,base,len,P B 13m -1 chalk 28
+D107,base,len,P H 8m -1 red 26
+D107,base,text,610 340 l chalk 24
+D107,aux,seg,P H gold 7
+D107,base,dot,P n
+D107,base,dot,H s
+D107,base,dot,A s
+D107,base,dot,B s
+D108,base,pt,O 320 350
+D108,base,polar,A O 240 0
+D108,base,polar,B O 240 35
+D108,base,polar,C O 230 90
+D108,base,seg,O A chalk 3
+D108,base,seg,O B chalk 3
+D108,base,seg,O C chalk 3
+D108,base,right,A O C chalk 18
+D108,base,angle,A O B 70 35° gold
+D108,base,angle,B O C 110 ? red
+D108,aux,arc,O 170 0 90 gold 2d
+D108,aux,polar,TQ O 196 62
+D108,aux,tag,TQ 90° gold 20
+D108,base,dot,O s
+D108,base,dot,A e
+D108,base,dot,B ne
+D108,base,dot,C n
+D109,base,pt,O 320 220
+D109,base,polar,L1 O 270 180
+D109,base,polar,L2 O 270 0
+D109,base,polar,M1 O 190 90
+D109,base,polar,M2 O 190 270
+D109,base,seg,L1 L2 chalk 3
+D109,base,seg,M1 M2 chalk 3
+D109,base,right,L2 O M1 chalk 18
+D109,base,text,606 220 l chalk 24
+D109,base,text,342 42 m chalk 24
+D109,base,text,298 250 O chalk 21
+D109,aux,right,M1 O L1 gold 18
+D109,aux,right,L1 O M2 gold 18
+D109,aux,right,M2 O L2 gold 18
+D110,base,pt,O 320 320
+D110,base,polar,A O 250 180
+D110,base,polar,C O 250 0
+D110,base,polar,B O 220 120
+D110,base,seg,A C chalk 3
+D110,base,seg,O B chalk 3
+D110,base,angle,A O B 50 2x° gold
+D110,base,angle,B O C 40 '(3x+30)°' red
+D110,aux,arc,O 130 0 180 gold 2d
+D110,aux,polar,TT O 152 90
+D110,aux,tag,TT 180° gold 20
+D110,base,dot,A s
+D110,base,dot,O s
+D110,base,dot,C s
+D110,base,dot,B n
+# ----- CHAPTER II : 각도의 시계탑
+D201,base,pt,O 320 220
+D201,base,dial,O 185
+D201,base,hand,O 90 140 6 ink
+D201,base,hand,O 0 100 9 ink
+D201,base,hub,O
+D201,aux,polar,HA O 70 0
+D201,aux,polar,HB O 70 90
+D201,aux,angle,HA O HB 52 90° red 3
+D202,base,pt,O 320 220
+D202,base,dial,O 185
+D202,base,hand,O 90 140 6 ink
+D202,base,hand,O -30 100 9 ink
+D202,base,hub,O
+D202,aux,polar,S1 O 155 60
+D202,aux,polar,S2 O 155 30
+D202,aux,polar,S3 O 155 0
+D202,aux,seg,O S1 gold 2d
+D202,aux,seg,O S2 gold 2d
+D202,aux,seg,O S3 gold 2d
+D202,aux,polar,HA O 70 -30
+D202,aux,polar,HB O 70 90
+D202,aux,angle,HA O HB 46 120° red 3
+D203,base,pt,O 320 300
+D203,base,polar,A O 250 180
+D203,base,polar,B O 250 0
+D203,base,polar,C O 230 132
+D203,base,seg,A B chalk 3
+D203,base,seg,O C chalk 3
+D203,base,angle,A O C 60 48° gold
+D203,base,angle,C O B 45 ? red
+D203,aux,arc,O 130 0 180 gold 2d
+D203,aux,polar,TT O 152 75
+D203,aux,tag,TT 180° gold 20
+D203,base,dot,A s
+D203,base,dot,O s
+D203,base,dot,B s
+D203,base,dot,C nw
+D204,base,pt,O 320 220
+D204,base,polar,P1 O 260 25
+D204,base,polar,P2 O 260 205
+D204,base,polar,Q1 O 200 95
+D204,base,polar,Q2 O 200 275
+D204,base,seg,P1 P2 chalk 3
+D204,base,seg,Q1 Q2 chalk 3
+D204,base,angle,P1 O Q1 50 70° gold
+D204,base,angle,P2 O Q2 50 ? red
+D204,base,text,350 250 O chalk 21
+D204,aux,arc,O 100 25 205 gold 2d
+D204,aux,arc,O 125 95 275 blue 2d
+D205,base,pt,O 320 220
+D205,base,polar,P1 O 260 25
+D205,base,polar,P2 O 260 205
+D205,base,polar,Q1 O 200 95
+D205,base,polar,Q2 O 200 275
+D205,base,seg,P1 P2 chalk 3
+D205,base,seg,Q1 Q2 chalk 3
+D205,base,angle,P1 O Q1 50 70° gold
+D205,base,angle,Q1 O P2 50 ? red
+D205,base,text,350 250 O chalk 21
+D205,aux,arc,O 118 25 205 gold 2d
+D205,aux,polar,TT O 142 160
+D205,aux,tag,TT 180° gold 19
+D206,base,pt,O 320 220
+D206,base,polar,P1 O 260 25
+D206,base,polar,P2 O 260 205
+D206,base,polar,Q1 O 200 95
+D206,base,polar,Q2 O 200 275
+D206,base,seg,P1 P2 chalk 3
+D206,base,seg,Q1 Q2 chalk 3
+D206,base,angle,P1 O Q1 70 '(3x+10)°' gold
+D206,base,angle,P2 O Q2 70 '(5x-30)°' red
+D206,base,text,350 250 O chalk 21
+D206,aux,arc,O 100 25 205 gold 2d
+D206,aux,arc,O 125 95 275 blue 2d
+D207,base,pt,L1 40 140
+D207,base,pt,L2 600 140
+D207,base,pt,M1 40 300
+D207,base,pt,M2 600 300
+D207,base,pt,P 260 140
+D207,base,pt,Q 335 300
+D207,base,along,T1 P Q -0.7
+D207,base,along,T2 P Q 1.6
+D207,base,seg,L1 L2 chalk 3
+D207,base,seg,M1 M2 chalk 3
+D207,base,seg,T1 T2 chalk 3
+D207,base,pt,Pa 480 140
+D207,base,pt,Pb 560 140
+D207,base,parallel,Pa Pb chalk
+D207,base,pt,Qa 480 300
+D207,base,pt,Qb 560 300
+D207,base,parallel,Qa Qb chalk
+D207,base,text,618 140 l chalk 24
+D207,base,text,618 300 m chalk 24
+D207,base,angle,L2 P Q 40 65° gold
+D207,base,angle,M1 Q P 40 ? red
+D207,aux,pt,Zr 430 140
+D207,aux,pt,Zl 165 300
+D207,aux,seg,Zr P gold 6
+D207,aux,seg,P Q gold 6
+D207,aux,seg,Q Zl gold 6
+D208,base,pt,L1 40 140
+D208,base,pt,L2 600 140
+D208,base,pt,M1 40 300
+D208,base,pt,M2 600 300
+D208,base,pt,P 260 140
+D208,base,pt,Q 335 300
+D208,base,along,T1 P Q -0.7
+D208,base,along,T2 P Q 1.6
+D208,base,seg,L1 L2 chalk 3
+D208,base,seg,M1 M2 chalk 3
+D208,base,seg,T1 T2 chalk 3
+D208,base,pt,Pa 480 140
+D208,base,pt,Pb 560 140
+D208,base,parallel,Pa Pb chalk
+D208,base,pt,Qa 480 300
+D208,base,pt,Qb 560 300
+D208,base,parallel,Qa Qb chalk
+D208,base,text,618 140 l chalk 24
+D208,base,text,618 300 m chalk 24
+D208,base,angle,L2 P Q 40 65° gold
+D208,base,angle,M2 Q P 40 ? red
+D208,aux,angle,M1 Q P 34 65° gold 3
+D209,base,pt,L1 40 110
+D209,base,pt,L2 600 110
+D209,base,pt,M1 40 330
+D209,base,pt,M2 600 330
+D209,base,pt,A 269 110
+D209,base,pt,X 400 220
+D209,base,pt,B 210 330
+D209,base,seg,L1 L2 chalk 3
+D209,base,seg,M1 M2 chalk 3
+D209,base,seg,A X chalk 3
+D209,base,seg,X B chalk 3
+D209,base,pt,Pa 490 110
+D209,base,pt,Pb 570 110
+D209,base,parallel,Pa Pb chalk
+D209,base,pt,Qa 490 330
+D209,base,pt,Qb 570 330
+D209,base,parallel,Qa Qb chalk
+D209,base,text,618 110 l chalk 24
+D209,base,text,618 330 m chalk 24
+D209,base,angle,L2 A X 40 40° gold
+D209,base,angle,M2 B X 40 30° gold
+D209,base,angle,A X B 34 x red
+D209,aux,pt,N1 70 220
+D209,aux,pt,N2 600 220
+D209,aux,seg,N1 N2 gold 2d
+D209,aux,angle,A X N1 64 40° gold 2
+D209,aux,angle,N1 X B 64 30° gold 2
+D210,base,pt,O 320 222
+D210,base,circle,O 170 chalk 3
+D210,base,polar,A O 170 100
+D210,base,polar,B O 170 160
+D210,base,polar,C O 170 220
+D210,base,polar,D O 170 340
+D210,base,seg,O A chalk 2
+D210,base,seg,O B chalk 2
+D210,base,seg,O C chalk 2
+D210,base,seg,O D chalk 2
+D210,base,arc,O 170 100 160 gold 7
+D210,base,arc,O 170 220 340 red 7
+D210,base,angle,A O B 36 60° gold
+D210,base,angle,C O D 36 120° red
+D210,base,polar,TA O 200 130
+D210,base,tag,TA 4cm gold 20
+D210,base,polar,TC O 198 280
+D210,base,tag,TC ? red 24
+D210,aux,polar,E O 170 280
+D210,aux,seg,O E gold 2d
+D210,aux,angle,C O E 82 60° gold 2
+D210,aux,angle,E O D 82 60° gold 2
+D210,base,dot,A n
+D210,base,dot,B w
+D210,base,dot,C sw
+D210,base,dot,D se
+D210,base,dot,O ne solid
+D211,base,pt,O 320 222
+D211,base,dial,O 178
+D211,base,polar,A O 178 200
+D211,base,polar,B O 178 310
+D211,base,polar,C O 178 100
+D211,base,arc,O 165 200 310 red 3
+D211,base,seg,O A ink 5
+D211,base,seg,O B ink 5
+D211,base,seg,C A red 3
+D211,base,seg,C B red 3
+D211,base,angle,A O B 34 110° ink
+D211,base,angle,A C B 24 '' red
+D211,base,hub,O
+D211,base,text,346 206 O ink 22
+D211,aux,along,C2 C O 2
+D211,aux,seg,C C2 gold 3d
+D211,base,dot,A w
+D211,base,dot,B se
+D211,base,dot,C n
+D212,base,pt,O 320 222
+D212,base,dial,O 178
+D212,base,polar,A O 178 235
+D212,base,polar,B O 178 305
+D212,base,polar,P O 178 90
+D212,base,seg,O A ink 4
+D212,base,seg,O B ink 4
+D212,base,seg,P A red 3
+D212,base,seg,P B red 3
+D212,base,angle,A P B 34 35° red
+D212,base,angle,A O B 32 ? ink
+D212,base,hub,O
+D212,base,text,346 206 O ink 22
+D212,aux,along,P2 P O 2
+D212,aux,seg,P P2 gold 3d
+D212,base,dot,A sw
+D212,base,dot,B se
+D212,base,dot,P n
+D213,base,pt,O 320 222
+D213,base,dial,O 178
+D213,base,polar,A O 178 225
+D213,base,polar,B O 178 309
+D213,base,polar,P O 178 65
+D213,base,polar,Q O 178 128
+D213,base,seg,P A gold 3
+D213,base,seg,P B gold 3
+D213,base,seg,Q A red 3
+D213,base,seg,Q B red 3
+D213,base,angle,A P B 36 42° gold
+D213,base,angle,A Q B 36 ? red
+D213,base,hub,O
+D213,aux,arc,O 165 225 309 gold 7
+D213,base,dot,A sw
+D213,base,dot,B se
+D213,base,dot,P ne
+D213,base,dot,Q nw
+D214,base,pt,O 320 222
+D214,base,dial,O 178
+D214,base,polar,A O 178 180
+D214,base,polar,B O 178 0
+D214,base,polar,C O 178 60
+D214,base,seg,A B ink 3
+D214,base,seg,C A red 3
+D214,base,seg,C B red 3
+D214,base,angle,A C B 26 ? red
+D214,base,hub,O
+D214,base,text,320 256 O ink 22
+D214,aux,seg,O C gold 3d
+D214,aux,tick,O A 1 gold
+D214,aux,tick,O B 1 gold
+D214,aux,tick,O C 1 gold
+D214,base,dot,A w
+D214,base,dot,B e
+D214,base,dot,C n
+D215,base,pt,O 320 222
+D215,base,dial,O 178
+D215,base,polar,A O 178 180
+D215,base,polar,B O 178 0
+D215,base,polar,C O 178 56
+D215,base,seg,A B ink 3
+D215,base,seg,C A red 3
+D215,base,seg,C B red 3
+D215,base,angle,C A B 74 28° gold
+D215,base,angle,C B A 40 ? red
+D215,base,hub,O
+D215,aux,right,A C B gold 16
+D215,aux,polar,TR O 120 64
+D215,aux,tag,TR 90° gold 18
+D215,base,dot,A w
+D215,base,dot,B e
+D215,base,dot,C n
+D216,base,pt,O 320 220
+D216,base,dial,O 185
+D216,base,hand,O 90 140 6 ink
+D216,base,hand,O 150 100 9 ink
+D216,base,hub,O
+D216,aux,polar,S1 O 155 120
+D216,aux,seg,O S1 gold 2d
+D216,aux,polar,HA O 70 150
+D216,aux,polar,HB O 70 90
+D216,aux,angle,HB O HA 52 60° red 3
+D217,base,pt,L1 40 140
+D217,base,pt,L2 600 140
+D217,base,pt,M1 40 300
+D217,base,pt,M2 600 300
+D217,base,pt,P 260 140
+D217,base,pt,Q 335 300
+D217,base,along,T1 P Q -0.7
+D217,base,along,T2 P Q 1.6
+D217,base,seg,L1 L2 chalk 3
+D217,base,seg,M1 M2 chalk 3
+D217,base,seg,T1 T2 chalk 3
+D217,base,pt,Pa 500 140
+D217,base,pt,Pb 570 140
+D217,base,parallel,Pa Pb chalk
+D217,base,pt,Qa 500 300
+D217,base,pt,Qb 570 300
+D217,base,parallel,Qa Qb chalk
+D217,base,text,618 140 l chalk 24
+D217,base,text,618 300 m chalk 24
+D217,base,angle,L2 P Q 60 '(2x+10)°' gold
+D217,base,angle,M1 Q P 60 '(4x-50)°' red
+D217,aux,pt,Zr 430 140
+D217,aux,pt,Zl 165 300
+D217,aux,seg,Zr P gold 6
+D217,aux,seg,P Q gold 6
+D217,aux,seg,Q Zl gold 6
+D218,base,pt,O 320 222
+D218,base,circle,O 175 chalk 3
+D218,base,polar,A O 175 150
+D218,base,polar,B O 175 230
+D218,base,polar,C O 175 320
+D218,base,polar,D O 175 60
+D218,base,seg,A B chalk 3
+D218,base,seg,B C chalk 3
+D218,base,seg,C D chalk 3
+D218,base,seg,D A chalk 3
+D218,base,angle,D A B 36 95° gold
+D218,base,angle,B C D 36 ? red
+D218,aux,seg,O B gold 2d
+D218,aux,seg,O D gold 2d
+D218,aux,arc,O 190 230 420 gold 4
+D218,aux,arc,O 190 60 230 red 4
+D218,base,dot,A nw
+D218,base,dot,B sw
+D218,base,dot,C se
+D218,base,dot,D ne
+D218,base,dot,O e solid
+D219,base,pt,O 320 222
+D219,base,dial,O 178
+D219,base,polar,A O 178 200
+D219,base,polar,B O 178 340
+D219,base,polar,P O 178 90
+D219,base,seg,O A ink 4
+D219,base,seg,O B ink 4
+D219,base,seg,P A red 3
+D219,base,seg,P B red 3
+D219,base,angle,A O B 32 140° ink
+D219,base,angle,A P B 28 ? red
+D219,base,hub,O
+D219,base,text,346 206 O ink 22
+D219,aux,along,P2 P O 2
+D219,aux,seg,P P2 gold 3d
+D219,base,dot,A w
+D219,base,dot,B e
+D219,base,dot,P n
+# ----- CHAPTER III : 삼각형의 수도원
+D301,base,pt,A 160 380
+D301,base,pt,B 470 380
+D301,base,apex,C A B 50 75
+D301,base,seg,A B chalk 3
+D301,base,seg,B C chalk 3
+D301,base,seg,C A chalk 3
+D301,base,angle,B A C 40 50° gold
+D301,base,angle,C B A 40 75° gold
+D301,base,angle,A C B 34 x red
+D301,aux,offset,C1 C -230 0
+D301,aux,offset,C2 C 210 0
+D301,aux,seg,C1 C2 gold 2d
+D301,aux,angle,C1 C A 64 50° gold 2
+D301,aux,angle,C2 C B 64 75° gold 2
+D301,base,dot,A sw
+D301,base,dot,B se
+D301,base,dot,C n
+D302,base,pt,A 140 370
+D302,base,pt,B 460 370
+D302,base,apex,C A B 34 90
+D302,base,seg,A B chalk 3
+D302,base,seg,B C chalk 3
+D302,base,seg,C A chalk 3
+D302,base,right,A B C chalk 18
+D302,base,angle,B A C 64 34° gold
+D302,base,angle,A C B 34 ? red
+D302,aux,offset,C1 C -320 0
+D302,aux,seg,C1 C gold 2d
+D302,aux,angle,C1 C A 64 34° gold 2
+D302,base,dot,A sw
+D302,base,dot,B se
+D302,base,dot,C ne
+D303,base,pt,A 150 370
+D303,base,pt,B 490 370
+D303,base,apex,C A B 40 60
+D303,base,seg,A B chalk 3
+D303,base,seg,B C chalk 3
+D303,base,seg,C A chalk 3
+D303,base,angle,B A C 46 2x° gold
+D303,base,angle,C B A 40 3x° gold
+D303,base,angle,A C B 32 4x° red
+D303,aux,text,320 418 '2x + 3x + 4x = 180°' gold 20
+D303,base,dot,A sw
+D303,base,dot,B se
+D303,base,dot,C n
+D304,base,pt,A 110 370
+D304,base,pt,B 390 370
+D304,base,pt,D 600 370
+D304,base,apex,C A B 45 65
+D304,base,seg,A D chalk 3
+D304,base,seg,B C chalk 3
+D304,base,seg,C A chalk 3
+D304,base,angle,B A C 50 45° gold
+D304,base,angle,A C B 32 70° gold
+D304,base,angle,C B D 40 ? red
+D304,aux,vec,E B A C 0.9
+D304,aux,seg,B E gold 2d
+D304,aux,angle,C B E 66 70° gold 2
+D304,aux,angle,E B D 96 45° gold 2
+D304,base,dot,A sw
+D304,base,dot,B s
+D304,base,dot,C n
+D305,base,pt,A 110 370
+D305,base,pt,B 380 370
+D305,base,pt,D 600 370
+D305,base,apex,C A B 60 50
+D305,base,seg,A D chalk 3
+D305,base,seg,B C chalk 3
+D305,base,seg,C A chalk 3
+D305,base,angle,B A C 44 60° gold
+D305,base,angle,C B D 40 130° gold
+D305,base,angle,A C B 32 ? red
+D305,aux,vec,E B A C 1.0
+D305,aux,seg,B E gold 2d
+D305,aux,angle,C B E 72 ? gold 2
+D305,aux,angle,E B D 100 60° gold 2
+D305,base,dot,A sw
+D305,base,dot,B s
+D305,base,dot,C n
+D306,base,pt,A 120 370
+D306,base,pt,B 420 370
+D306,base,pt,D 610 370
+D306,base,apex,C A B 40 90
+D306,base,seg,A D chalk 3
+D306,base,seg,B C chalk 3
+D306,base,seg,C A chalk 3
+D306,base,angle,B A C 56 40° gold
+D306,base,angle,A C B 36 '(x+20)°' gold
+D306,base,angle,C B D 40 3x° red
+D306,aux,vec,E B A C 0.6
+D306,aux,seg,B E gold 2d
+D306,aux,angle,C B E 82 '(x+20)°' gold 2
+D306,aux,angle,E B D 120 40° gold 2
+D306,base,dot,A sw
+D306,base,dot,B s
+D306,base,dot,C n
+D307,base,pt,B 220 390
+D307,base,pt,C 420 390
+D307,base,apex,A B C 70 70
+D307,base,seg,A B chalk 3
+D307,base,seg,B C chalk 3
+D307,base,seg,C A chalk 3
+D307,base,tick,A B 1 chalk
+D307,base,tick,A C 1 chalk
+D307,base,angle,B A C 36 40° gold
+D307,base,angle,A B C 34 ? red
+D307,aux,foot,M A B C
+D307,aux,seg,A M gold 2d
+D307,aux,right,A M C gold 14
+D307,aux,angle,A C B 34 ? gold 2
+D307,base,dot,A n
+D307,base,dot,B sw
+D307,base,dot,C se
+D308,base,pt,B 200 390
+D308,base,pt,C 440 390
+D308,base,apex,A B C 65 65
+D308,base,seg,A B chalk 3
+D308,base,seg,B C chalk 3
+D308,base,seg,C A chalk 3
+D308,base,tick,A B 1 chalk
+D308,base,tick,A C 1 chalk
+D308,base,angle,A B C 40 65° gold
+D308,base,angle,B A C 36 ? red
+D308,aux,angle,A C B 40 65° gold 3
+D308,base,dot,A n
+D308,base,dot,B sw
+D308,base,dot,C se
+D309,base,pt,B 200 390
+D309,base,pt,C 440 390
+D309,base,apex,A B C 66 66
+D309,base,seg,A B chalk 3
+D309,base,seg,B C chalk 3
+D309,base,seg,C A chalk 3
+D309,base,tick,A B 1 chalk
+D309,base,tick,A C 1 chalk
+D309,base,foot,M A B C
+D309,base,seg,A M chalk 2d
+D309,base,angle,B A M 44 '' gold
+D309,base,angle,M A C 52 '' gold
+D309,aux,right,A M C gold 16
+D309,aux,tick,B M 2 gold
+D309,aux,tick,M C 2 gold
+D309,base,dot,A n
+D309,base,dot,B sw
+D309,base,dot,C se
+D309,base,dot,M s
+D310,base,pt,C 200 330
+D310,base,pt,A 200 90
+D310,base,pt,B 380 330
+D310,base,seg,A B chalk 3
+D310,base,seg,B C chalk 3
+D310,base,seg,C A chalk 3
+D310,base,right,A C B chalk 18
+D310,base,len,C B 6m 1 chalk 26
+D310,base,len,A C 8m 1 chalk 30
+D310,base,len,A B ? -1 red 28
+D310,aux,text,510 210 '6² + 8² = ?²' gold 24
+D310,base,dot,A n
+D310,base,dot,B se
+D310,base,dot,C sw
+D311,base,pt,C 220 340
+D311,base,pt,B 320 340
+D311,base,pt,A 220 100
+D311,base,seg,A B chalk 3
+D311,base,seg,B C chalk 3
+D311,base,seg,C A chalk 3
+D311,base,right,A C B chalk 18
+D311,base,len,A B 13m -1 chalk 30
+D311,base,len,C B 5m 1 chalk 26
+D311,base,len,A C ? 1 red 30
+D311,aux,text,490 210 '5² + ?² = 13²' gold 24
+D311,base,dot,A n
+D311,base,dot,B se
+D311,base,dot,C sw
+D312,base,pt,W1 140 60
+D312,base,pt,W2 200 60
+D312,base,pt,W3 200 370
+D312,base,pt,W4 140 370
+D312,base,fill,tan 0.55 W1 W2 W3 W4
+D312,base,seg,W2 W3 chalk 3
+D312,base,pt,G1 140 370
+D312,base,pt,G2 560 370
+D312,base,seg,G1 G2 chalk 3
+D312,base,pt,T 200 94
+D312,base,pt,F 280 370
+D312,base,seg,T F gold 7
+D312,base,right,T W3 F chalk 16
+D312,base,len,T F 25m -1 chalk 30
+D312,base,len,W3 F 7m 1 chalk 24
+D312,base,len,T W3 ? -1 red 22
+D312,aux,seg,T W3 red 3d
+D312,aux,text,460 200 '7² + ?² = 25²' gold 24
+D313,base,pt,A 120 370
+D313,base,pt,B 430 370
+D313,base,pt,D 610 370
+D313,base,apex,C A B 40 60
+D313,base,seg,A D chalk 3
+D313,base,seg,B C chalk 3
+D313,base,seg,C A chalk 3
+D313,base,angle,B A C 54 x° red
+D313,base,angle,A C B 32 2x° gold
+D313,base,angle,C B D 40 120° gold
+D313,aux,vec,E B A C 0.9
+D313,aux,seg,B E gold 2d
+D313,aux,angle,C B E 66 2x° gold 2
+D313,aux,angle,E B D 100 x° gold 2
+D313,base,dot,A sw
+D313,base,dot,B s
+D313,base,dot,C n
+# ----- 새 문제 유형(식·참거짓·추리 순서)용 도형
+D112,base,pt,A 120 250
+D112,base,pt,B 520 250
+D112,base,along,M A B 0.5
+D112,base,seg,A B chalk 3
+D112,base,tick,A M 1 gold
+D112,base,tick,M B 1 gold
+D112,base,len,A B 'AB = x m' -1 chalk 62
+D112,base,len,A M 'AM = ?' 1 red 52
+D112,aux,len,M B '?' 1 gold 52
+D112,aux,text,320 380 'AM + MB = x' gold 22
+D112,base,dot,A w
+D112,base,dot,B e
+D112,base,dot,M n
+D222,base,pt,O 320 222
+D222,base,dial,O 178
+D222,base,polar,A O 178 200
+D222,base,polar,B O 178 310
+D222,base,polar,C O 178 100
+D222,base,arc,O 165 200 310 red 3
+D222,base,seg,O A ink 5
+D222,base,seg,O B ink 5
+D222,base,seg,C A red 3
+D222,base,seg,C B red 3
+D222,base,angle,A O B 34 x° ink
+D222,base,angle,A C B 24 ? red
+D222,base,hub,O
+D222,base,text,346 206 O ink 22
+D222,aux,along,C2 C O 2
+D222,aux,seg,C C2 gold 3d
+D222,base,dot,A w
+D222,base,dot,B se
+D222,base,dot,C n
+D315,base,pt,A 120 370
+D315,base,pt,B 420 370
+D315,base,pt,D 610 370
+D315,base,apex,C A B 40 90
+D315,base,seg,A D chalk 3
+D315,base,seg,B C chalk 3
+D315,base,seg,C A chalk 3
+D315,base,angle,B A C 56 40° gold
+D315,base,angle,A C B 36 '(x+20)°' gold
+D315,base,angle,C B D 40 ? red
+D315,aux,vec,E B A C 0.6
+D315,aux,seg,B E gold 2d
+D315,aux,angle,C B E 82 '(x+20)°' gold 2
+D315,aux,angle,E B D 120 40° gold 2
+D315,base,dot,A sw
+D315,base,dot,B s
+D315,base,dot,C n
+D317,base,pt,A 220 360
+D317,base,pt,B 420 360
+D317,base,pt,C 420 160
+D317,base,pt,D 220 160
+D317,base,fill,gold 0.12 A B C D
+D317,base,seg,A B chalk 3
+D317,base,seg,B C chalk 3
+D317,base,seg,C D chalk 3
+D317,base,seg,D A chalk 3
+D317,base,right,D A B chalk 18
+D317,base,right,A B C chalk 18
+D317,base,right,B C D chalk 18
+D317,base,right,C D A chalk 18
+D317,base,len,A B 1m 1 chalk 28
+D317,base,len,B C 1m 1 chalk 30
+D317,base,seg,A C red 3
+D317,base,len,A C ? -1 red 26
+D317,aux,fill,gold 0.25 A B C
+D317,aux,text,540 250 '1² + 1² = ?²' gold 24
+D317,base,dot,A sw
+D317,base,dot,B se
+D317,base,dot,C ne
+D317,base,dot,D nw
+# ----- 정리 탐구용 도형 (explore.csv 에서 사용, 이름표 @ = 실시간 측정)
+X01,base,pt,A 170 140
+X01,base,pt,B 470 110
+X01,base,pt,C 520 330
+X01,base,pt,D 160 340
+X01,base,line,A B dim 2 120
+X01,base,line,A C dim 2 120
+X01,base,line,A D dim 2 120
+X01,base,line,B C dim 2 120
+X01,base,line,B D dim 2 120
+X01,base,line,C D dim 2 120
+X01,base,dot,A n
+X01,base,dot,B n
+X01,base,dot,C s
+X01,base,dot,D s
+X02,base,unit,40 m
+X02,base,pt,A 120 260
+X02,base,pt,B 520 260
+X02,base,along,M A B 0.5
+X02,base,seg,A B chalk 3
+X02,base,tick,A M 1 gold
+X02,base,tick,M B 1 gold
+X02,base,len,A M '@AM ' -1 gold 34
+X02,base,len,M B '@MB ' -1 gold 34
+X02,base,len,A B '@AB = ' 1 chalk 54
+X02,base,dot,A sw
+X02,base,dot,B se
+X02,base,dot,M s
+X03,base,unit,40 m
+X03,base,pt,L1 40 340
+X03,base,pt,L2 600 340
+X03,base,pt,P 280 110
+X03,base,foot,H P L1 L2
+X03,base,pt,Q 470 340
+X03,base,line,L1 L2 chalk 3 0
+X03,base,text,612 318 l chalk 22
+X03,base,seg,P H red 3
+X03,base,seg,P Q chalk 2d
+X03,base,right,P H L2 red 16
+X03,base,len,P H '@PH ' 1 red 46
+X03,base,len,P Q '@PQ ' -1 chalk 34
+X03,base,dot,P n
+X03,base,dot,H s
+X03,base,dot,Q s
+X04,base,pt,O 320 300
+X04,base,polar,A O 250 0
+X04,base,pt,C 420 120
+X04,base,ray,O A chalk 3 40
+X04,base,ray,O C chalk 3 40
+X04,base,angle,A O C 46 @ gold
+X04,base,dot,O s solid
+X04,base,dot,A s
+X04,base,dot,C n
+X05,base,pt,O 320 220
+X05,base,pt,A 540 120
+X05,base,pt,B 150 110
+X05,base,vec,C O A O 1
+X05,base,vec,D O B O 1
+X05,base,seg,A C chalk 3
+X05,base,seg,B D chalk 3
+X05,base,angle,A O B 46 @ gold
+X05,base,angle,C O D 46 @ red
+X05,base,angle,B O C 74 @ blue
+X05,base,dot,O e solid
+X05,base,dot,A n
+X05,base,dot,B n
+X05,base,dot,C s
+X05,base,dot,D s
+X06,base,pt,L1 40 150
+X06,base,pt,L2 600 150
+X06,base,pt,M1 40 320
+X06,base,vec,M2 M1 L1 L2 1
+X06,base,pt,P 250 150
+X06,base,pt,Q 390 320
+X06,base,line,L1 L2 chalk 3 0
+X06,base,line,M1 M2 chalk 3 0
+X06,base,line,P Q chalk 3 70
+X06,base,parallel,L1 L2 chalk
+X06,base,parallel,M1 M2 chalk
+X06,base,angle,L2 P Q 40 @ gold
+X06,base,angle,M1 Q P 40 @ red
+X06,base,angle,M2 Q P 60 @ blue
+X06,base,text,614 128 l chalk 22
+X06,base,text,614 298 m chalk 22
+X06,base,dot,P nw
+X06,base,dot,Q se
+X07,base,pt,O 320 222
+X07,base,circle,O 170 chalk 3
+X07,base,polar,A O 170 215
+X07,base,polar,B O 170 325
+X07,base,polar,C O 170 95
+X07,base,seg,O A chalk 3
+X07,base,seg,O B chalk 3
+X07,base,seg,C A red 3
+X07,base,seg,C B red 3
+X07,base,angle,A O B 34 @ gold
+X07,base,angle,A C B 30 @ red
+X07,base,dot,O e solid
+X07,base,dot,A w
+X07,base,dot,B e
+X07,base,dot,C n
+X08,base,pt,O 320 222
+X08,base,circle,O 170 chalk 3
+X08,base,polar,A O 170 222
+X08,base,polar,B O 170 318
+X08,base,polar,P O 170 140
+X08,base,polar,Q O 170 50
+X08,base,seg,A B chalk 2d
+X08,base,seg,P A gold 3
+X08,base,seg,P B gold 3
+X08,base,seg,Q A red 3
+X08,base,seg,Q B red 3
+X08,base,angle,A P B 30 @ gold
+X08,base,angle,A Q B 30 @ red
+X08,base,dot,A sw
+X08,base,dot,B se
+X08,base,dot,P nw
+X08,base,dot,Q ne
+X09,base,pt,O 320 222
+X09,base,circle,O 170 chalk 3
+X09,base,polar,A O 170 140
+X09,base,polar,B O 170 220
+X09,base,polar,C O 170 320
+X09,base,polar,D O 170 40
+X09,base,fill,gold 0.1 A B C D
+X09,base,seg,A B chalk 3
+X09,base,seg,B C chalk 3
+X09,base,seg,C D chalk 3
+X09,base,seg,D A chalk 3
+X09,base,angle,D A B 30 @ gold
+X09,base,angle,B C D 30 @ gold
+X09,base,angle,A B C 30 @ blue
+X09,base,angle,C D A 30 @ blue
+X09,base,dot,A nw
+X09,base,dot,B sw
+X09,base,dot,C se
+X09,base,dot,D ne
+X10,base,pt,A 130 360
+X10,base,pt,B 510 360
+X10,base,pt,C 300 100
+X10,base,fill,gold 0.1 A B C
+X10,base,seg,A B chalk 3
+X10,base,seg,B C chalk 3
+X10,base,seg,C A chalk 3
+X10,base,angle,B A C 40 @ gold
+X10,base,angle,C B A 40 @ gold
+X10,base,angle,A C B 34 @ red
+X10,base,dot,A sw
+X10,base,dot,B se
+X10,base,dot,C n
+X11,base,pt,A 110 360
+X11,base,pt,B 400 360
+X11,base,along,D A B 1.5
+X11,base,pt,C 270 120
+X11,base,seg,A D chalk 3
+X11,base,seg,B C chalk 3
+X11,base,seg,C A chalk 3
+X11,base,angle,C B D 36 @ red
+X11,base,angle,B A C 44 @ gold
+X11,base,angle,A C B 32 @ gold
+X11,base,dot,A sw
+X11,base,dot,B s
+X11,base,dot,C n
+X12,base,pt,B 170 360
+X12,base,pt,C 470 360
+X12,base,along,M B C 0.5
+X12,base,pt,A 320 120
+X12,base,fill,gold 0.1 A B C
+X12,base,seg,A B chalk 3
+X12,base,seg,A C chalk 3
+X12,base,seg,B C chalk 3
+X12,base,seg,A M chalk 2d
+X12,base,right,A M C chalk 14
+X12,base,tick,A B 1 gold
+X12,base,tick,A C 1 gold
+X12,base,tick,B M 2 chalk
+X12,base,tick,M C 2 chalk
+X12,base,angle,C B A 38 @ gold
+X12,base,angle,A C B 38 @ gold
+X12,base,angle,B A C 34 @ red
+X12,base,dot,A n
+X12,base,dot,B sw
+X12,base,dot,C se
+X12,base,dot,M s
+X13,base,unit,40 m
+X13,base,pt,C 160 360
+X13,base,pt,A 160 120
+X13,base,pt,B 480 360
+X13,base,fill,gold 0.1 A B C
+X13,base,seg,A B red 3
+X13,base,seg,B C chalk 3
+X13,base,seg,C A chalk 3
+X13,base,right,A C B chalk 18
+X13,base,len,C B '@' 1 chalk 28
+X13,base,len,A C '@' 1 chalk 30
+X13,base,len,A B '@' -1 red 30
+X13,base,dot,A n
+X13,base,dot,B se
+X13,base,dot,C sw
+# ----- 정리 탐구(4장)
+X14,base,unit,17 cm
+X14,base,pt,O 320 215
+X14,base,circle,O 170 chalk 3
+X14,base,polar,A O 170 205
+X14,base,polar,B O 170 335
+X14,base,along,M A B 0.5
+X14,base,seg,A B chalk 3
+X14,base,seg,O M red 3
+X14,base,seg,O A gold 2d
+X14,base,seg,O B gold 2d
+X14,base,right,O M B chalk 15
+X14,base,tick,A M 1 chalk
+X14,base,tick,M B 1 chalk
+X14,base,len,A M '@' 1 chalk 26
+X14,base,len,M B '@' 1 chalk 26
+X14,base,dot,O n solid
+X14,base,dot,A w
+X14,base,dot,B e
+X14,base,dot,M n
+X15,base,unit,20 cm
+X15,base,pt,O 220 220
+X15,base,circle,O 120 chalk 3
+X15,base,pt,P 520 220
+X15,base,tan,A O 120 P -1
+X15,base,tan,B O 120 P 1
+X15,base,seg,P A gold 3
+X15,base,seg,P B red 3
+X15,base,seg,O A chalk 2d
+X15,base,seg,O B chalk 2d
+X15,base,right,O A P chalk 14
+X15,base,right,O B P chalk 14
+X15,base,len,P A '@' 1 gold 28
+X15,base,len,P B '@' -1 red 28
+X15,base,dot,O w solid
+X15,base,dot,P e
+X15,base,dot,A n
+X15,base,dot,B s
+X16,base,pt,O 320 195
+X16,base,circle,O 150 chalk 3
+X16,base,polar,A O 150 270
+X16,base,pt,L 80 345
+X16,base,pt,R 560 345
+X16,base,polar,B O 150 30
+X16,base,polar,C O 150 150
+X16,base,seg,L R chalk 3
+X16,base,seg,A B chalk 3
+X16,base,seg,C A chalk 2
+X16,base,seg,C B chalk 2
+X16,base,angle,B A R 46 @ gold
+X16,base,angle,A C B 32 @ red
+X16,base,text,560 410 '접선' dim 18
+X16,base,dot,A s
+X16,base,dot,B ne
+X16,base,dot,C nw
+X17,base,pt,O 320 235
+X17,base,circle,O 170 gold 2d
+X17,base,polar,A O 170 20
+X17,base,polar,B O 170 110
+X17,base,wedge,O A B gold 0.3
+X17,base,seg,O A chalk 3
+X17,base,seg,O B chalk 3
+X17,base,angle,A O B 40 @ gold
+X17,base,text,520 410 '반지름 10cm' dim 18
+X17,base,dot,O s solid
+X17,base,dot,A e
+X17,base,dot,B n
+# ----- CHAPTER IV : 원의 천문대
+D401,base,pt,O 320 205
+D401,base,pt,M 320 307
+D401,base,pt,A 184 307
+D401,base,pt,B 456 307
+D401,base,circle,O 170 chalk 3
+D401,base,seg,A B chalk 3
+D401,base,seg,O M chalk 2
+D401,base,right,O M B chalk 16
+D401,base,len,O M 6cm -1 chalk 30
+D401,base,len,A B ? 1 red 28
+D401,base,text,530 60 '반지름 10cm' dim 18
+D401,aux,seg,O A gold 3d
+D401,aux,len,O A 10cm 1 gold 24
+D401,aux,tick,A M 1 gold
+D401,aux,tick,M B 1 gold
+D401,base,dot,A w
+D401,base,dot,B e
+D401,base,dot,M nw
+D401,base,dot,O n solid
+D402,base,pt,O 320 195
+D402,base,pt,M 320 260.4
+D402,base,pt,A 163.1 260.4
+D402,base,pt,B 476.9 260.4
+D402,base,circle,O 170 chalk 3
+D402,base,seg,A B chalk 3
+D402,base,seg,O A chalk 2
+D402,base,seg,O M red 3
+D402,base,right,O M B chalk 14
+D402,base,len,O A 13cm 1 chalk 26
+D402,base,len,A B 24cm 1 chalk 30
+D402,base,pt,Q 350 227.7
+D402,base,tag,Q ? red 24
+D402,aux,tick,A M 1 gold
+D402,aux,tick,M B 1 gold
+D402,aux,text,320 410 'AM = MB = 12cm' gold 22
+D402,base,dot,A w
+D402,base,dot,B e
+D402,base,dot,M nw
+D402,base,dot,O n solid
+D403,base,pt,O 320 215
+D403,base,pt,A 170.5 284.7
+D403,base,pt,B 469.5 284.7
+D403,base,pt,M 320 284.7
+D403,base,pt,T 320 30
+D403,base,circle,O 165 chalk 3
+D403,base,seg,A B chalk 3
+D403,base,line,M T red 3d 60
+D403,base,right,T M B chalk 16
+D403,base,tick,A M 1 chalk
+D403,base,tick,M B 1 chalk
+D403,base,text,352 52 l red 22
+D403,aux,seg,O A gold 2d
+D403,aux,seg,O B gold 2d
+D403,aux,text,520 60 'OA = OB' gold 20
+D403,base,dot,A w
+D403,base,dot,B e
+D403,base,dot,M s
+D403,base,dot,O e solid
+D404,base,pt,O 320 175
+D404,base,pt,M 320 277
+D404,base,pt,A 184 277
+D404,base,pt,B 456 277
+D404,base,pt,C 320 345
+D404,base,arc,O 170 216.9 323.1 chalk 5
+D404,base,seg,A B chalk 3
+D404,base,seg,M C red 3
+D404,base,right,C M B chalk 14
+D404,base,text,560 300 'AB = 8cm' chalk 20
+D404,base,len,M C 2cm 1 red 30
+D404,base,text,320 70 '반지름 = ?' red 24
+D404,aux,circle,O 170 gold 2d
+D404,aux,seg,O A gold 3d
+D404,aux,seg,O M gold 3d
+D404,aux,len,O M 'r − 2' -1 gold 34
+D404,aux,len,O A r 1 gold 22
+D404,base,dot,A w
+D404,base,dot,B e
+D404,base,dot,M ne
+D404,base,dot,C s
+D404,aux,dot,O n solid
+D405,base,pt,O 240 230
+D405,base,pt,P 472.5 230
+D405,base,pt,T 312.7 122.2
+D405,base,pt,E 224.8 62.9
+D405,base,circle,O 130 chalk 3
+D405,base,seg,P E chalk 3
+D405,base,seg,O P chalk 2
+D405,base,seg,O T chalk 2
+D405,base,angle,O P T 52 34° gold
+D405,base,angle,P O T 34 ? red
+D405,aux,right,O T P gold 16
+D405,aux,text,470 80 '∠OTP = 90°' gold 20
+D405,base,dot,O w solid
+D405,base,dot,P e
+D405,base,dot,T n
+D406,base,pt,O 220 220
+D406,base,pt,P 540 220
+D406,base,pt,A 265 108.8
+D406,base,pt,B 265 331.2
+D406,base,circle,O 120 chalk 3
+D406,base,seg,P A chalk 3
+D406,base,seg,P B chalk 3
+D406,base,len,P A '2x + 1' 1 gold 30
+D406,base,len,P B '3x − 4' -1 gold 30
+D406,aux,seg,O A gold 2d
+D406,aux,seg,O B gold 2d
+D406,aux,right,O A P gold 14
+D406,aux,right,O B P gold 14
+D406,aux,text,320 410 'PA = PB' gold 22
+D406,base,dot,O w solid
+D406,base,dot,P e
+D406,base,dot,A n
+D406,base,dot,B s
+D407,base,pt,O 250 220
+D407,base,pt,P 560 220
+D407,base,pt,A 304.5 102
+D407,base,pt,B 304.5 338
+D407,base,circle,O 130 chalk 3
+D407,base,ray,P A gold 3 60
+D407,base,text,560 300 '원 밖의 점 P' dim 18
+D407,aux,ray,P B gold 3d 60
+D407,aux,text,430 395 '접선이 하나 더!' gold 20
+D407,base,dot,O w solid
+D407,base,dot,P e
+D407,base,dot,A n
+D407,aux,dot,B s
+D408,base,pt,O 200 240
+D408,base,pt,P 460 240
+D408,base,pt,T 238.5 147.7
+D408,base,circle,O 100 chalk 3
+D408,base,seg,O T chalk 3
+D408,base,seg,O P chalk 2
+D408,base,line,P T chalk 3 70
+D408,base,len,O T 5cm 1 chalk 24
+D408,base,len,O P 13cm -1 chalk 26
+D408,base,len,P T ? -1 red 28
+D408,aux,right,O T P gold 15
+D408,aux,text,470 400 '5² + ?² = 13²' gold 22
+D408,base,dot,O w solid
+D408,base,dot,P e
+D408,base,dot,T n
+D409,base,pt,O 320 195
+D409,base,pt,A 320 345
+D409,base,pt,B 434.9 98.6
+D409,base,pt,C 190.1 120
+D409,base,pt,L 80 345
+D409,base,pt,R 560 345
+D409,base,circle,O 150 chalk 3
+D409,base,seg,L R chalk 3
+D409,base,seg,A B chalk 3
+D409,base,seg,C A chalk 2
+D409,base,seg,C B chalk 2
+D409,base,angle,B A R 46 65° gold
+D409,base,angle,A C B 34 ? red
+D409,aux,seg,O A gold 2d
+D409,aux,seg,O B gold 2d
+D409,aux,angle,A O B 30 130° gold
+D409,base,text,560 410 '접선' dim 18
+D409,base,dot,A s
+D409,base,dot,B ne
+D409,base,dot,C nw
+D409,aux,dot,O w solid
+D410,base,pt,O 320 195
+D410,base,pt,A 320 345
+D410,base,pt,B 469.2 179.3
+D410,base,pt,C 179 143.7
+D410,base,pt,L 80 345
+D410,base,pt,R 560 345
+D410,base,circle,O 150 chalk 3
+D410,base,seg,L R chalk 3
+D410,base,seg,A B chalk 3
+D410,base,seg,C A chalk 2
+D410,base,seg,C B chalk 2
+D410,base,angle,B A L 40 ? red
+D410,base,angle,A C B 34 48° gold
+D410,aux,seg,O A gold 2d
+D410,aux,seg,O B gold 2d
+D410,aux,angle,A O B 30 96° gold
+D410,base,text,560 410 '접선' dim 18
+D410,base,dot,A s
+D410,base,dot,B ne
+D410,base,dot,C nw
+D410,aux,dot,O w solid
+D411,base,pt,O 320 195
+D411,base,pt,A 320 345
+D411,base,pt,B 434.9 98.6
+D411,base,pt,C 190.1 120
+D411,base,pt,D 320 45
+D411,base,pt,L 80 345
+D411,base,pt,T 560 345
+D411,base,circle,O 150 chalk 3
+D411,base,seg,L T chalk 3
+D411,base,seg,A B chalk 3
+D411,base,seg,C A chalk 2
+D411,base,seg,C B chalk 2
+D411,base,angle,B A T 46 '' gold
+D411,base,angle,A C B 34 '' gold
+D411,aux,seg,A D gold 3d
+D411,aux,seg,B D gold 3d
+D411,aux,right,D A T gold 18
+D411,aux,right,A B D gold 16
+D411,base,dot,A s
+D411,base,dot,B ne
+D411,base,dot,C nw
+D411,base,dot,T e hidden
+D411,base,text,560 410 T chalk 20
+D411,aux,dot,D n
+D411,aux,dot,O w solid
+D412,base,pt,O 320 195
+D412,base,pt,A 320 345
+D412,base,pt,B 434.9 98.6
+D412,base,pt,C 190.1 120
+D412,base,pt,L 80 345
+D412,base,pt,R 560 345
+D412,base,circle,O 150 chalk 3
+D412,base,seg,L R chalk 3
+D412,base,seg,A B chalk 3
+D412,base,seg,C A chalk 2
+D412,base,seg,C B chalk 2
+D412,base,angle,B A R 46 x° gold
+D412,base,angle,B A L 40 ? red
+D412,aux,seg,O A gold 2d
+D412,aux,seg,O B gold 2d
+D412,aux,angle,A O B 30 130° gold
+D412,base,text,560 410 '접선' dim 18
+D412,base,dot,A s
+D412,base,dot,B ne
+D412,base,dot,C nw
+D412,aux,dot,O w solid
+D413,base,pt,O 320 235
+D413,base,pt,A 405 87.8
+D413,base,pt,B 235 87.8
+D413,base,sector,O 170 60 120 gold 0.28
+D413,base,seg,O A chalk 3
+D413,base,seg,O B chalk 3
+D413,base,arc,O 170 60 120 chalk 4
+D413,base,len,O A 6cm 1 chalk 26
+D413,base,angle,A O B 40 60° gold
+D413,base,pt,TS 320 109.2
+D413,base,tag,TS '넓이 ?' red 22
+D413,aux,circle,O 170 gold 2d
+D413,base,dot,O s solid
+D413,aux,text,560 410 '360° 중 60°' gold 20
+D414,base,pt,O 320 235
+D414,base,pt,A 467.2 150
+D414,base,pt,B 261.9 75.3
+D414,base,sector,O 170 30 110 gold 0.28
+D414,base,seg,O A chalk 3
+D414,base,seg,O B chalk 3
+D414,base,arc,O 170 30 110 chalk 4
+D414,base,len,O A 9cm 1 chalk 26
+D414,base,angle,A O B 40 80° gold
+D414,base,pt,TA 388.4 47.1
+D414,base,tag,TA '호 ?' red 22
+D414,aux,circle,O 170 gold 2d
+D414,base,dot,O s solid
+D414,aux,text,560 410 '360° 중 80°' gold 20
+D415,base,pt,O 320 235
+D415,base,pt,A 440.2 114.8
+D415,base,pt,B 320 65
+D415,base,sector,O 170 45 90 gold 0.28
+D415,base,seg,O A chalk 3
+D415,base,seg,O B chalk 3
+D415,base,arc,O 170 45 90 chalk 4
+D415,base,len,O A 4cm 1 chalk 26
+D415,base,angle,A O B 40 ? red
+D415,base,pt,TS 368.1 118.8
+D415,base,tag,TS '2π cm²' gold 20
+D415,aux,circle,O 170 gold 2d
+D415,base,dot,O s solid
+D415,aux,text,110 410 '전체 16π cm²' gold 20
+D416,base,pt,O 220 220
+D416,base,pt,P 503.9 220
+D416,base,pt,A 270.7 111.2
+D416,base,pt,B 270.7 328.8
+D416,base,circle,O 120 chalk 3
+D416,base,seg,P A chalk 3
+D416,base,seg,P B chalk 3
+D416,base,seg,O A chalk 2
+D416,base,seg,O B chalk 2
+D416,base,angle,A P B 46 50° gold
+D416,base,angle,A O B 30 ? red
+D416,aux,right,O A P gold 14
+D416,aux,right,O B P gold 14
+D416,aux,text,320 410 '사각형의 네 각의 합 360°' gold 20
+D416,base,dot,O w solid
+D416,base,dot,P e
+D416,base,dot,A n
+D416,base,dot,B s
+D417,base,pt,O 200 250
+D417,base,pt,Q 470 250
+D417,base,pt,A 260 146.1
+D417,base,pt,B 179.2 131.8
+D417,base,pt,C 547.1 158.1
+D417,base,pt,D 392.9 158.1
+D417,base,sector,O 120 60 100 gold 0.3
+D417,base,sector,Q 120 50 130 gold 0.3
+D417,base,seg,O A chalk 3
+D417,base,seg,O B chalk 3
+D417,base,seg,Q C chalk 3
+D417,base,seg,Q D chalk 3
+D417,base,arc,O 120 60 100 chalk 3
+D417,base,arc,Q 120 50 130 chalk 3
+D417,base,angle,A O B 36 40° gold
+D417,base,angle,C Q D 36 80° gold
+D417,base,text,200 320 '넓이 S' chalk 20
+D417,base,text,470 320 '넓이 ?' red 22
+D417,aux,text,335 400 '중심각 2배 → 넓이 2배' gold 22
+D417,base,dot,O s solid
+D417,base,dot,Q s solid

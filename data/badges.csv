@@ -1,0 +1,11 @@
+id,name,description,stat,target,icon
+B01,첫 사건 해결,첫 번째 사건을 해결했다,lessons_done,1,star
+B02,보조선 장인,보조선을 10번 그어 보았다,aux_total,10,aux
+B03,무힌트 10연속,힌트 없이 10문제 연속으로 맞혔다,nohint_best,10,triangle
+B04,완벽한 추리,오답 없이 사건을 해결했다,perfect_lessons,1,check
+B05,시계탑의 영웅,두 개의 장을 모두 해결했다,chapters_done,2,clock
+B06,도감 수집가,정리 카드 10장을 모았다,cards,10,book
+B07,30일 촛불,30일 연속으로 학습했다,streak_best,30,flame
+B08,첫 번째 범인,최종 추리로 범인을 밝혀냈다,finales,1,search
+B09,은 돋보기,주간 리그에서 승급했다,league_tier,1,trophy
+B10,천문대의 별,네 개의 장을 모두 해결했다,chapters_done,4,star

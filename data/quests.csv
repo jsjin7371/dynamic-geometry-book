@@ -1,0 +1,8 @@
+id,text,type,target,reward
+Q1,수수께끼 3개 풀기,solve,3,1
+Q2,힌트 없이 정답 맞히기,nohint,1,1
+Q3,보조선 3번 그어 보기,aux,3,1
+Q4,사건 1개 해결하기,lesson,1,2
+Q5,경험치 100 얻기,xp,100,2
+Q6,오답 노트 1문제 다시 풀기,review,1,1
+Q7,수수께끼 6개 풀기,solve,6,2

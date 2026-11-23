@@ -1,0 +1,5 @@
+id,order,label,title,subtitle,npc,scene
+C1,1,CHAPTER I,선의 정원,점과 선이 자라는 정원,minerva,garden
+C2,2,CHAPTER II,각도의 시계탑,각과 원의 비밀이 잠든 탑,gregor,clock
+C3,3,CHAPTER III,삼각형의 수도원,세 변과 세 각이 지키는 수도원,toru,monastery
+C4,4,CHAPTER IV,원의 천문대,별빛이 그리는 원의 비밀,luna,observatory
