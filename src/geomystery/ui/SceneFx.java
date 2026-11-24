@@ -274,10 +274,27 @@ final class SceneFx {
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, in));
         switch (emotion) {
             case "happy": {
-                for (int i = 0; i < 4; i++) {
-                    double a = since * 2.2 + i * Math.PI / 2;
-                    star(g, hx + Math.cos(a) * r * 1.15, hy - r * 0.55 + Math.sin(a) * r * 0.45, r * (0.09 + 0.03 * Math.sin(since * 7 + i)), new Color(0xF2C04A));
+                // 반짝반짝: 머리 옆 세 군데에서 반짝이가 차례로 톡 튀어나와 숨 쉬듯 반짝인다
+                double[][] spots = {{0.98, -0.92, 1.0}, {1.30, -0.50, 0.65}, {0.62, -1.28, 0.55}};
+                for (int i = 0; i < spots.length; i++) {
+                    double t = since - i * 0.12;
+                    if (t <= 0) continue;
+                    double pop = t < 0.3 ? Math.sin(Math.PI / 2 * t / 0.3) * (1 + 0.35 * Math.sin(Math.PI * t / 0.3)) : 1; // 살짝 커졌다 자리 잡기
+                    double tw = 0.5 + 0.5 * Math.sin(t * 4.2 + i * 2.1);
+                    double rr = r * 0.23 * spots[i][2] * pop * (0.7 + 0.3 * tw);
+                    Composite c0 = g.getComposite();
+                    g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, in * (float) (0.55 + 0.45 * tw)));
+                    sparkle(g, hx + side * r * spots[i][0], hy + r * spots[i][1], rr, new Color(0xF2C04A));
+                    g.setComposite(c0);
                 }
+                // 반대쪽에서 음표 하나가 살랑이며 떠오르다 사라진다(1.8초마다)
+                double period = 1.8, nt = (since % period) / period;
+                double nx = hx - side * r * (0.95 + 0.08 * Math.sin(nt * Math.PI * 2)), ny = hy - r * (0.55 + 0.55 * nt);
+                float na = (float) (nt < 0.2 ? nt / 0.2 : Math.max(0, 1 - (nt - 0.2) / 0.8));
+                Composite c0 = g.getComposite();
+                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, in * na));
+                note(g, nx, ny, r * 0.19, new Color(0xA33A28));
+                g.setComposite(c0);
                 break;
             }
             case "surprised": {
@@ -329,15 +346,35 @@ final class SceneFx {
         g.setComposite(keep);
     }
 
-    private static void star(Graphics2D g, double cx, double cy, double r, Color c) {
+    /** 네 갈래 반짝이(가운데가 오목한 십자 별)와 가운데 흰 점. */
+    private static void sparkle(Graphics2D g, double cx, double cy, double r, Color c) {
         Path2D p = new Path2D.Double();
-        for (int i = 0; i < 8; i++) {
-            double a = Math.PI / 4 * i, rr = i % 2 == 0 ? r : r * 0.35;
-            double x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
-            if (i == 0) p.moveTo(x, y); else p.lineTo(x, y);
-        }
+        double k = r * 0.18;
+        p.moveTo(cx, cy - r);
+        p.quadTo(cx + k, cy - k, cx + r, cy);
+        p.quadTo(cx + k, cy + k, cx, cy + r);
+        p.quadTo(cx - k, cy + k, cx - r, cy);
+        p.quadTo(cx - k, cy - k, cx, cy - r);
         p.closePath();
         g.setColor(c);
         g.fill(p);
+        g.setColor(new Color(255, 250, 230, 220));
+        g.fill(new Ellipse2D.Double(cx - r * 0.16, cy - r * 0.16, r * 0.32, r * 0.32));
+    }
+
+    /** 8분음표(머리·기둥·꼬리). s 는 음표 머리 크기. */
+    private static void note(Graphics2D g, double x, double y, double s, Color c) {
+        g.setColor(c);
+        Graphics2D h = (Graphics2D) g.create();
+        h.rotate(Math.toRadians(-20), x, y);
+        h.fill(new Ellipse2D.Double(x - s * 0.62, y - s * 0.42, s * 1.24, s * 0.84));
+        h.dispose();
+        double sx = x + s * 0.5, top = y - s * 2.6;
+        g.setStroke(new BasicStroke((float) Math.max(1.2, s * 0.2), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(new Line2D.Double(sx, y - s * 0.1, sx, top));
+        Path2D f = new Path2D.Double();
+        f.moveTo(sx, top);
+        f.curveTo(sx + s * 0.2, top + s * 0.7, sx + s * 1.1, top + s * 0.8, sx + s * 0.75, top + s * 1.7);
+        g.draw(f);
     }
 }

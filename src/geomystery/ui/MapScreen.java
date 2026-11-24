@@ -11,6 +11,7 @@ import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** 01 탐험 지도 — 홈 · 학습 경로. */
 public class MapScreen extends JPanel {
@@ -382,6 +383,8 @@ public class MapScreen extends JPanel {
             } else if (marker != null) repaint(marker); // 헤이즐이 없으면(모든 사건 해결) 아무것도 다시 그리지 않는다
         });
         private static final long WALK_MS = 1900;
+        /** 장 풍경 바탕 그림(장·크기·배율·테마별). */
+        private final Map<String, BufferedImage> BACKDROPS = new java.util.concurrent.ConcurrentHashMap<>();
         /** 지도 그림은 이 스레드에서 그린다(레티나에서 한 장에 0.03~0.25초 — 화면 스레드에서 그리면 걷기가 끊긴다). */
         private final java.util.concurrent.ExecutorService MAP_BUILDER = java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "geomystery-map");
@@ -614,9 +617,57 @@ public class MapScreen extends JPanel {
             g.dispose();
         }
 
+        /**
+         * 장 풍경 바탕(화면 배율 크기, 둥근 지도 모양으로 잘림). 장·크기·테마별로 한 번만 만든다.
+         * 지도 그림을 그리는 백그라운드 스레드에서도 부른다.
+         */
+        private BufferedImage backdrop(Chapter ch, int w, int h, double sc) {
+            String key = ch.scene + "|" + w + "x" + h + "@" + sc + "|" + Theme.isDark();
+            BufferedImage hit = BACKDROPS.get(key);
+            if (hit != null) return hit;
+            BufferedImage bg = Ui.img("bg_" + ch.scene);
+            if (bg == null || w <= 4 || h <= 4) return null;
+            int pw = (int) Math.ceil(w * sc), ph = (int) Math.ceil(h * sc);
+            BufferedImage out = new BufferedImage(pw, ph, BufferedImage.TYPE_INT_ARGB_PRE);
+            Graphics2D g = Theme.aa(out.createGraphics());
+            g.scale(sc, sc);
+            // 지도 모양(둥근 사각형)을 먼저 칠하고, 그 안에만 풍경을 얹는다(SRC_ATOP: 가장자리가 부드럽다)
+            g.setColor(Color.WHITE);
+            g.fill(new RoundRectangle2D.Float(2, 2, w - 4, h - 4, 15, 15));
+            g.setComposite(AlphaComposite.SrcAtop);
+            // 지도를 가득 채우도록 맞추고(남는 쪽은 잘라 냄) 가운데 둔다
+            double k = Math.max(w / (double) bg.getWidth(), h / (double) bg.getHeight());
+            int iw = (int) Math.ceil(bg.getWidth() * k * sc), ih = (int) Math.ceil(bg.getHeight() * k * sc);
+            BufferedImage scaled = Ui.resize(bg, iw, ih, false);
+            Graphics2D d = (Graphics2D) g.create();
+            d.setTransform(new java.awt.geom.AffineTransform());
+            d.drawImage(scaled, (pw - iw) / 2, (ph - ih) / 2, null);
+            d.dispose();
+            // 양피지 색으로 덮기: 가운데는 풍경이 비치고, 가장자리·제목 자리는 더 짙게
+            Color paper = Theme.c(0xEADBB8);
+            g.setColor(new Color(paper.getRed(), paper.getGreen(), paper.getBlue(), 150));
+            g.fillRect(0, 0, w, h);
+            g.setPaint(new RadialGradientPaint(new java.awt.geom.Point2D.Float(w / 2f, h / 2f), Math.max(w, h) * 0.7f,
+                    new float[]{0.45f, 1f},
+                    new Color[]{new Color(paper.getRed(), paper.getGreen(), paper.getBlue(), 0), new Color(paper.getRed(), paper.getGreen(), paper.getBlue(), 170)}));
+            g.fillRect(0, 0, w, h);
+            g.setPaint(new GradientPaint(0, 0, new Color(paper.getRed(), paper.getGreen(), paper.getBlue(), 150), 0, 90,
+                    new Color(paper.getRed(), paper.getGreen(), paper.getBlue(), 0)));
+            g.fillRect(0, 0, w, 90);
+            g.dispose();
+            if (BACKDROPS.size() > 12) BACKDROPS.clear(); // 창 크기를 여러 번 바꿔도 쌓이지 않게
+            BACKDROPS.put(key, out);
+            return out;
+        }
+
         private void paintStatic(Graphics2D g, int w, int h, Chapter chapter, List<Lesson> lessons, int hover) {
             g.setColor(Theme.c(0xEADBB8));
             g.fill(new RoundRectangle2D.Float(1, 1, w - 2, h - 2, 16, 16));
+            // 그 장의 풍경을 옅게 깐다(양피지 색으로 덮어 길·사건 표시가 잘 보이게)
+            if (chapter != null) {
+                BufferedImage bd = backdrop(chapter, w, h, Ui.deviceScale(g));
+                if (bd != null) Ui.blit(g, bd, 0, 0, w, h);
+            }
             g.setColor(Theme.c(0xC8A979));
             g.setStroke(new BasicStroke(2f));
             g.draw(new RoundRectangle2D.Float(1, 1, w - 2, h - 2, 16, 16));
@@ -720,12 +771,28 @@ public class MapScreen extends JPanel {
             Graphics2D g = Ui.cacheGraphics(im, like);
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             double x = pad, y = pad;
+            Ellipse2D ring = new Ellipse2D.Double(x - 3, y - 3, size + 6, size + 6);
             g.setColor(new Color(0xFFFAF0));
-            g.fill(new Ellipse2D.Double(x - 3, y - 3, size + 6, size + 6));
+            g.fill(ring);
+            // 얼굴은 원 안쪽만 보이게 자른다(꼬리가 원 밖으로 튀어나오지 않게). 가장자리를 부드럽게 하려고
+            // 모양 자르기 대신 원(바탕색)을 먼저 그리고 그 위에 SRC_ATOP 으로 얼굴을 얹는다 — 원 밖은 투명해진다.
+            BufferedImage faceLayer = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+            Graphics2D fg = Theme.aa(faceLayer.createGraphics());
+            fg.scale(sc, sc);
+            fg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            fg.setColor(new Color(0xFFFAF0));
+            fg.fill(ring);
+            fg.setComposite(AlphaComposite.SrcAtop);
+            Ui.drawScaled(fg, face, x, y, size, size);
+            fg.dispose();
+            Graphics2D d = (Graphics2D) g.create();
+            d.setTransform(new java.awt.geom.AffineTransform());
+            d.drawImage(faceLayer, 0, 0, null);
+            d.dispose();
+            // 금테는 얼굴 위에 둘러서 잘린 가장자리를 덮는다
             g.setColor(Theme.GOLD);
             g.setStroke(new BasicStroke(2.5f));
-            g.draw(new Ellipse2D.Double(x - 3, y - 3, size + 6, size + 6));
-            Ui.drawScaled(g, face, x, y, size, size);
+            g.draw(ring);
             g.dispose();
             tokenImg = im;
             tokenScale = sc;
