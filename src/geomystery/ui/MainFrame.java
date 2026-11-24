@@ -103,7 +103,12 @@ public class MainFrame extends JFrame {
             @Override public void windowClosed(WindowEvent e) { if (!replaced) System.exit(0); }
             @Override public void windowOpened(WindowEvent e) {
                 Theme.warmUp();
-                javax.swing.Timer warm = new javax.swing.Timer(400, ev -> { board.prewarm(); dialogue.prewarm(); office.prewarm(); });
+                javax.swing.Timer warm = new javax.swing.Timer(400, ev -> {
+                    board.prewarm(); dialogue.prewarm(); office.prewarm();
+                    double sc = 1;
+                    try { sc = Math.max(1, getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+                    RewardFly.prewarm(sc);
+                });
                 warm.setRepeats(false);
                 warm.start();
                 String n = game.takeLeagueNotice();

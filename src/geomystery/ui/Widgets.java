@@ -23,13 +23,25 @@ public final class Widgets {
         /** 토큰이 들어올 때 살짝 부풀었다 돌아온다. */
         public void pulse() {
             pulseStart = System.currentTimeMillis();
-            javax.swing.Timer t = new javax.swing.Timer(16, null);
-            t.addActionListener(e -> {
-                repaint();
-                if (System.currentTimeMillis() - pulseStart > 260) t.stop();
-            });
-            t.start();
+            if (pulseTimer == null) {
+                // 타이머는 하나만: 동전이 연달아 들어와도 다시 그리기가 겹치지 않는다
+                pulseTimer = new javax.swing.Timer(16, e -> {
+                    // 부푼 만큼(8%) 바깥까지 다시 그린다
+                    Container p = getParent();
+                    if (p != null) p.repaint(getX() - 8, getY() - 4, getWidth() + 16, getHeight() + 8);
+                    if (System.currentTimeMillis() - pulseStart > 280) ((javax.swing.Timer) e.getSource()).stop();
+                });
+            }
+            pulseTimer.restart();
         }
+
+        private javax.swing.Timer pulseTimer;
+        /** 부풀 때 쓰는 알약 그림(화면 배율). 글자를 매번 다른 크기로 다시 그리지 않도록 한 장을 늘려 그린다. */
+        private java.awt.image.BufferedImage pulseImg;
+        private String pulseText, pulseIcon;
+        private int pulseW, pulseH;
+        private double pulseDs;
+        private boolean pulseDark;
 
         /** 등불이 꺼지는 연출: 아이콘이 깜빡이다 꺼지고 연기가 피어오른다. */
         public void flicker() {
@@ -70,12 +82,29 @@ public final class Widgets {
             Graphics2D g = Theme.aa(g0.create());
             int w = getWidth(), h = getHeight();
             long pe = System.currentTimeMillis() - pulseStart;
-            if (pe < 260) {
+            if (pe < 260 && !Ui.offscreen(g)) {
                 double sc = 1 + 0.08 * Math.sin(Math.PI * pe / 260.0);
-                g.translate(w / 2.0, h / 2.0);
-                g.scale(sc, sc);
-                g.translate(-w / 2.0, -h / 2.0);
+                double ds = Ui.deviceScale(g);
+                boolean dark = Theme.isDark();
+                if (pulseImg == null || w != pulseW || h != pulseH || ds != pulseDs || dark != pulseDark
+                        || !java.util.Objects.equals(text, pulseText) || !java.util.Objects.equals(icon, pulseIcon)) {
+                    pulseImg = Ui.deviceImage(g, w, h);
+                    Graphics2D cg = Ui.cacheGraphics(pulseImg, g);
+                    paintBody(cg, w, h);
+                    cg.dispose();
+                    pulseText = text; pulseIcon = icon; pulseW = w; pulseH = h; pulseDs = ds; pulseDark = dark;
+                }
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                double dw = w * sc, dh = h * sc;
+                g.drawImage(pulseImg, (int) Math.round((w - dw) / 2), (int) Math.round((h - dh) / 2), (int) Math.round(dw), (int) Math.round(dh), null);
+                g.dispose();
+                return;
             }
+            paintBody(g, w, h);
+            g.dispose();
+        }
+
+        private void paintBody(Graphics2D g, int w, int h) {
             Shape s = new RoundRectangle2D.Float(1, 1, w - 2, h - 2, h - 2, h - 2);
             Color tc;
             switch (kind) {
@@ -122,7 +151,6 @@ public final class Widgets {
             }
             g.setColor(tc);
             g.drawString(text, (float) x, (float) (h / 2.0 + (fm.getAscent() - fm.getDescent()) / 2.0));
-            g.dispose();
         }
     }
 

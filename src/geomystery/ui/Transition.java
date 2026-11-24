@@ -20,6 +20,9 @@ final class Transition {
 
     private static Runnable running;
 
+    /** 화면 전환이 진행 중인가(전환 그림이 실제 화면을 덮고 있다). */
+    static boolean isRunning() { return running != null; }
+
     static void play(JFrame frame, Kind kind, Runnable switcher, Runnable onDone) {
         if (running != null) running.run(); // 진행 중인 전환은 바로 끝낸다
         JRootPane root = frame.getRootPane();

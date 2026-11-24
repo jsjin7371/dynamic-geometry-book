@@ -28,7 +28,7 @@ public class MapScreen extends JPanel {
     private final JLabel questTime;
     private final JPanel leagueRows;
     private final JLabel leagueDays, leagueTitle;
-    private final Btn prevCh, nextCh;
+    private final SideArrow prevCh, nextCh;
     /** 이미 축하한 완료 의뢰. 처음 지도를 열 때 이미 끝나 있던 의뢰는 축하하지 않는다. */
     private final java.util.Set<String> seenDone = new java.util.HashSet<>();
 
@@ -41,16 +41,8 @@ public class MapScreen extends JPanel {
 
         for (Quest q : game.todayQuests()) if (game.questDone(q)) seenDone.add(q.id + "@" + game.today());
         header = new Header(game);
-        prevCh = new Btn("", Btn.Style.GHOST, "back");
-        nextCh = new Btn("", Btn.Style.GHOST, "next");
-        prevCh.setToolTipText("이전 장");
-        nextCh.setToolTipText("다음 장");
-        prevCh.setPreferredSize(new Dimension(40, 40));
-        nextCh.setPreferredSize(new Dimension(40, 40));
-        prevCh.addActionListener(e -> moveChapter(-1));
-        nextCh.addActionListener(e -> moveChapter(1));
-        header.addTitleAccessory(prevCh);
-        header.addTitleAccessory(nextCh);
+        prevCh = new SideArrow(-1, () -> moveChapter(-1));
+        nextCh = new SideArrow(1, () -> moveChapter(1));
         add(header, BorderLayout.NORTH);
 
         JPanel body = Ui.clear(new GridBagLayout());
@@ -85,6 +77,10 @@ public class MapScreen extends JPanel {
         left.add(banner, BorderLayout.NORTH);
 
         path = new PathMap();
+        // 장 넘기기: 지도 양옆 가운데에 큰 화살표 하나씩
+        path.setLayout(null);
+        path.add(prevCh);
+        path.add(nextCh);
         left.add(path, BorderLayout.CENTER);
 
         c.gridx = 0; c.gridy = 0; c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
@@ -155,6 +151,21 @@ public class MapScreen extends JPanel {
         getActionMap().put("mapContinue", new AbstractAction() {
             @Override public void actionPerformed(java.awt.event.ActionEvent e) { if (isShowing()) continueCase(); }
         });
+        // ← → 로 장 넘기기(화살표 버튼과 같다). 지도가 화면에 있을 때만.
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("LEFT"), "mapPrevChapter");
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("RIGHT"), "mapNextChapter");
+        getActionMap().put("mapPrevChapter", chapterKey(-1));
+        getActionMap().put("mapNextChapter", chapterKey(1));
+    }
+
+    private Action chapterKey(int d) {
+        return new AbstractAction() {
+            @Override public boolean isEnabled() { return isShowing(); } // 다른 화면의 ← → 를 가로채지 않게
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+                SideArrow b = d < 0 ? prevCh : nextCh;
+                if (isShowing() && b.isEnabled()) moveChapter(d);
+            }
+        };
     }
 
     private void continueCase() {
@@ -345,20 +356,39 @@ public class MapScreen extends JPanel {
     private class PathMap extends JComponent {
         private Chapter chapter;
         private List<Lesson> lessons = new ArrayList<>();
-        private final List<Point2D.Double> nodes = new ArrayList<>();
+        private List<Point2D.Double> nodes = new ArrayList<>();
         private int hover = -1;
         private final double[] xs = {0.48, 0.24, 0.66, 0.34, 0.66, 0.46, 0.3, 0.6};
         private int walkIndex = -1;
         private long walkStart;
+        /** 걷기를 맡았지만 아직 시작하지 않음: 화면 전환이 끝나고 지도 그림이 준비된 뒤 첫 화면에서 시작한다. */
+        private boolean walkPending;
         /** 헤이즐이 서 있는 자리(다시 그릴 범위). 걷는 중이 아니면 이 작은 영역만 다시 그린다. */
         private Rectangle marker;
+        /** 걷는 길(시작·도착 사건과 그 사이 곡선)을 감싸는 영역. 걷는 동안에는 이 부분만 다시 그린다. */
+        private Rectangle walkArea;
         private final javax.swing.Timer bob = new javax.swing.Timer(40, e -> {
             if (!Ui.inFront(this)) return;
-            boolean walking = walkIndex >= 0 && System.currentTimeMillis() - walkStart < WALK_MS + 100;
-            if (walking) repaint();
-            else if (marker != null) repaint(marker); // 헤이즐이 없으면(모든 사건 해결) 아무것도 다시 그리지 않는다
+            boolean walking = walkIndex >= 0 && (walkPending || System.currentTimeMillis() - walkStart < WALK_MS + 100);
+            javax.swing.Timer tm = (javax.swing.Timer) e.getSource();
+            int want = walking ? 15 : 40; // 걷는 동안은 약 60fps, 제자리 깡충은 25fps면 충분
+            if (tm.getDelay() != want) tm.setDelay(want);
+            if (walking && walkPending) {
+                if (marker != null) repaint(marker); // 출발 전: 헤이즐 자리만(전환이 끝났는지 보려고)
+                else repaint();
+            } else if (walking) {
+                if (walkArea != null) repaint(walkArea);
+                else repaint();
+            } else if (marker != null) repaint(marker); // 헤이즐이 없으면(모든 사건 해결) 아무것도 다시 그리지 않는다
         });
         private static final long WALK_MS = 1900;
+        /** 지도 그림은 이 스레드에서 그린다(레티나에서 한 장에 0.03~0.25초 — 화면 스레드에서 그리면 걷기가 끊긴다). */
+        private final java.util.concurrent.ExecutorService MAP_BUILDER = java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "geomystery-map");
+            t.setDaemon(true);
+            t.setPriority(Thread.NORM_PRIORITY - 1);
+            return t;
+        });
 
         // ---- 장 넘기기: 이전 지도를 한 장 찍어 두고 종이처럼 넘긴다
         private java.awt.image.BufferedImage flipOld;
@@ -423,8 +453,20 @@ public class MapScreen extends JPanel {
         /** 방금 해결한 사건에서 다음 사건으로 헤이즐이 걸어간다. */
         void walkFrom(Lesson done) {
             walkIndex = lessons.indexOf(done);
-            walkStart = System.currentTimeMillis() + 350;
-            if (walkIndex < 0 || walkIndex + 1 >= lessons.size()) walkIndex = -1;
+            walkStart = Long.MAX_VALUE / 4; // 시작 전: 출발 사건 위에 서 있는다
+            walkPending = true;
+            walkArea = null;
+            if (walkIndex < 0 || walkIndex + 1 >= lessons.size()) { walkIndex = -1; walkPending = false; }
+            bob.setDelay(15);
+            bob.restart();
+        }
+
+        @Override
+        public void doLayout() {
+            // 장 넘기기 화살표: 지도 양옆 가운데(사건은 지도 안쪽 24~66% 자리에 있어 겹치지 않는다)
+            int bw = SideArrow.W, bh = SideArrow.H, y = (getHeight() - bh) / 2;
+            prevCh.setBounds(12, y, bw, bh);
+            nextCh.setBounds(getWidth() - 12 - bw, y, bw, bh);
         }
 
         PathMap() {
@@ -447,9 +489,20 @@ public class MapScreen extends JPanel {
         }
 
         void setChapter(Chapter ch) {
+            if (ch != chapter) { walkIndex = -1; walkPending = false; walkArea = null; }
             chapter = ch;
             lessons = game.content.lessonsOf(ch);
+            prepare();
             repaint();
+        }
+
+        /** 지금 상태의 지도 그림을 미리(백그라운드에서) 그려 두게 한다. 화면 전환이 도는 동안 준비된다. */
+        private void prepare() {
+            int w = getWidth(), h = getHeight();
+            if (chapter == null || w <= 0 || h <= 0) return;
+            double sc = 1;
+            try { sc = Math.max(1, getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+            request(w, h, sc);
         }
 
         private int hit(Point p) {
@@ -458,48 +511,110 @@ public class MapScreen extends JPanel {
         }
 
         private void layoutNodes() {
-            nodes.clear();
-            int n = lessons.size();
-            double w = getWidth(), h = getHeight();
+            nodes = layout(lessons, getWidth(), getHeight());
+        }
+
+        /** 사건 자리(백그라운드 그리기에서도 쓰므로 필드를 건드리지 않는다). */
+        private List<Point2D.Double> layout(List<Lesson> ls, double w, double h) {
+            List<Point2D.Double> out = new ArrayList<>();
+            int n = ls.size();
             for (int i = 0; i < n; i++) {
                 double t = n == 1 ? 0.5 : i / (double) (n - 1);
                 double y = h * (0.87 - 0.72 * t);
-                double x = lessons.get(i).boss ? 0.52 : xs[i % xs.length];
-                nodes.add(new Point2D.Double(w * x, y));
+                double x = ls.get(i).boss ? 0.52 : xs[i % xs.length];
+                out.add(new Point2D.Double(w * x, y));
             }
+            return out;
         }
 
         /** 헤이즐을 뺀 지도(길·사건 표시·장식)를 한 장으로 그려 둔 것. 헤이즐이 깡충거릴 때는 이것을 복사만 한다. */
         private java.awt.image.BufferedImage mapCache;
         private String mapKey;
 
+        /** 지도 그림 이름: 앞부분(크기·배율·장·테마)이 같으면 진행 상태만 다른 것이라 옛 그림을 잠깐 보여 줘도 된다. */
+        private String baseKey(int w, int h, double sc) {
+            return w + "x" + h + "@" + sc + "|" + (chapter == null ? "-" : chapter.id) + "|" + Theme.isDark();
+        }
+
+        private String mapKey(int w, int h, double sc) {
+            Lesson cur = game.currentLesson();
+            return baseKey(w, h, sc) + "|" + hover + "|" + game.lessonsDone() + "|" + (cur == null ? "-" : cur.id);
+        }
+
+        private String pendingKey;
+
+        /** 이 상태의 지도 그림을 백그라운드에서 그리게 한다(이미 있거나 그리는 중이면 아무것도 안 한다). */
+        private void request(int w, int h, double sc) {
+            String k = mapKey(w, h, sc);
+            if (k.equals(mapKey) || k.equals(pendingKey)) return;
+            pendingKey = k;
+            Chapter ch = chapter;
+            List<Lesson> ls = lessons;
+            int hov = hover;
+            MAP_BUILDER.submit(() -> {
+                java.awt.image.BufferedImage img = new java.awt.image.BufferedImage((int) Math.ceil(w * sc), (int) Math.ceil(h * sc),
+                        java.awt.image.BufferedImage.TYPE_INT_ARGB_PRE);
+                Graphics2D cg = Theme.aa(img.createGraphics());
+                cg.scale(sc, sc);
+                try {
+                    paintStatic(cg, w, h, ch, ls, hov);
+                } catch (RuntimeException ignored) {
+                    // 그리는 도중 상태가 바뀌었다: 화면 스레드가 다시 맡긴다
+                } finally {
+                    cg.dispose();
+                }
+                SwingUtilities.invokeLater(() -> {
+                    if (!k.equals(pendingKey)) return; // 그새 더 새로운 요청이 있었다
+                    pendingKey = null;
+                    mapCache = img;
+                    mapKey = k;
+                    repaint();
+                });
+            });
+        }
+
         @Override
         protected void paintComponent(Graphics g0) {
             Graphics2D g = Theme.aa(g0.create());
             int w = getWidth(), h = getHeight();
-            if (chapter == null) { paintStatic(g, w, h); g.dispose(); return; }
+            if (chapter == null) { paintStatic(g, w, h, null, lessons, hover); g.dispose(); return; }
             Lesson cur = game.currentLesson();
-            String key = w + "x" + h + "@" + Ui.deviceScale(g) + "|" + chapter.id + "|" + hover + "|" + game.lessonsDone()
-                    + "|" + (cur == null ? "-" : cur.id) + "|" + Theme.isDark();
-            if (Ui.offscreen(g)) {
-                paintStatic(g, w, h); // 전환 사진용: 캐시를 바꾸지 않는다
+            double sc = Ui.deviceScale(g);
+            String key = mapKey(w, h, sc);
+            boolean offscreen = Ui.offscreen(g);
+            boolean fresh = true;
+            if (offscreen) {
+                paintStatic(g, w, h, chapter, lessons, hover); // 전환 사진용: 캐시를 바꾸지 않는다
             } else {
                 if (!key.equals(mapKey) || mapCache == null) {
-                    mapCache = Ui.deviceImage(g, w, h);
-                    Graphics2D cg = Ui.cacheGraphics(mapCache, g);
-                    paintStatic(cg, w, h);
-                    cg.dispose();
-                    mapKey = key;
+                    if (mapCache != null && mapKey != null && mapKey.startsWith(baseKey(w, h, sc) + "|")) {
+                        // 진행 상태만 바뀌었다: 새 그림은 백그라운드에서 그리고, 그동안 옛 그림을 보여 준다(화면이 멈추지 않게)
+                        request(w, h, sc);
+                        fresh = false;
+                    } else {
+                        // 크기·장·테마가 바뀌었다: 옛 그림을 쓸 수 없으니 바로 그린다
+                        pendingKey = null;
+                        mapCache = Ui.deviceImage(g, w, h);
+                        Graphics2D cg = Ui.cacheGraphics(mapCache, g);
+                        paintStatic(cg, w, h, chapter, lessons, hover);
+                        cg.dispose();
+                        mapKey = key;
+                    }
                 }
                 Ui.blit(g, mapCache, 0, 0, w, h);
             }
             layoutNodes();
+            // 맡아 둔 걷기는 화면 전환이 끝나고 새 지도 그림이 보일 때 시작한다(전환에 가려 앞부분을 놓치지 않게)
+            if (walkPending && !offscreen && fresh && !Transition.isRunning()) {
+                walkPending = false;
+                walkStart = System.currentTimeMillis() + 250;
+            }
             drawHazel(g, cur);
             paintFlip(g, w, h);
             g.dispose();
         }
 
-        private void paintStatic(Graphics2D g, int w, int h) {
+        private void paintStatic(Graphics2D g, int w, int h, Chapter chapter, List<Lesson> lessons, int hover) {
             g.setColor(Theme.c(0xEADBB8));
             g.fill(new RoundRectangle2D.Float(1, 1, w - 2, h - 2, 16, 16));
             g.setColor(Theme.c(0xC8A979));
@@ -516,13 +631,13 @@ public class MapScreen extends JPanel {
             squiggle(g, 50, h * 0.22, 130);
             squiggle(g, w - 190, h * 0.78, 130);
             compass(g, w - 66, 64, 34);
-            if (!chapterUnlocked()) {
+            if (!game.isChapterUnlocked(chapter)) {
                 g.setFont(Theme.serif(14));
                 g.setColor(Theme.INK_SOFT);
                 g.drawString("이전 장의 최종 사건을 해결하면 열립니다.", 28, 74);
             }
 
-            layoutNodes();
+            List<Point2D.Double> nodes = layout(lessons, w, h);
             // 점선 경로
             g.setColor(Theme.c(0x8A6440));
             g.setStroke(new BasicStroke(3.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f, new float[]{0.5f, 8f}, 0));
@@ -544,48 +659,78 @@ public class MapScreen extends JPanel {
             }
         }
 
-        private boolean chapterUnlocked() { return game.isChapterUnlocked(chapter); }
-
-        /** 지금 사건 위에 서 있는 헤이즐(방금 사건을 풀었다면 길을 따라 걸어간다). */
+        /** 지금 사건 위에 서 있는 헤이즐(방금 사건을 풀었다면 길을 따라 깡충깡충 걸어간다). */
         private void drawHazel(Graphics2D g, Lesson cur) {
             marker = null;
             BufferedImage face = Ui.img("hazel_face");
             int ci = cur == null ? -1 : lessons.indexOf(cur);
             if (face == null || nodes.isEmpty()) return;
-            double t = System.currentTimeMillis() / 1000.0;
+            long now = System.currentTimeMillis();
+            double t = now / 1000.0;
             Point2D.Double at;
-            double lift = 0;
-            long el = System.currentTimeMillis() - walkStart;
+            double lift;
+            long el = now - walkStart;
             if (walkIndex >= 0 && el < WALK_MS && walkIndex + 1 < nodes.size()) {
                 double k = Math.max(0, el) / (double) WALK_MS, e = k * k * (3 - 2 * k);
                 Point2D.Double a = nodes.get(walkIndex), b = nodes.get(walkIndex + 1);
                 double my = (a.y + b.y) / 2;
-                at = cubic(a, new Point2D.Double(a.x + (b.x - a.x) * 0.1, my), new Point2D.Double(b.x - (b.x - a.x) * 0.1, my), b, e);
+                Point2D.Double c1 = new Point2D.Double(a.x + (b.x - a.x) * 0.1, my), c2 = new Point2D.Double(b.x - (b.x - a.x) * 0.1, my);
+                at = cubic(a, c1, c2, b, e);
                 lift = Math.abs(Math.sin(k * Math.PI * 7)) * 9; // 깡충깡충
+                // 다시 그릴 범위: 두 사건과 그 사이 길 + 헤이즐 머리 위 여유
+                Rectangle2D box = new Line2D.Double(a, b).getBounds2D();
+                walkArea = new Rectangle((int) box.getX() - 48, (int) box.getY() - 130, (int) box.getWidth() + 96, (int) box.getHeight() + 150);
                 // 발자국
                 g.setColor(new Color(138, 100, 64, 120));
                 for (int i = 1; i <= 6; i++) {
                     double kk = e - i * 0.06;
                     if (kk <= 0) break;
-                    Point2D.Double f = cubic(a, new Point2D.Double(a.x + (b.x - a.x) * 0.1, my), new Point2D.Double(b.x - (b.x - a.x) * 0.1, my), b, kk);
+                    Point2D.Double f = cubic(a, c1, c2, b, kk);
                     g.fill(new Ellipse2D.Double(f.x - 3 + (i % 2 == 0 ? 4 : -4), f.y - 2, 6, 4));
                 }
             } else {
-                if (walkIndex >= 0 && el >= WALK_MS) walkIndex = -1;
+                if (walkIndex >= 0 && el >= WALK_MS) { walkIndex = -1; walkArea = null; }
                 if (ci < 0 || ci >= nodes.size()) return;
                 at = nodes.get(ci);
                 lift = Math.abs(Math.sin(t * 2.2)) * 4;
             }
-            double size = 50, x = at.x - size / 2, y = at.y - 50 - size - lift;
+            double size = 50, y = at.y - 50 - size - lift;
             marker = new Rectangle((int) (at.x - size / 2) - 8, (int) (at.y - 50 - size - 14) - 8, (int) size + 16, (int) size + 40);
-            g.setColor(new Color(0, 0, 0, 50));
-            g.fill(new Ellipse2D.Double(at.x - 16, at.y - 54 + 4, 32, 8));
+            // 그림자: 높이 뛸수록 작고 옅어진다
+            double sh = 1 - lift / 30;
+            g.setColor(new Color(0, 0, 0, (int) (50 * sh)));
+            g.fill(new Ellipse2D.Double(at.x - 16 * sh, at.y - 54 + 4 + (1 - sh) * 4, 32 * sh, 8 * sh));
+            // 얼굴 메달은 화면 해상도로 한 번만 그려 두고, 매 프레임 픽셀 그대로 복사만 한다
+            BufferedImage tok = token(g, face, size);
+            double pad = TOKEN_PAD;
+            Ui.blit(g, tok, at.x - size / 2 - pad, y - pad, size + pad * 2, size + pad * 2);
+        }
+
+        private static final double TOKEN_PAD = 5;
+        private BufferedImage tokenImg;
+        private double tokenScale;
+        private boolean tokenDark;
+
+        /** 흰 테두리·금색 테두리·얼굴을 합친 헤이즐 메달(화면 배율 크기). */
+        private BufferedImage token(Graphics2D like, BufferedImage face, double size) {
+            double sc = Ui.deviceScale(like);
+            if (tokenImg != null && tokenScale == sc && tokenDark == Theme.isDark()) return tokenImg;
+            double pad = TOKEN_PAD;
+            BufferedImage im = Ui.deviceImage(like, (int) Math.ceil(size + pad * 2), (int) Math.ceil(size + pad * 2));
+            Graphics2D g = Ui.cacheGraphics(im, like);
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            double x = pad, y = pad;
             g.setColor(new Color(0xFFFAF0));
             g.fill(new Ellipse2D.Double(x - 3, y - 3, size + 6, size + 6));
             g.setColor(Theme.GOLD);
             g.setStroke(new BasicStroke(2.5f));
             g.draw(new Ellipse2D.Double(x - 3, y - 3, size + 6, size + 6));
             Ui.drawScaled(g, face, x, y, size, size);
+            g.dispose();
+            tokenImg = im;
+            tokenScale = sc;
+            tokenDark = Theme.isDark();
+            return im;
         }
 
         private Point2D.Double cubic(Point2D.Double p0, Point2D.Double p1, Point2D.Double p2, Point2D.Double p3, double t) {
@@ -739,5 +884,65 @@ public class MapScreen extends JPanel {
         if (done) m.button("바로 풀기", Btn.Style.OUTLINE, () -> frame.startLesson(l, true));
         m.button(done ? "다시 풀기" : "사건 시작", Btn.Style.PRIMARY, () -> frame.startLesson(l, false));
         m.show();
+    }
+
+    // ------------------------------------------------------------------ 장 넘기기 화살표
+    /** 지도 옆에 붙는 큰 연갈색 화살표. 넘길 장이 없으면 흐려지고 눌리지 않는다. */
+    private static final class SideArrow extends JComponent {
+        static final int W = 48, H = 104;
+        private final int dir;
+        private boolean hover, press;
+
+        SideArrow(int dir, Runnable action) {
+            this.dir = dir;
+            setOpaque(false);
+            setToolTipText(dir < 0 ? "이전 장" : "다음 장");
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            MouseAdapter ma = new MouseAdapter() {
+                @Override public void mouseEntered(MouseEvent e) { hover = true; repaint(); }
+                @Override public void mouseExited(MouseEvent e) { hover = false; press = false; repaint(); }
+                @Override public void mousePressed(MouseEvent e) { if (isEnabled()) { press = true; repaint(); } }
+                @Override public void mouseReleased(MouseEvent e) {
+                    boolean fire = press && isEnabled() && contains(e.getPoint());
+                    press = false;
+                    repaint();
+                    if (fire) action.run();
+                }
+            };
+            addMouseListener(ma);
+        }
+
+        @Override
+        public void setEnabled(boolean b) {
+            super.setEnabled(b);
+            setCursor(Cursor.getPredefinedCursor(b ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g0) {
+            Graphics2D g = Theme.aa(g0.create());
+            int w = getWidth(), h = getHeight();
+            boolean on = isEnabled();
+            if (!on) g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.35f));
+            double dy = on && press ? 2 : 0;
+            // 큰 연갈색 화살표 하나(테두리·바탕 없이). 클릭 범위는 이 칸 전체.
+            double cx = w / 2.0, cy = h / 2.0 + dy, ax = 11, ay = 28;
+            Path2D chev = new Path2D.Double();
+            chev.moveTo(cx - dir * ax, cy - ay);
+            chev.lineTo(cx + dir * ax, cy);
+            chev.lineTo(cx - dir * ax, cy + ay);
+            BasicStroke st = new BasicStroke(9f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+            g.setStroke(st);
+            if (!(on && press)) {
+                g.setColor(new Color(90, 60, 30, 55)); // 살짝 그림자
+                g.translate(0, 2.5);
+                g.draw(chev);
+                g.translate(0, -2.5);
+            }
+            g.setColor(on && hover ? Theme.c(0xB08B5E) : Theme.c(0xC9A57A));
+            g.draw(chev);
+            g.dispose();
+        }
     }
 }
