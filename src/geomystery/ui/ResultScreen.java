@@ -338,10 +338,29 @@ public class ResultScreen extends JPanel {
     }
 
     private class CardPanel extends JComponent {
+        /** 다 그린 카드(결과·크기·배율별 한 장). 위로 꽃가루가 지나가며 매 프레임 다시 그릴 때 복사만 한다. */
+        private java.awt.image.BufferedImage cache;
+        private Object cacheResult;
+        private String cacheKey;
+
         @Override
         protected void paintComponent(Graphics g0) {
-            Graphics2D g = Theme.aa(g0.create());
+            Graphics2D g = (Graphics2D) g0;
             int w = getWidth(), h = getHeight();
+            if (Ui.offscreen(g)) { paintCard(Theme.aa((Graphics2D) g.create()), w, h); return; }
+            String key = w + "x" + h + "@" + Ui.deviceScale(g) + "|" + Theme.isDark() + "|" + game.save.mistakes.size();
+            if (cache == null || cacheResult != result || !key.equals(cacheKey)) {
+                cache = Ui.deviceImage(g, w, h);
+                Graphics2D cg = Ui.cacheGraphics(cache, g);
+                paintCard(cg, w, h);
+                cacheResult = result;
+                cacheKey = key;
+            }
+            Ui.blit(g, cache, 0, 0, w, h);
+        }
+
+        /** g 는 여기서 정리한다. */
+        private void paintCard(Graphics2D g, int w, int h) {
             g.setColor(Theme.GREEN);
             g.fill(new RoundRectangle2D.Float(1, 1, w - 2, h - 2, 14, 14));
             g.setColor(Theme.GOLD_DARK);
@@ -510,10 +529,30 @@ public class ResultScreen extends JPanel {
 
         void play() { start = System.currentTimeMillis(); t.start(); }
 
+        /** 다 찍힌 도장(배율별 한 장). 찍히는 0.4초가 지나면 이것만 복사한다. */
+        private java.awt.image.BufferedImage done;
+        private double doneScale;
+
         @Override
         protected void paintComponent(Graphics g0) {
-            Graphics2D g = Theme.aa(g0.create());
-            double p = Math.min(1, (System.currentTimeMillis() - start) / 420.0);
+            Graphics2D g0d = (Graphics2D) g0;
+            boolean finished = System.currentTimeMillis() - start >= 420;
+            if (finished && !Ui.offscreen(g0d)) {
+                double ds = Ui.deviceScale(g0d);
+                if (done == null || doneScale != ds) {
+                    done = Ui.deviceImage(g0d, getWidth(), getHeight());
+                    Graphics2D cg = Ui.cacheGraphics(done, g0d);
+                    paintStamp(cg, 1);
+                    doneScale = ds;
+                }
+                Ui.blit(g0d, done, 0, 0, getWidth(), getHeight());
+                return;
+            }
+            paintStamp(Theme.aa((Graphics2D) g0.create()), Math.min(1, (System.currentTimeMillis() - start) / 420.0));
+        }
+
+        /** g 는 여기서 정리한다. */
+        private void paintStamp(Graphics2D g, double p) {
             double ease = 1 - Math.pow(1 - p, 3);
             double s = 1.7 - 0.7 * ease;
             float alpha = (float) Math.min(1, p * 1.6);

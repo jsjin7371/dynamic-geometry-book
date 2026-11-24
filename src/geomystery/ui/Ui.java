@@ -483,8 +483,62 @@ public final class Ui {
     }
 
     // ----------------------------------------------------------- 축하
+    private static final Color[] CONFETTI = {Theme.GOLD, new Color(0xC23B2A), new Color(0x2F6B55), new Color(0x3E5F8A), new Color(0xF3E6C4), new Color(0xE08A40)};
+    /** 꽃가루 한 조각의 기울기·뒤집힘 단계 수. 직사각형은 180° 돌려도 같으므로 반 바퀴만 나눈다. */
+    private static final int CONF_ROT = 16, CONF_FLIP = 6;
+    /**
+     * 꽃가루 조각 그림을 한 장에 모은 것(화면 배율). [색][기울기][뒤집힘] 조각은 (열=기울기·뒤집힘, 행=색) 칸에 있다.
+     * 조각마다 따로 된 그림이면 처음 그릴 때마다 GPU로 하나씩 올리느라 화면이 기다린다 — 한 장이면 한 번만 올린다.
+     */
+    private static BufferedImage confSprites;
+    private static int confCell;
+    private static double confScale;
+    private static final int CONF_PAD = 9; // 조각 그림의 반지름(논리 픽셀)
+
+    /**
+     * 꽃가루 조각 그림을 만든다. 매 프레임 150조각을 돌리고 눌러서 안티에일리어싱으로 새로 그리면
+     * (화면 그리기 방식상 조각마다 따로 GPU로 올라가서) 느리다 — 미리 그려 둔 그림을 복사만 한다.
+     */
+    static synchronized BufferedImage confettiSprites(double sc) {
+        if (confSprites != null && confScale == sc) return confSprites;
+        int px = (int) Math.ceil(CONF_PAD * 2 * sc);
+        int cols = CONF_ROT * CONF_FLIP;
+        BufferedImage out = new BufferedImage(px * cols, px * CONFETTI.length, BufferedImage.TYPE_INT_ARGB_PRE);
+        Graphics2D g0 = Theme.aa(out.createGraphics());
+        for (int ci = 0; ci < CONFETTI.length; ci++) {
+            for (int ri = 0; ri < CONF_ROT; ri++) {
+                for (int fi = 0; fi < CONF_FLIP; fi++) {
+                    Graphics2D g = (Graphics2D) g0.create();
+                    g.translate((ri * CONF_FLIP + fi) * px, ci * px);
+                    g.clipRect(0, 0, px, px);
+                    g.scale(sc, sc);
+                    g.translate(CONF_PAD, CONF_PAD);
+                    g.rotate(Math.PI * ri / CONF_ROT);
+                    g.scale(1, 0.2 + 0.8 * fi / (CONF_FLIP - 1));
+                    g.setColor(CONFETTI[ci]);
+                    g.fill(new java.awt.geom.Rectangle2D.Double(-6, -3.5, 12, 7));
+                    g.dispose();
+                }
+            }
+        }
+        g0.dispose();
+        confSprites = out;
+        confCell = px;
+        confScale = sc;
+        return out;
+    }
+
+    /** 시작할 때(백그라운드) 꽃가루 조각을 미리 만들어 둔다. */
+    public static void prewarmConfetti(double sc) {
+        Thread t = new Thread(() -> confettiSprites(sc), "geomystery-confetti");
+        t.setDaemon(true);
+        t.setPriority(Thread.NORM_PRIORITY - 1);
+        t.start();
+    }
+
     /**
      * 종이 꽃가루가 쏟아지고 화면 위쪽에 축하 띠가 내려온다(약 3.6초). 클릭을 막지 않는다.
+     * 꽃가루 조각과 축하 띠는 미리 그려 둔 그림을 매 프레임 픽셀 그대로 복사만 한다.
      */
     public static void celebrate(JFrame frame, String title, String sub) {
         if (frame == null || !frame.isShowing()) return;
@@ -493,7 +547,6 @@ public final class Ui {
         java.util.Random r = new java.util.Random();
         int n = 150;
         double[][] bits = new double[n][7]; // x, y, vx, vy, rot, vrot, color
-        Color[] colors = {Theme.GOLD, new Color(0xC23B2A), new Color(0x2F6B55), new Color(0x3E5F8A), new Color(0xF3E6C4), new Color(0xE08A40)};
         for (double[] b : bits) {
             b[0] = r.nextDouble();
             b[1] = -r.nextDouble() * 0.6;
@@ -501,62 +554,58 @@ public final class Ui {
             b[3] = 0.25 + r.nextDouble() * 0.35;
             b[4] = r.nextDouble() * Math.PI * 2;
             b[5] = (r.nextDouble() - 0.5) * 12;
-            b[6] = r.nextInt(colors.length);
+            b[6] = r.nextInt(CONFETTI.length);
         }
+        double sc = 1;
+        try { sc = Math.max(1, frame.getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+        final double dsc = sc;
+        BufferedImage atlas = confettiSprites(sc);
+        int cell = confCell;
+        BufferedImage band = celebrationBand(title, sub, sc);
+        int bandW = (int) Math.round(band.getWidth() / sc), bandH = (int) Math.round(band.getHeight() / sc);
         JComponent c = new JComponent() {
             @Override
             protected void paintComponent(Graphics g0) {
-                Graphics2D g = Theme.aa(g0.create());
+                Graphics2D g = (Graphics2D) g0.create();
                 double t = (System.currentTimeMillis() - t0) / 1000.0;
                 int w = getWidth(), h = getHeight();
                 float fade = t > 3.0 ? (float) Math.max(0, 1 - (t - 3.0) / 0.6) : 1f;
-                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, fade));
+                // 화면 픽셀 좌표로 바꿔서(배율·소수점 없이) 그림을 1:1로 복사한다
+                java.awt.geom.AffineTransform at = g.getTransform();
+                double s = Math.abs(at.getScaleX());
+                boolean exact = at.getShearX() == 0 && at.getShearY() == 0 && Math.abs(s - dsc) < 0.01;
+                if (exact) g.setTransform(new java.awt.geom.AffineTransform(1, 0, 0, 1, at.getTranslateX(), at.getTranslateY()));
+                double k = exact ? s : 1;
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                if (fade < 1f) g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, fade));
+                Rectangle clip = g.getClipBounds();
                 for (double[] b : bits) {
                     double x = (b[0] + b[2] * t + Math.sin(t * 3 + b[4]) * 0.01) * w;
                     double y = (b[1] + b[3] * t * 0.55) * h;
                     if (y < -20 || y > h * 0.55) continue;
-                    Graphics2D p = (Graphics2D) g.create();
-                    p.translate(x, y);
-                    p.rotate(b[4] + b[5] * t);
-                    p.scale(1, Math.abs(Math.cos(t * 6 + b[4])) * 0.8 + 0.2);
-                    p.setColor(colors[(int) b[6]]);
-                    p.fillRect(-6, -3, 12, 7);
-                    p.dispose();
+                    double rot = b[4] + b[5] * t;
+                    int ri = Math.floorMod((int) Math.round(rot / Math.PI * CONF_ROT), CONF_ROT);
+                    double flip = Math.abs(Math.cos(t * 6 + b[4]));
+                    int fi = (int) Math.round(flip * (CONF_FLIP - 1));
+                    int sx = (ri * CONF_FLIP + fi) * cell, sy = (int) b[6] * cell;
+                    int dx, dy, dw;
+                    if (exact) { dx = (int) Math.round((x - CONF_PAD) * k); dy = (int) Math.round((y - CONF_PAD) * k); dw = cell; }
+                    else { dx = (int) Math.round(x - CONF_PAD); dy = (int) Math.round(y - CONF_PAD); dw = CONF_PAD * 2; }
+                    if (clip != null && !clip.intersects(dx, dy, dw, dw)) continue;
+                    g.drawImage(atlas, dx, dy, dx + dw, dy + dw, sx, sy, sx + cell, sy + cell, null);
                 }
                 // 축하 띠
                 double drop = Math.min(1, t / 0.45), ease = 1 - Math.pow(1 - drop, 3);
                 double by = -120 + (150 + 120) * ease;
-                g.setFont(Theme.xbold(34));
-                FontMetrics fm = g.getFontMetrics();
-                g.setFont(Theme.serif(16));
-                FontMetrics fs = g.getFontMetrics();
-                int bw = Math.max(fm.stringWidth(title), fs.stringWidth(sub == null ? "" : sub)) + 120;
-                java.awt.geom.RoundRectangle2D band = new java.awt.geom.RoundRectangle2D.Double(w / 2.0 - bw / 2.0, by - 50, bw, 100, 20, 20);
-                g.setColor(new Color(0, 0, 0, 60));
-                g.translate(0, 5);
-                g.fill(band);
-                g.translate(0, -5);
-                g.setColor(new Color(0x3A2819));
-                g.fill(band);
-                g.setColor(Theme.GOLD);
-                g.setStroke(new BasicStroke(3f));
-                g.draw(band);
-                Icons.paint(g, "star_fill", w / 2.0 - bw / 2.0 + 22, by - 18, 36, Theme.GOLD);
-                Icons.paint(g, "star_fill", w / 2.0 + bw / 2.0 - 58, by - 18, 36, Theme.GOLD);
-                g.setFont(Theme.xbold(34));
-                g.setColor(new Color(0xF7EEDC));
-                Theme.drawCentered(g, title, w / 2.0, by - (sub == null ? 0 : 12));
-                if (sub != null) {
-                    g.setFont(Theme.serif(16));
-                    g.setColor(new Color(0xE9D8B2));
-                    Theme.drawCentered(g, sub, w / 2.0, by + 26);
-                }
+                double bx = w / 2.0 - bandW / 2.0, btop = by - bandH / 2.0;
+                if (exact) g.drawImage(band, (int) Math.round(bx * k), (int) Math.round(btop * k), null);
+                else g.drawImage(band, (int) Math.round(bx), (int) Math.round(btop), bandW, bandH, null);
                 g.dispose();
             }
         };
         c.setBounds(0, 0, lp.getWidth(), lp.getHeight());
         lp.add(c, JLayeredPane.POPUP_LAYER);
-        javax.swing.Timer tm = new javax.swing.Timer(33, null);
+        javax.swing.Timer tm = new javax.swing.Timer(16, null);
         tm.addActionListener(e -> {
             // 꽃가루는 화면 위쪽 절반에서만 보이므로 그 띠만 다시 그린다(아래 화면 전체를 다시 그리지 않도록)
             c.repaint(0, 0, c.getWidth(), (int) (c.getHeight() * 0.55) + 40);
@@ -568,6 +617,40 @@ public final class Ui {
         });
         tm.start();
         Sfx.play("fanfare");
+    }
+
+    /** 축하 띠(그림자·별·제목 포함)를 한 장으로 그린다. 띠의 가운데가 그림의 가운데. */
+    private static BufferedImage celebrationBand(String title, String sub, double sc) {
+        FontMetrics fm = new JLabel().getFontMetrics(Theme.xbold(34));
+        FontMetrics fs = new JLabel().getFontMetrics(Theme.serif(16));
+        int bw = Math.max(fm.stringWidth(title), fs.stringWidth(sub == null ? "" : sub)) + 120;
+        int lw = bw + 8, lh = 100 + 12;
+        BufferedImage im = new BufferedImage((int) Math.ceil(lw * sc), (int) Math.ceil(lh * sc), BufferedImage.TYPE_INT_ARGB_PRE);
+        Graphics2D g = Theme.aa(im.createGraphics());
+        g.scale(sc, sc);
+        double cx = lw / 2.0, by = 50 + 4;
+        java.awt.geom.RoundRectangle2D band = new java.awt.geom.RoundRectangle2D.Double(cx - bw / 2.0, by - 50, bw, 100, 20, 20);
+        g.setColor(new Color(0, 0, 0, 60));
+        g.translate(0, 5);
+        g.fill(band);
+        g.translate(0, -5);
+        g.setColor(new Color(0x3A2819));
+        g.fill(band);
+        g.setColor(Theme.GOLD);
+        g.setStroke(new BasicStroke(3f));
+        g.draw(band);
+        Icons.paint(g, "star_fill", cx - bw / 2.0 + 22, by - 18, 36, Theme.GOLD);
+        Icons.paint(g, "star_fill", cx + bw / 2.0 - 58, by - 18, 36, Theme.GOLD);
+        g.setFont(Theme.xbold(34));
+        g.setColor(new Color(0xF7EEDC));
+        Theme.drawCentered(g, title, cx, by - (sub == null ? 0 : 12));
+        if (sub != null) {
+            g.setFont(Theme.serif(16));
+            g.setColor(new Color(0xE9D8B2));
+            Theme.drawCentered(g, sub, cx, by + 26);
+        }
+        g.dispose();
+        return im;
     }
 
     // ----------------------------------------------------------- 토스트

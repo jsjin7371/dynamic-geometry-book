@@ -108,6 +108,7 @@ public class MainFrame extends JFrame {
                     double sc = 1;
                     try { sc = Math.max(1, getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
                     RewardFly.prewarm(sc);
+                    Ui.prewarmConfetti(sc);
                 });
                 warm.setRepeats(false);
                 warm.start();
