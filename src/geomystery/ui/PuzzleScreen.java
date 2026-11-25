@@ -227,17 +227,18 @@ public class PuzzleScreen extends JPanel {
         disp.add(display, BorderLayout.CENTER);
         numCard.add(fillWidth(disp), BorderLayout.CENTER);
         JPanel keys = Ui.clear(new GridLayout(3, 4, 10, 8));
-        for (String k : new String[]{"7", "8", "9", "4", "5", "6", "1", "2", "3", "0"}) {
+        Btn del = new Btn("지우기", Btn.Style.KEY_ALT).font(15);
+        del.addActionListener(e -> backspace());
+        submitKey = new Btn("제출", Btn.Style.PRIMARY).font(16);
+        submitKey.addActionListener(e -> submit());
+        // 계산기 배열: 7 8 9 0 / 4 5 6 지우기 / 1 2 3 제출
+        for (String k : new String[]{"7", "8", "9", "0", "4", "5", "6", "DEL", "1", "2", "3", "SUBMIT"}) {
+            if (k.equals("DEL")) { keys.add(del); continue; }
+            if (k.equals("SUBMIT")) { keys.add(submitKey); continue; }
             Btn b = new Btn(k, Btn.Style.KEY);
             b.addActionListener(e -> type(k));
             keys.add(b);
         }
-        Btn del = new Btn("지우기", Btn.Style.KEY_ALT).font(15);
-        del.addActionListener(e -> backspace());
-        keys.add(del);
-        submitKey = new Btn("제출", Btn.Style.PRIMARY).font(16);
-        submitKey.addActionListener(e -> submit());
-        keys.add(submitKey);
         keys.setPreferredSize(new Dimension(500, 166));
         numCard.add(keys, BorderLayout.EAST);
         answerArea.add(numCard, "num");
