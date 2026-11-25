@@ -15,4 +15,4 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Compile
-        run: javac -encoding UTF-8 --release 11 -d out $(find src/main/java -name '*.java')
+        run: javac -encoding UTF-8 --release 11 -d out $(find src -name '*.java')
