@@ -20,6 +20,7 @@ public class MainFrame extends JFrame {
     public final Profiles profiles;
     /** 테마·프로필을 바꾸느라 새 창으로 갈아 끼우는 중이면 true(창을 닫아도 종료하지 않음). */
     private boolean replaced = false;
+    private boolean saveErrorShown;
 
     private final CardLayout rootCards = new CardLayout();
     private final JPanel root = new JPanel(rootCards);
@@ -44,10 +45,9 @@ public class MainFrame extends JFrame {
         super("기하미궁 (幾何迷宮)");
         this.game = game;
         this.profiles = profiles;
-        final boolean[] saveErrorShown = {false};
         game.save.onSaveError = err -> SwingUtilities.invokeLater(() -> {
-            if (saveErrorShown[0]) return;
-            saveErrorShown[0] = true;
+            if (saveErrorShown) return;
+            saveErrorShown = true;
             toast("진행 상황을 저장하지 못했습니다: " + err);
         });
         Sfx.setLevel(game.save.sfxLevel);
@@ -160,9 +160,9 @@ public class MainFrame extends JFrame {
      * 창 위치와 크기는 그대로 유지한다.
      */
     public static MainFrame rebuild(MainFrame old, Game game) {
-        game.save.save();
         Theme.apply(game.save.darkMode, fontScale(game.save.fontStep));
         MainFrame f = new MainFrame(game, old.profiles);
+        game.save.save();
         f.setBounds(old.getBounds());
         f.setExtendedState(old.getExtendedState());
         old.replaced = true;

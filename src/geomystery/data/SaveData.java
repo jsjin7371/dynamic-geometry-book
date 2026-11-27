@@ -278,10 +278,7 @@ public final class SaveData {
             Csv.writeTable(dir.resolve("slips.csv"), Arrays.asList("tag", "count"), rows);
         } catch (IOException e) {
             System.err.println("[geomystery] 저장 실패: " + e);
-            if (onSaveError != null) {
-                String msg = e.getMessage();
-                onSaveError.accept(msg != null && !msg.isEmpty() ? msg : e.getClass().getSimpleName());
-            }
+            if (onSaveError != null) onSaveError.accept(e.toString());
         }
     }
 
