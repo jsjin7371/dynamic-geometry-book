@@ -665,7 +665,7 @@ public final class Game {
 
     public int finaleBonusFor(Session s) {
         int b = finaleBonus(s.finaleMistakes);
-        return s.lesson != null && isDone(s.lesson) ? b / 2 : b;
+        return s.lesson != null && save.solvedFinales.contains(s.lesson.id) ? b / 2 : b;
     }
 
     // ------------------------------------------------------------------ 약점 분석
