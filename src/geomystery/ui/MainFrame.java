@@ -44,6 +44,12 @@ public class MainFrame extends JFrame {
         super("기하미궁 (幾何迷宮)");
         this.game = game;
         this.profiles = profiles;
+        final boolean[] saveErrorShown = {false};
+        game.save.onSaveError = err -> SwingUtilities.invokeLater(() -> {
+            if (saveErrorShown[0]) return;
+            saveErrorShown[0] = true;
+            toast("진행 상황을 저장하지 못했습니다: " + err);
+        });
         Sfx.setLevel(game.save.sfxLevel);
         Music.setLevel(game.save.musicLevel); // 켜져 있으면 곡을 미리 합성해 둔다
         HazelLook.apply(game);
