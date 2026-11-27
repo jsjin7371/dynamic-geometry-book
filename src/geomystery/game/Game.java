@@ -663,6 +663,11 @@ public final class Game {
 
     public static int finaleBonus(int mistakes) { return Math.max(20, 60 - mistakes * 15); }
 
+    public int finaleBonusFor(Session s) {
+        int b = finaleBonus(s.finaleMistakes);
+        return s.lesson != null && save.solvedFinales.contains(s.lesson.id) ? b / 2 : b;
+    }
+
     // ------------------------------------------------------------------ 약점 분석
     /** 정리(사건) 하나에 대한 누적 실력. */
     public static final class Skill {
@@ -767,7 +772,7 @@ public final class Game {
             xp = r.firstTry * 10 + (r.total - r.firstTry) * 5;
         }
         if (s.finaleSolved) {
-            r.finaleXp = finaleBonus(s.finaleMistakes);
+            r.finaleXp = finaleBonusFor(s);
             xp += r.finaleXp;
         }
         r.xp = xp;
@@ -796,17 +801,21 @@ public final class Game {
             if (r.firstClear) { save.tokens += 2; r.tokensGained += 2; }
             if (s.wrongIds.isEmpty()) {
                 save.perfectLessons++;
-                save.tokens += 1;
-                r.tokensGained += 1;
+                if (r.firstClear) {
+                    save.tokens += 1;
+                    r.tokensGained += 1;
+                }
             }
             if (r.firstClear) {
                 justCleared = s.lesson.id;
                 r.gameCleared = s.lesson == content.lessons.get(content.lessons.size() - 1);
             }
             if (s.finaleSolved) {
-                if (save.solvedFinales.add(s.lesson.id)) save.finalesSolved = Math.max(save.finalesSolved, save.solvedFinales.size());
-                save.tokens += 1;
-                r.tokensGained += 1;
+                if (save.solvedFinales.add(s.lesson.id)) {
+                    save.finalesSolved = Math.max(save.finalesSolved, save.solvedFinales.size());
+                    save.tokens += 1;
+                    r.tokensGained += 1;
+                }
             }
             r.card = content.theorems.get(s.lesson.theoremId);
             r.cardIsNew = r.firstClear;
