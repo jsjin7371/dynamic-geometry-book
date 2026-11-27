@@ -16,3 +16,5 @@ jobs:
           java-version: '17'
       - name: Compile
         run: javac -encoding UTF-8 --release 11 -d out $(find src -name '*.java')
+      - name: Validate content (data/*.csv)
+        run: java -Djava.awt.headless=true -cp out geomystery.tools.ContentValidator
