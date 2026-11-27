@@ -36,9 +36,9 @@
 - `quests.csv`, `badges.csv`(`finales`, `league_tier` 통계 추가), `league.csv`, `quotes.csv`
 
 ## 저장 (프로필)
-- 진행 상황은 프로필마다 `data/save/profiles/<id>/` 에 `profile / progress / history / mistakes / quests / stats / slips .csv` 로 저장됩니다.
-  지금 쓰는 프로필은 `data/save/active.txt`. 예전 버전의 `data/save/*.csv`는 첫 실행 때 `profiles/p1/`로 자동으로 옮겨집니다.
-- `stats.csv`(문제별 시도·정답·시간·힌트)와 `slips.csv`(실수 유형별 횟수)가 추리 분석의 바탕입니다.
-- 화면 설정(효과음·배경음악·테마·글자 크기)과 리그 단계도 `profile.csv`에 함께 저장됩니다.
-- 탐정 수첩 → 백업에서 프로필을 zip 하나로 내보내고, 내보낸 zip을 새 프로필로 불러올 수 있습니다.
+- 진행 상황은 프로필마다 `data/save/profiles/<id>/`에 `profile`, `progress`, `history`, `mistakes`, `quests`, `stats`, `slips`(.csv)로 저장된다.
+  지금 쓰는 프로필은 `data/save/active.txt`에 적힌다. 예전 버전의 `data/save/*.csv`는 첫 실행 때 `profiles/p1/`로 자동으로 옮겨진다.
+- `stats.csv`(문제별 시도·정답·시간·힌트)와 `slips.csv`(실수 유형별 횟수)가 추리 분석의 바탕이다.
+- 화면 설정(효과음·배경음악·테마·글자 크기)과 리그 단계도 `profile.csv`에 함께 저장된다.
+- 탐정 수첩 → 백업에서 프로필을 zip 하나로 내보내고, 내보낸 zip을 새 프로필로 불러올 수 있다.
 

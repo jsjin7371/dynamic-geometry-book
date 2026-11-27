@@ -6,7 +6,7 @@
 견습 탐정 헤이즐이 되어 사건을 맡습니다. 의뢰인의 이야기를 듣고, 현장에 남은 도형 수수께끼를 풀어 사건을 해결합니다.
 각 장의 마지막 사건에서는 용의자 증언 중 정리와 맞지 않는 말을 찾아 정리 카드로 반박하고 범인을 밝힙니다.
 
-게임은 네 개의 장(선의 정원, 각도의 시계탑, 삼각형의 수도원, 원의 천문대)으로 되어 있습니다.
+게임은 선의 정원, 각도의 시계탑, 삼각형의 수도원, 원의 천문대까지 네 장으로 되어 있습니다.
 사건 17개, 수수께끼 70개, 정리 카드 17장이 들어 있습니다.
 
 ![탐험 지도](docs/screenshots/map.png)
@@ -21,7 +21,7 @@ JDK 11 이상이 필요합니다. 따로 설치할 라이브러리는 없습니�
 ./run.sh editor     # 도형 편집기
 ```
 
-IntelliJ에서는 작업 폴더를 프로젝트 루트로 두고 `geomystery.App`을 실행하면 됩니다.
+IntelliJ에서는 작업 폴더를 프로젝트 루트로 두고 `geomystery.App`(게임), `geomystery.tools.ContentValidator`(콘텐츠 검사), `geomystery.tools.DiagramEditor`(도형 편집기)를 실행하면 됩니다.
 
 ## 플레이 흐름
 
@@ -38,7 +38,7 @@ IntelliJ에서는 작업 폴더를 프로젝트 루트로 두고 `geomystery.App
 | **최종 추리** | **사건 보드** |
 | ![최종 추리](docs/screenshots/finale.png) | ![사건 보드](docs/screenshots/board.png) |
 
-학습을 이어 가게 하는 장치도 넣었습니다.
+꾸준히 공부하도록 돕는 기능도 있습니다.
 - 연속 학습일, XP, 주간 리그, 오늘의 의뢰
 - 틀린 문제를 다시 푸는 수수께끼 상자
 - 정리별 정답률과 자주 하는 실수를 보여 주는 추리 분석
@@ -46,6 +46,8 @@ IntelliJ에서는 작업 폴더를 프로젝트 루트로 두고 `geomystery.App
 어느 화면에서든 `F1`을 누르면 단축키를 볼 수 있습니다.
 
 ## 구조
+
+주요 흐름만 그린 그림입니다. 실제로는 `ui`와 `tools`가 `data`를 직접 읽기도 하고, `diagram`은 `ui`의 색상 테마(`Theme`)를 씁니다.
 
 ```mermaid
 flowchart LR
@@ -60,18 +62,18 @@ flowchart LR
 
 | 패키지 | 하는 일 |
 |---|---|
-| `data` | CSV 읽기·쓰기(`Csv`), 콘텐츠 모델(`Content`, `Model`), 프로필별 저장(`SaveData`, `Profiles`) |
-| `game` | 진행·채점·보상 규칙. `Game`이 XP, 연속 학습, 리그, 의뢰를 계산하고 `Session`이 사건 하나의 풀이 상태를 가진다. `Expr`은 식 답안 채점 |
-| `diagram` | `diagrams.csv`의 도형 스크립트를 해석해 칠판에 그린다 |
-| `ui` | Swing 화면. `MainFrame`이 화면 전환을 맡고, 화면마다 `*Screen` 클래스가 하나씩 있다 |
-| `tools` | 콘텐츠 검사기, 도형 편집기, 캐릭터·배경 그림을 PNG로 굽는 `AssetBaker` |
+| `data` | CSV를 읽고 씁니다(`Csv`). 콘텐츠 모델(`Content`, `Model`)과 프로필별 저장(`SaveData`, `Profiles`)이 여기 있습니다 |
+| `game` | 진행·채점·보상 규칙입니다. `Game`이 XP, 연속 학습, 리그, 의뢰를 계산하고, `Session`은 사건 하나를 푸는 동안의 상태를 기록합니다. `Expr`은 식으로 낸 답을 채점합니다 |
+| `diagram` | `diagrams.csv`의 도형 스크립트를 읽어 칠판에 그립니다 |
+| `ui` | Swing 화면입니다. `MainFrame`이 화면 전환을 맡고, 화면마다 `*Screen` 클래스가 하나씩 있습니다 |
+| `tools` | 콘텐츠 검사기, 도형 편집기, 캐릭터·배경 그림을 PNG 파일로 만드는 `AssetBaker`가 있습니다 |
 
-화면 코드는 `game`의 규칙만 호출하고 점수를 직접 계산하지 않습니다.
+화면 코드(`ui`)는 점수나 보상을 직접 계산하지 않고 `game`에 맡깁니다.
 그래서 보상 규칙을 바꿀 때는 `Game.java`만 고치면 됩니다.
 
 ## 콘텐츠 추가
 
-사건, 대사, 문제, 도형은 모두 `data/`의 CSV에 있습니다. 코드를 고치지 않고 CSV만 수정해서 늘릴 수 있습니다.
+사건, 대사, 문제, 도형은 모두 `data/`의 CSV에 있습니다. 코드를 고치지 않고 CSV만 수정해서 콘텐츠를 추가할 수 있습니다.
 수정한 뒤에는 `./run.sh validate`로 깨진 참조나 잘못된 정답이 없는지 확인하세요.
 CSV 형식은 [docs/content.md](docs/content.md)에 정리했습니다.
 
