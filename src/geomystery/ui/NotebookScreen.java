@@ -339,8 +339,8 @@ public class NotebookScreen extends JPanel {
     private void switchTo(String id) {
         try {
             game.save.save();
-            frame.profiles.setActive(id);
             SaveData s = SaveData.load(frame.profiles.dirOf(id));
+            frame.profiles.setActive(id);
             MainFrame f = MainFrame.rebuild(frame, new Game(game.content, s));
             f.showTab("map");
             f.toast("'" + s.name + "' 탐정의 수첩을 펼쳤습니다.");

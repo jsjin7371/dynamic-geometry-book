@@ -170,9 +170,14 @@ public final class Game {
     }
 
     // ------------------------------------------------------------------ 연속 학습
+    private static LocalDate parseDate(String s) {
+        if (s == null || s.isEmpty()) return null;
+        try { return LocalDate.parse(s); } catch (Exception e) { return null; }
+    }
+
     public int streakNow() {
-        if (save.lastStudy == null || save.lastStudy.isEmpty()) return 0;
-        LocalDate last = LocalDate.parse(save.lastStudy);
+        LocalDate last = parseDate(save.lastStudy);
+        if (last == null) return 0;
         long gap = ChronoUnit.DAYS.between(last, today());
         return gap <= 1 ? save.streak : 0;
     }
@@ -182,7 +187,8 @@ public final class Game {
     private void recordStudyDay() {
         LocalDate t = today();
         if (t.toString().equals(save.lastStudy)) return;
-        if (!save.lastStudy.isEmpty() && LocalDate.parse(save.lastStudy).plusDays(1).equals(t)) save.streak++;
+        LocalDate last = parseDate(save.lastStudy);
+        if (last != null && last.plusDays(1).equals(t)) save.streak++;
         else save.streak = 1;
         save.lastStudy = t.toString();
         save.bestStreak = Math.max(save.bestStreak, save.streak);
@@ -293,8 +299,8 @@ public final class Game {
     private int weekXp(LocalDate monday, LocalDate until) {
         int sum = 0;
         for (Map.Entry<String, int[]> e : save.history.entrySet()) {
-            LocalDate d = LocalDate.parse(e.getKey());
-            if (!d.isBefore(monday) && !d.isAfter(until) && !d.isAfter(monday.plusDays(6))) sum += e.getValue()[0];
+            LocalDate d = parseDate(e.getKey());
+            if (d != null && !d.isBefore(monday) && !d.isAfter(until) && !d.isAfter(monday.plusDays(6))) sum += e.getValue()[0];
         }
         return sum;
     }
