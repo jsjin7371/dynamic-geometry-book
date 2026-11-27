@@ -72,6 +72,8 @@ public final class ContentValidator {
             return;
         }
         duplicates(data);
+        columnCounts(data);
+        feedbackSyntax(data);
 
         // ---- 장 / 사건
         for (Npc n : c.npcs.values()) {
@@ -191,6 +193,49 @@ public final class ContentValidator {
         }
     }
 
+    /**
+     * 모든 표의 각 줄이 머리글과 같은 칸 수인지 본다.
+     * 따옴표 없이 쓴 쉼표가 칸을 밀어 내면 뒤쪽 칸(예: puzzles.csv 의 feedback)이 조용히 사라지기 때문이다.
+     */
+    private void columnCounts(Path data) {
+        try (java.util.stream.Stream<Path> files = Files.list(data)) {
+            List<Path> csvs = new ArrayList<>();
+            files.filter(x -> x.getFileName().toString().endsWith(".csv")).sorted().forEach(csvs::add);
+            for (Path file : csvs) {
+                String name = file.getFileName().toString();
+                try {
+                    List<List<String>> rows = Csv.parse(new String(Files.readAllBytes(file), java.nio.charset.StandardCharsets.UTF_8));
+                    if (rows.isEmpty()) continue;
+                    int cols = rows.get(0).size();
+                    for (int i = 1; i < rows.size(); i++) {
+                        int n = rows.get(i).size();
+                        if (n > cols) err(name, rows.get(i).get(0), "칸이 " + n + "개로 머리글(" + cols + "개)보다 많습니다. 칸 안에 쉼표(,)가 있으면 큰따옴표(\"...\")로 감싸세요");
+                    }
+                } catch (Exception e) {
+                    err(name, "", "읽기 실패: " + e);
+                }
+            }
+        } catch (Exception e) {
+            err("data/", "", "표 목록을 읽지 못했습니다: " + e);
+        }
+    }
+
+    /** puzzles.csv feedback 열의 각 조각이 '값=대사' 모양인지 본다('='가 없으면 읽을 때 조용히 버려진다). */
+    private void feedbackSyntax(Path data) {
+        try {
+            for (Map<String, String> r : Csv.readTable(data.resolve("puzzles.csv"))) {
+                String fb = r.get("feedback");
+                if (fb == null || fb.trim().isEmpty()) continue;
+                for (String part : fb.split("\\|")) {
+                    if (part.trim().isEmpty()) continue;
+                    if (part.indexOf('=') <= 0) err("puzzles.csv", r.get("id"), "feedback 조각에 '값=대사' 형식의 '='가 없어 무시됩니다: " + part.trim());
+                }
+            }
+        } catch (Exception e) {
+            err("puzzles.csv", "", "읽기 실패: " + e);
+        }
+    }
+
     private void checkPuzzle(Content c, Puzzle p, Set<String> usedDiagrams) {
         String f = "puzzles.csv", w = p.id;
         if (!c.lessonById.containsKey(p.lessonId)) err(f, w, "없는 사건: " + p.lessonId);
@@ -239,6 +284,11 @@ public final class ContentValidator {
             if (fb.tag != null && !fb.tag.isEmpty() && !c.misconceptions.containsKey(fb.tag)) warn(f, w, "모르는 실수 유형 #" + fb.tag);
             if (fb.text == null || fb.text.isEmpty()) warn(f, w, "피드백 대사가 비었습니다: " + fb.value);
             String probe = fb.value;
+            if (p.isChoice() && !p.choices.contains(probe)) {
+                // 값에 '='가 들어 있으면 첫 '='에서 잘려 값이 달라진다(예: "A = B=#태그 말" → 값 "A")
+                err(f, w, "피드백 값이 보기에 없어 오답 피드백이 나오지 않습니다: '" + probe + "' (보기에 '='가 들어 있으면 피드백 값으로 쓸 수 없습니다)");
+                continue;
+            }
             if (p.isTf() && !probe.contains("|")) continue; // 판단만 적은 피드백
             if (p.isExpr() && !Expr.isValid(probe)) { err(f, w, "피드백의 식을 해석할 수 없습니다: " + probe); continue; }
             if (Game.checkAnswer(p, probe)) err(f, w, "피드백 값이 정답과 같습니다: " + probe);
