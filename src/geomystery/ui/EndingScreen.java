@@ -127,7 +127,7 @@ public class EndingScreen extends JPanel {
         long now = System.currentTimeMillis();
         double dt = Math.min(0.05, (now - last) / 1000.0);
         last = now;
-        double max = Math.max(0, total - getHeight() * 0.62);
+        double max = total;
         scroll = Math.min(max, scroll + speed * dt);
         if (scroll >= max && !back.isVisible()) back.setVisible(true);
         repaint();

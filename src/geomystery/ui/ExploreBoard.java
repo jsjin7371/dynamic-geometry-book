@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
  * 수수께끼의 답과 섞이지 않도록 정답을 맞힌 뒤나 도형 도감에서만 연다.
  */
 public class ExploreBoard extends JComponent {
+    private static final double MIN_POINT_DISTANCE = 26;
     private final List<Cmd> script;
     private final Explore spec;
     private final Map<String, Point2D.Double> overrides = new HashMap<>();
@@ -116,13 +117,30 @@ public class ExploreBoard extends JComponent {
             while (y > DiagramView.H - 24) y -= d.snap;
         }
         Point2D.Double np = new Point2D.Double(x, y);
+        // 접선 스크립트가 참조하는 외부 점만, 정의된 원의 바깥으로 이동을 제한한다.
+        for (Cmd cmd : script) {
+            if (!"tan".equals(cmd.op) || !name.equals(cmd.args[3])) continue;
+            Point2D.Double o = pts.get(cmd.args[1]);
+            // 기존 점 겹침 방지 거리를 여유로 두어 접점이 겹치는 것도 막는다.
+            double minDistance = Double.parseDouble(cmd.args[2]) + MIN_POINT_DISTANCE;
+            double distance = o.distance(np);
+            if (distance >= minDistance) continue;
+            if (distance == 0) {
+                // 중심에서는 방향을 정할 수 없으므로 직전 위치의 방향을 사용한다.
+                np.setLocation(cur);
+                distance = o.distance(np);
+            }
+            // 중심에서 마우스를 향하는 방향은 유지하고 최소 거리까지만 접근시킨다.
+            np.setLocation(o.x + (np.x - o.x) * minDistance / distance,
+                    o.y + (np.y - o.y) * minDistance / distance);
+        }
         Map<String, Point2D.Double> trial = new HashMap<>(overrides);
         trial.put(name, np);
         Map<String, Point2D.Double> after = DiagramView.points(script, trial);
         for (Map.Entry<String, Point2D.Double> e : after.entrySet()) {
             Point2D.Double q = e.getValue();
             if (Double.isNaN(q.x) || Double.isNaN(q.y) || Math.abs(q.x) > 4000 || Math.abs(q.y) > 4000) return;
-            if (!e.getKey().equals(name) && q.distance(np) < 26) return;
+            if (!e.getKey().equals(name) && q.distance(np) < MIN_POINT_DISTANCE) return;
         }
         overrides.put(name, np);
         updateRelation();
