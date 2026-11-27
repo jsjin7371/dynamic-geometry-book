@@ -1208,6 +1208,8 @@ D409,aux,seg,O A gold 2d
 D409,aux,seg,O B gold 2d
 D409,aux,angle,A O B 30 130° gold
 D409,base,text,560 410 '접선' dim 18
+D409,base,text,80 318 L chalk 20
+D409,base,text,560 318 R chalk 20
 D409,base,dot,A s
 D409,base,dot,B ne
 D409,base,dot,C nw
@@ -1229,6 +1231,8 @@ D410,aux,seg,O A gold 2d
 D410,aux,seg,O B gold 2d
 D410,aux,angle,A O B 30 96° gold
 D410,base,text,560 410 '접선' dim 18
+D410,base,text,80 318 L chalk 20
+D410,base,text,560 318 R chalk 20
 D410,base,dot,A s
 D410,base,dot,B ne
 D410,base,dot,C nw
@@ -1275,6 +1279,8 @@ D412,aux,seg,O A gold 2d
 D412,aux,seg,O B gold 2d
 D412,aux,angle,A O B 30 130° gold
 D412,base,text,560 410 '접선' dim 18
+D412,base,text,80 318 L chalk 20
+D412,base,text,560 318 R chalk 20
 D412,base,dot,A s
 D412,base,dot,B ne
 D412,base,dot,C nw
