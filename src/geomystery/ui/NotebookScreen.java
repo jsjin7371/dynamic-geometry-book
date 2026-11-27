@@ -21,6 +21,7 @@ public class NotebookScreen extends JPanel {
     private final Widgets.Bar bar;
     private final JPanel stats;
     private final WeekChart chart;
+    private JPanel chapterProgress; /*챕터별 진행률 추가 */
     private CandleCalendar calendar;
     private Btn endingBtn;
     private final Btn[] speedBtns = new Btn[3];
@@ -142,10 +143,19 @@ public class NotebookScreen extends JPanel {
         left.add(prof);
         left.add(Ui.vgap(20));
 
-        stats = Ui.clear(new GridLayout(2, 3, 16, 16));
+        stats = Ui.clear(new GridLayout(0, 3, 16, 16)); 
         stats.setAlignmentX(LEFT_ALIGNMENT);
         stats.setMaximumSize(new Dimension(Integer.MAX_VALUE, 230));
         left.add(stats);
+        left.add(Ui.vgap(20));
+        RoundPanel chapterBox = section("챕터별 진행률");  /*프로필 통계 아래에 챕터별 진행률을 보여주는 공간을 만드는 코드  151~159 */
+
+        chapterProgress = Ui.vbox();
+        chapterProgress.setAlignmentX(LEFT_ALIGNMENT);
+        
+        chapterBox.add(chapterProgress);
+        
+        left.add(chapterBox);
         left.add(Ui.vgap(20));
 
         RoundPanel ch = new RoundPanel(new BorderLayout(0, 10), Theme.PAPER, Theme.BORDER, 14).borderWidth(2f);
@@ -165,7 +175,16 @@ public class NotebookScreen extends JPanel {
 
         c.gridx = 0; c.gridy = 0; c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
         c.insets = new Insets(0, 0, 0, 26);
-        body.add(left, c);
+
+        Ui.TrackWidth lw = new Ui.TrackWidth(new BorderLayout());
+        lw.add(left, BorderLayout.NORTH);
+        
+        JScrollPane ls = Ui.scroll(lw);
+        ls.setPreferredSize(new Dimension(600, 600));
+        ls.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        ls.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        
+        body.add(ls, c);
 
         // ---------- 오른쪽: 설정 · 프로필 · 백업
         JPanel right = Ui.vbox();
@@ -487,16 +506,77 @@ public class NotebookScreen extends JPanel {
     public void refresh() {
         header.refresh();
         nameField.setText(game.save.name);
-        rank.setText(game.title() + " Lv." + game.level() + "  ·  누적 " + Ui.num(game.save.xp) + " XP");
+        rank.setText(game.title() + " Lv." + game.level()
+        + "  ·  누적 " + Ui.num(game.save.xp) + " XP"
+        + "  ·  " + game.tierName() + " " + game.myRank() + "위");  /*이제 리그와 현재 순위까지 표시  500~502 수정함*/
         bar.setValue(game.levelProgress());
-        stats.removeAll();
+
+        stats.removeAll(); /*  총 학습시간을 계산하기 위해 일부 수정 504~531*/
+        
+        long totalSeconds = 0;
+        
+        for (SaveData.PuzzleStat st : game.save.stats.values()) {
+            totalSeconds += st.seconds;
+        }
+        long hours = totalSeconds / 3600;
+        long minutes = (totalSeconds % 3600) / 60;
+
+        String studyTime = hours > 0
+                ? hours + "시간 " + minutes + "분"
+                : minutes + "분";
+        
         stats.add(statCard("해결한 사건", game.lessonsDone() + " / " + game.content.lessons.size(), Theme.GREEN));
-        stats.add(statCard("푼 수수께끼", "" + game.save.solvedTotal, Theme.INK));
+        
         stats.add(statCard("첫 시도 정답률", game.overallAccuracy() + "%", Theme.GREEN));
-        stats.add(statCard("최장 연속 학습", Math.max(game.save.bestStreak, game.streakNow()) + "일", Theme.ORANGE));
+        
+        stats.add(statCard("최장 연속 학습",
+        Math.max(game.save.bestStreak, game.streakNow()) + "일", Theme.ORANGE));
+        
+        stats.add(statCard("총 학습 시간", studyTime, Theme.INK));
+        
         stats.add(statCard("정리 카드", game.cards().size() + " / " + game.content.theorems.size(), Theme.RED));
+        
         stats.add(statCard("보조선 사용", game.save.auxTotal + "회", Theme.INK));
+        
+        stats.add(statCard("완료한 챕터",
+        game.chaptersDone() + " / " + game.content.chapters.size(),
+        Theme.GOLD_DARK));
+
         stats.revalidate();
+
+        chapterProgress.removeAll();
+        
+        for (geomystery.data.Model.Chapter ch : game.content.chapters) {      /*각 챕터의 완료된 사건 수와 진행률이 표시되도록 코드 추가함 535~564 */
+            
+            int total = game.content.lessonsOf(ch).size();
+            int done = game.doneCount(ch);
+
+            int percent = total == 0 ? 0 : done * 100 / total;
+
+            String chapterName = ch.title != null ? ch.title : ch.label;
+
+            JPanel row = Ui.vbox();
+            row.setAlignmentX(LEFT_ALIGNMENT);
+
+            JLabel name = Ui.label(
+                chapterName + "  (" + done + "/" + total + ")", Theme.bold(14), Theme.INK 
+            );
+            JProgressBar progress = new JProgressBar(0, 100);
+            progress.setValue(percent);
+            progress.setString(percent + "%");
+            progress.setStringPainted(true);
+            
+            row.add(name);
+            row.add(Ui.vgap(5));
+            row.add(progress);
+
+            chapterProgress.add(row);
+            chapterProgress.add(Ui.vgap(10));
+        }
+        
+        chapterProgress.revalidate();
+        chapterProgress.repaint();
+
         for (int i = 0; i < 3; i++) speedBtns[i].setSelected(game.save.typingSpeed == i + 1);
         for (int i = 0; i < 4; i++) sfxBtns[i].setSelected(game.save.sfxLevel == i);
         for (int i = 0; i < 4; i++) musicBtns[i].setSelected(game.save.musicLevel == i);
