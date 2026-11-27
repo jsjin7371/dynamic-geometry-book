@@ -298,6 +298,7 @@ public final class SaveData {
         progress.clear(); history.clear(); mistakes.clear(); stats.clear(); slips.clear();
         leagueTier = 0; leagueWeek = ""; leagueNotice = ""; finalesSolved = 0;
         solvedFinales.clear(); seenCards.clear(); endingSeen = false;
+        outfit = "0,0,0"; leagueSeen = "";
         photosPinned.clear(); epiloguesSeen.clear();
         save();
     }
