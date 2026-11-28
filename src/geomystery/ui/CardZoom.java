@@ -24,7 +24,7 @@ final class CardZoom {
         JPanel wrap = Ui.clear(new FlowLayout(FlowLayout.CENTER, 0, 0));
         wrap.add(card);
         m.add(wrap);
-        m.add((JComponent) Ui.vgap(4));
+        m.add(Ui.vgap(4));
         m.add(Ui.label("카드 위에서 마우스를 움직여 보세요", Theme.serif(12.5f), Theme.MUTED));
         if (game.content.explores.containsKey(t.id)) {
             Btn ex = new Btn("정리 탐구 — 직접 움직여 보기", Btn.Style.OUTLINE, "compass").font(14);
@@ -98,9 +98,9 @@ final class CardZoom {
 
         private void paintFace(Graphics2D g) {
             RoundRectangle2D shape = new RoundRectangle2D.Double(2, 2, CW - 4, CH - 4, 20, 20);
-            g.setColor(new Color(0xF7EEDC));
+            g.setColor(Theme.CREAM);
             g.fill(shape);
-            g.setColor(foil ? new Color(0xD9B456) : new Color(0xC9A456));
+            g.setColor(foil ? Theme.GOLD : new Color(0xC9A456));
             g.setStroke(new BasicStroke(foil ? 5f : 4f));
             g.draw(shape);
             g.setStroke(new BasicStroke(1.5f));
@@ -109,7 +109,7 @@ final class CardZoom {
             g.setFont(Theme.tracked(Theme.serif(13), 0.25f));
             g.setColor(new Color(0x6E5641));
             g.drawString("THEOREM No. " + t.id.substring(1), 30, 44);
-            if (foil) Icons.paint(g, "star_fill", CW - 54, 26, 24, new Color(0xD9B456));
+            if (foil) Icons.paint(g, "star_fill", CW - 54, 26, 24, Theme.GOLD);
             // 큰 그림
             g.setColor(new Color(0xEFE3C7));
             g.fill(new Ellipse2D.Double(CW / 2.0 - 100, 62, 200, 200));

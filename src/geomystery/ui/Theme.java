@@ -178,7 +178,7 @@ public final class Theme {
 
     /** 시작할 때 백그라운드에서 기호 글꼴과 글자 그림을 미리 준비한다(처음 π를 그릴 때 멈추지 않도록). */
     public static void warmUp() {
-        Thread t = new Thread(() -> {
+        Ui.background("geomystery-fonts", Thread.MIN_PRIORITY, () -> {
             java.awt.image.BufferedImage im = new java.awt.image.BufferedImage(64, 32, java.awt.image.BufferedImage.TYPE_INT_ARGB_PRE);
             Graphics2D g = aa(im.createGraphics());
             for (Font f : new Font[]{serif(15), bold(15), xbold(22), hand(26), hand(96), xbold(42)}) {
@@ -187,10 +187,7 @@ public final class Theme {
                 outline("6π cm²", f, g.getFontRenderContext());
             }
             g.dispose();
-        }, "geomystery-fonts");
-        t.setDaemon(true);
-        t.setPriority(Thread.MIN_PRIORITY);
-        t.start();
+        });
     }
 
     /** 이 글꼴 대신 쓸 기호 글꼴(같은 크기·굵기). */

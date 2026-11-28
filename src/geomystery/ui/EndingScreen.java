@@ -204,7 +204,7 @@ public class EndingScreen extends JPanel {
         switch (it.kind) {
             case "title":
                 g.setFont(Theme.xbold(44));
-                g.setColor(new Color(0xF7EEDC));
+                g.setColor(Theme.CREAM);
                 Theme.drawCentered(g, it.text, cx, cy);
                 break;
             case "small":
@@ -241,7 +241,7 @@ public class EndingScreen extends JPanel {
                     BufferedImage im = Ui.img(p[0] + "_face");
                     if (im != null) Ui.drawScaled(g, im, fx - 53, y + 10 + bob, 106, 106);
                     g.setFont(Theme.bold(16));
-                    g.setColor(new Color(0xF7EEDC));
+                    g.setColor(Theme.CREAM);
                     Theme.drawCentered(g, p[1], fx, y + 140);
                     g.setFont(Theme.serif(13));
                     g.setColor(new Color(0xB59C78));

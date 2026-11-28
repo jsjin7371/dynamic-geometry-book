@@ -334,7 +334,7 @@ public class ExploreBoard extends JComponent {
     private double bgScale;
 
     private void drawBackground(Graphics2D g, int w, int h) {
-        double sc = Math.max(1, g.getTransform().getScaleX());
+        double sc = Ui.deviceScale(g);
         if (bgCache == null || bgCache.getWidth() != (int) Math.ceil(w * sc) || bgCache.getHeight() != (int) Math.ceil(h * sc) || bgScale != sc) {
             bgScale = sc;
             bgCache = new java.awt.image.BufferedImage((int) Math.ceil(w * sc), (int) Math.ceil(h * sc), java.awt.image.BufferedImage.TYPE_INT_RGB);
@@ -342,9 +342,9 @@ public class ExploreBoard extends JComponent {
             b.scale(sc, sc);
             b.setColor(Theme.PAPER);
             b.fillRect(0, 0, w, h);
-            b.setColor(new Color(0x2F5E50));
+            b.setColor(Theme.GREEN);
             b.fill(new RoundRectangle2D.Float(1, 1, w - 2, h - 2, 18, 18));
-            b.setColor(new Color(0xD9B456));
+            b.setColor(Theme.GOLD);
             b.setStroke(new BasicStroke(3f));
             b.draw(new RoundRectangle2D.Float(1.5f, 1.5f, w - 3, h - 3, 18, 18));
             b.dispose();
@@ -365,16 +365,16 @@ public class ExploreBoard extends JComponent {
         if (script == null) return;
         Ui.Modal m = Ui.solidModal(frame, "정리 탐구 · " + t.name, 780);
         m.text(spec.caption == null || spec.caption.isEmpty() ? "반짝이는 점을 끌어 보세요." : spec.caption + "  (반짝이는 점을 끌어 보세요)");
-        m.add((JComponent) Ui.vgap(10));
+        m.add(Ui.vgap(10));
         Widgets.TextBlock rel = new Widgets.TextBlock("", Theme.bold(16), Theme.INK).spacing(1.6f).prefWidth(700);
         ExploreBoard board = new ExploreBoard(script, spec, rel);
         m.add(board);
-        m.add((JComponent) Ui.vgap(12));
+        m.add(Ui.vgap(12));
         RoundPanel rp = new RoundPanel(new BorderLayout(), Theme.c(0xFBF3E1), Theme.GOLD_DARK, 12).borderWidth(1.8f);
         rp.pad(12, 16, 12, 16);
         rp.add(rel, BorderLayout.CENTER);
         m.add(rp);
-        m.add((JComponent) Ui.vgap(6));
+        m.add(Ui.vgap(6));
         m.add(Ui.label("측정값은 소수 첫째 자리까지 반올림해 보여 줍니다.", Theme.serif(12), Theme.MUTED));
         Btn reset = new Btn("처음 모양으로", Btn.Style.OUTLINE, "refresh");
         reset.addActionListener(e -> board.reset());

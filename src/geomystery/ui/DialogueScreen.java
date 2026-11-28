@@ -193,8 +193,7 @@ public class DialogueScreen extends JPanel {
     public void prewarm() {
         int w = scene.getWidth(), h = scene.getHeight();
         if (w <= 0 || h <= 0) return;
-        double sc = 1;
-        try { sc = Math.max(1, getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+        double sc = Ui.screenScale(this);
         final double ds = sc;
         // 지금 진행 중인 장의 장면과 그 장에 나오는 인물부터 준비한다(곧 들어갈 가능성이 가장 높다)
         Chapter now = game.currentChapter();
@@ -212,7 +211,7 @@ public class DialogueScreen extends JPanel {
         for (Npc n : game.content.npcs.values()) if (!people.contains(n.image)) people.add(n.image);
         // 실제 화면 배율과, 화면 전환 사진(1배)용 두 가지를 만든다
         double[] scales = ds == 1 ? new double[]{1} : new double[]{ds, 1};
-        Thread t = new Thread(() -> {
+        Ui.background("geomystery-prewarm", Thread.MIN_PRIORITY, () -> {
             for (double sc2 : scales) {
                 for (String sname : scenes) {
                     BufferedImage bg = Ui.img("bg_" + sname);
@@ -231,10 +230,7 @@ public class DialogueScreen extends JPanel {
                     Ui.prescale(dimmedImg, Math.round(cw * 0.98), Math.round(ch * 0.98), sc2, mirror);
                 }
             }
-        }, "geomystery-prewarm");
-        t.setDaemon(true);
-        t.setPriority(Thread.MIN_PRIORITY);
-        t.start();
+        });
     }
 
     private void tick() {

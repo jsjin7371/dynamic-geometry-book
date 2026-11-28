@@ -58,8 +58,7 @@ final class ConfessionComic {
         int pw = Math.min(1180, w - 80), ph = Math.min(600, h - 110);
         int px = (w - pw) / 2, py = (h - ph) / 2 - 10;
         List<Shape> shapes = layout(pw, ph);
-        double sc = 1;
-        try { sc = Math.max(1, frame.getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+        double sc = Ui.screenScale(frame);
         final double scale = sc;
         Npc cn = game.content.npc(culprit);
         Chapter ch = game.content.chapterOf(lesson);
@@ -76,11 +75,9 @@ final class ConfessionComic {
             panels[i] = Panel.of(game, cfs.get(i), cast, local, new Rectangle2D.Double(px + b.getX(), py + b.getY(), b.getWidth(), b.getHeight()));
         }
         // 칸 바탕은 백그라운드에서(첫 칸부터 차례로) 그린다
-        Thread painter = new Thread(() -> {
+        Ui.background("geomystery-comic", Thread.currentThread().getPriority(), () -> {
             for (Panel p : panels) p.build(scale);
-        }, "geomystery-comic");
-        painter.setDaemon(true);
-        painter.start();
+        });
 
         long t0 = System.currentTimeMillis();
         int[] shown = {0};
@@ -123,7 +120,7 @@ final class ConfessionComic {
                 Composite keep = g.getComposite();
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, in));
                 // 만화 원고지
-                g.setColor(new Color(0xF7EEDC));
+                g.setColor(Theme.CREAM);
                 g.fill(new RoundRectangle2D.Double(px - 16, py - 16, pw + 32, ph + 32, 10, 10));
                 g.setColor(new Color(0x3A2819));
                 g.setStroke(new BasicStroke(3f));
@@ -726,7 +723,7 @@ final class ConfessionComic {
             bell.lineTo(r * 1.0, r * 1.45);
             bell.curveTo(r * 0.9, r * 1.25, r * 0.5, r * 1.2, r * 0.45, r * 0.25);
             bell.curveTo(r * 0.3, -r * 0.05, -r * 0.3, -r * 0.05, -r * 0.45, r * 0.25);
-            b.setColor(new Color(0xD9B456));
+            b.setColor(Theme.GOLD);
             b.fill(bell);
             b.setColor(new Color(0x3A2819));
             b.setStroke(new BasicStroke(3f));

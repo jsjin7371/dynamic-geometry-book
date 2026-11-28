@@ -61,13 +61,7 @@ public class Sidebar extends JPanel {
     }
 
     private NavItem item(String key, String text, String icon) {
-        NavItem it = new NavItem(text, icon, () -> {
-            if ("dex".equals(key)) frame.showAssocTab("dex");
-            else {
-                if ("assoc".equals(key)) frame.showAssocTab("league");
-                else frame.showTab(key);
-            }
-        });
+        NavItem it = new NavItem(text, icon, () -> frame.showNav(key));
         items.put(key, it);
         return it;
     }

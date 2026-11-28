@@ -360,7 +360,7 @@ public class NotebookScreen extends JPanel {
         f.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Theme.BORDER, 1, true), BorderFactory.createEmptyBorder(6, 10, 6, 10)));
         f.setMaximumSize(new Dimension(380, 44));
-        m.add((JComponent) Ui.vgap(10));
+        m.add(Ui.vgap(10));
         m.add(f);
         m.button("취소", Btn.Style.OUTLINE, null);
         Runnable create = () -> {

@@ -486,7 +486,7 @@ public class FinaleScreen extends JPanel {
         g.translate(-4, -6);
         g.setColor(new Color(0xF4E8CC));
         g.fill(r);
-        g.setColor(new Color(0xD9B456));
+        g.setColor(Theme.GOLD);
         g.setStroke(new BasicStroke(4f));
         g.draw(r);
         Icons.theorem(g, t.icon, new Rectangle2D.Double(-34, -60, 68, 68), new Color(0x3A2819), new Color(0xA33A28));

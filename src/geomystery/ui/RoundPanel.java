@@ -99,9 +99,7 @@ public class RoundPanel extends JPanel {
         }
         // 화면 픽셀 좌표에서 1:1로 복사한다
         int ox = (int) Math.round(at.getTranslateX()), oy = (int) Math.round(at.getTranslateY());
-        Graphics2D d = (Graphics2D) g.create();
-        d.setTransform(new java.awt.geom.AffineTransform());
-        d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        Graphics2D d = Ui.pixelGraphics(g);
         int cp = c * s, W = w * s, H = h * s, mid = cp; // 견본의 가운데 1픽셀 줄
         java.awt.image.BufferedImage im = nine;
         int M = im.getWidth();

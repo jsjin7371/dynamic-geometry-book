@@ -539,7 +539,7 @@ public final class Widgets {
             double p = Math.max(0, Math.min(1, (System.currentTimeMillis() - start) / (double) DURATION));
             double e = 1 - Math.pow(1 - p, 3);
             int v = (int) Math.round(goal * e);
-            return prefix + (time ? (v / 60) + ":" + String.format("%02d", v % 60) : String.valueOf(v)) + suffix;
+            return prefix + (time ? Ui.time(v) : String.valueOf(v)) + suffix;
         }
 
         @Override public Dimension getPreferredSize() {

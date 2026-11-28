@@ -33,8 +33,7 @@ final class RewardFly {
         Point from = new Point(lp.getWidth() / 2, lp.getHeight() - 140);
         long t0 = System.currentTimeMillis() + 150;
         header.showTokens(startValue);
-        double sc = 1;
-        try { sc = Math.max(1, frame.getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+        double sc = Ui.screenScale(frame);
         BufferedImage[] spr = sprites(sc);
         JComponent layer = new JComponent() {
             @Override
@@ -100,10 +99,7 @@ final class RewardFly {
 
     /** 시작할 때(백그라운드) 동전 그림을 미리 만들어 둔다. 첫 보상 때 화면이 멈칫하지 않도록. */
     static void prewarm(double sc) {
-        Thread t = new Thread(() -> sprites(sc), "geomystery-coins");
-        t.setDaemon(true);
-        t.setPriority(Thread.NORM_PRIORITY - 1);
-        t.start();
+        Ui.background("geomystery-coins", Thread.NORM_PRIORITY - 1, () -> sprites(sc));
     }
 
     private static synchronized BufferedImage[] sprites(double sc) {

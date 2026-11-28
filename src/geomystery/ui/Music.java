@@ -62,22 +62,16 @@ public final class Music {
     public static void preload() {
         if (preloading || level == 0) return;
         preloading = true;
-        Thread t = new Thread(() -> {
+        Ui.background("geomystery-music-preload", Thread.MIN_PRIORITY, () -> {
             for (String n : new String[]{"garden", "puzzle", "clock", "monastery", "observatory", "finale"}) track(n);
-        }, "geomystery-music-preload");
-        t.setDaemon(true);
-        t.setPriority(Thread.MIN_PRIORITY);
-        t.start();
+        });
     }
 
     private static void wake() {
         if (broken) return;
         synchronized (LOCK) {
             if (thread == null && level > 0 && requested != null) {
-                thread = new Thread(Music::run, "geomystery-music");
-                thread.setDaemon(true);
-                thread.setPriority(Thread.NORM_PRIORITY + 1);
-                thread.start();
+                thread = Ui.background("geomystery-music", Thread.NORM_PRIORITY + 1, Music::run);
             }
             LOCK.notifyAll();
         }

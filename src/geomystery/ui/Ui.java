@@ -68,38 +68,45 @@ public final class Ui {
             // 회전된 좌표계: 화면 크기로 미리 줄여 둔 사본을 회전만 시켜 그린다(큰 원본을 매번 샘플링하지 않도록)
             double ks = Math.hypot(t.getScaleX(), t.getShearY());
             int rw = Math.max(1, (int) Math.round(w * ks)), rh = Math.max(1, (int) Math.round(h * ks));
-            BufferedImage b0 = (BufferedImage) src;
-            String rk = System.identityHashCode(b0) + ":" + rw + "x" + rh + (mirror ? "m" : "");
-            BufferedImage sc0;
-            synchronized (SCALED) { sc0 = SCALED.get(rk); }
-            if (sc0 == null) {
-                sc0 = resize(b0, rw, rh, mirror);
-                synchronized (SCALED) { SCALED.put(rk, sc0); }
-            }
-            g.drawImage(sc0, (int) Math.round(x), (int) Math.round(y), (int) Math.round(w), (int) Math.round(h), null);
+            g.drawImage(scaled((BufferedImage) src, rw, rh, mirror), (int) Math.round(x), (int) Math.round(y), (int) Math.round(w), (int) Math.round(h), null);
             return;
         }
         double sx = Math.abs(t.getScaleX()), sy = Math.abs(t.getScaleY());
         int pw = Math.max(1, (int) Math.round(w * sx)), ph = Math.max(1, (int) Math.round(h * sy));
-        BufferedImage b = (BufferedImage) src;
+        copyPixels(g, scaled((BufferedImage) src, pw, ph, mirror), x, y);
+    }
+
+    /** 줄여 둔 사본을 캐시에서 찾고, 없으면 만든다. 사건 보드는 백그라운드에서도 그리므로 동기화한다. */
+    private static BufferedImage scaled(BufferedImage b, int pw, int ph, boolean mirror) {
         String key = System.identityHashCode(b) + ":" + pw + "x" + ph + (mirror ? "m" : "");
-        BufferedImage scaled;
-        synchronized (SCALED) { scaled = SCALED.get(key); } // 사건 보드는 백그라운드에서도 그린다
-        if (scaled == null) {
-            scaled = resize(b, pw, ph, mirror);
-            synchronized (SCALED) { SCALED.put(key, scaled); }
+        synchronized (SCALED) {
+            BufferedImage hit = SCALED.get(key);
+            if (hit != null) return hit;
         }
-        java.awt.geom.Point2D dev = t.transform(new java.awt.geom.Point2D.Double(x, y), null);
+        BufferedImage made = resize(b, pw, ph, mirror);
+        synchronized (SCALED) { SCALED.put(key, made); }
+        return made;
+    }
+
+    /** 변환을 푼 화면 픽셀 좌표계의 복사본(1:1 복사용). 다 쓰면 dispose 한다. */
+    static Graphics2D pixelGraphics(Graphics2D g) {
         Graphics2D d = (Graphics2D) g.create();
         d.setTransform(new java.awt.geom.AffineTransform());
         d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        d.drawImage(scaled, (int) Math.round(dev.getX()), (int) Math.round(dev.getY()), null);
+        return d;
+    }
+
+    /** 이미지를 변환 없이(화면 픽셀 1:1) (x, y)가 가리키는 화면 위치에 복사한다. */
+    private static void copyPixels(Graphics2D g, BufferedImage img, double x, double y) {
+        java.awt.geom.Point2D dev = g.getTransform().transform(new java.awt.geom.Point2D.Double(x, y), null);
+        Graphics2D d = pixelGraphics(g);
+        d.drawImage(img, (int) Math.round(dev.getX()), (int) Math.round(dev.getY()), null);
         d.dispose();
     }
 
     /** 화면 배율(레티나는 2)을 반영한 크기의 빈 캐시 이미지. */
     public static BufferedImage deviceImage(Graphics2D g, int w, int h) {
-        double s = Math.max(1, Math.abs(g.getTransform().getScaleX()));
+        double s = deviceScale(g);
         // 미리 곱한 투명도 형식: 화면(OpenGL)으로 복사할 때 변환 없이 바로 올라간다(일반 ARGB는 매번 임시 변환)
         return new BufferedImage(Math.max(1, (int) Math.ceil(w * s)), Math.max(1, (int) Math.ceil(h * s)), BufferedImage.TYPE_INT_ARGB_PRE);
     }
@@ -115,17 +122,12 @@ public final class Ui {
             g.drawImage(img, (int) Math.round(x), (int) Math.round(y), (int) Math.round(lw), (int) Math.round(lh), null);
             return;
         }
-        java.awt.geom.Point2D dev = t.transform(new java.awt.geom.Point2D.Double(x, y), null);
-        Graphics2D d = (Graphics2D) g.create();
-        d.setTransform(new java.awt.geom.AffineTransform());
-        d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        d.drawImage(img, (int) Math.round(dev.getX()), (int) Math.round(dev.getY()), null);
-        d.dispose();
+        copyPixels(g, img, x, y);
     }
 
     /** 캐시를 그릴 때 쓸 Graphics: 캐시 이미지 위에 논리 좌표로 그리도록 배율을 맞춘다. */
     public static Graphics2D cacheGraphics(BufferedImage img, Graphics2D like) {
-        double s = Math.max(1, Math.abs(like.getTransform().getScaleX()));
+        double s = deviceScale(like);
         Graphics2D g = Theme.aa(img.createGraphics());
         g.scale(s, s);
         return g;
@@ -143,16 +145,18 @@ public final class Ui {
         }
     }
 
+    /** 화면 배율(레티나는 2). 창이 아직 화면에 없으면 1. */
+    public static double screenScale(Component c) {
+        try { return Math.max(1, c.getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception e) { return 1; }
+    }
+
     public static double deviceScale(Graphics2D g) { return Math.max(1, Math.abs(g.getTransform().getScaleX())); }
 
     /** drawScaled 가 쓸 축소본을 미리 만들어 둔다(백그라운드 스레드에서 불러도 된다). */
     public static void prescale(BufferedImage b, double w, double h, double deviceScale, boolean mirror) {
         if (b == null || w <= 0 || h <= 0) return;
         int pw = Math.max(1, (int) Math.round(w * deviceScale)), ph = Math.max(1, (int) Math.round(h * deviceScale));
-        String key = System.identityHashCode(b) + ":" + pw + "x" + ph + (mirror ? "m" : "");
-        synchronized (SCALED) { if (SCALED.containsKey(key)) return; }
-        BufferedImage scaled = resize(b, pw, ph, mirror);
-        synchronized (SCALED) { SCALED.put(key, scaled); }
+        scaled(b, pw, ph, mirror);
     }
 
     public static void drawScaled(Graphics2D g, java.awt.Image src, double x, double y, double w, double h) {
@@ -253,8 +257,8 @@ public final class Ui {
         return p;
     }
 
-    public static Component vgap(int h) { return Box.createRigidArea(new Dimension(0, h)); }
-    public static Component hgap(int w) { return Box.createRigidArea(new Dimension(w, 0)); }
+    public static JComponent vgap(int h) { return (JComponent) Box.createRigidArea(new Dimension(0, h)); }
+    public static JComponent hgap(int w) { return (JComponent) Box.createRigidArea(new Dimension(w, 0)); }
 
     /**
      * 스크롤 영역. 내용을 불투명한 받침(OpaqueView)에 올려, Swing 이 스크롤할 때 이미 그린 화면을
@@ -525,10 +529,16 @@ public final class Ui {
 
     /** 시작할 때(백그라운드) 꽃가루 조각을 미리 만들어 둔다. */
     public static void prewarmConfetti(double sc) {
-        Thread t = new Thread(() -> confettiSprites(sc), "geomystery-confetti");
+        background("geomystery-confetti", Thread.NORM_PRIORITY - 1, () -> confettiSprites(sc));
+    }
+
+    /** 데몬 스레드로 일을 시작한다. */
+    public static Thread background(String name, int priority, Runnable r) {
+        Thread t = new Thread(r, name);
         t.setDaemon(true);
-        t.setPriority(Thread.NORM_PRIORITY - 1);
+        t.setPriority(priority);
         t.start();
+        return t;
     }
 
     /**
@@ -551,8 +561,7 @@ public final class Ui {
             b[5] = (r.nextDouble() - 0.5) * 12;
             b[6] = r.nextInt(CONFETTI.length);
         }
-        double sc = 1;
-        try { sc = Math.max(1, frame.getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+        double sc = screenScale(frame);
         final double dsc = sc;
         BufferedImage atlas = confettiSprites(sc);
         int cell = confCell;
@@ -637,7 +646,7 @@ public final class Ui {
         Icons.paint(g, "star_fill", cx - bw / 2.0 + 22, by - 18, 36, Theme.GOLD);
         Icons.paint(g, "star_fill", cx + bw / 2.0 - 58, by - 18, 36, Theme.GOLD);
         g.setFont(Theme.xbold(34));
-        g.setColor(new Color(0xF7EEDC));
+        g.setColor(Theme.CREAM);
         Theme.drawCentered(g, title, cx, by - (sub == null ? 0 : 12));
         if (sub != null) {
             g.setFont(Theme.serif(16));
@@ -690,8 +699,7 @@ public final class Ui {
         };
         FontMetrics fm = t.getFontMetrics(Theme.bold(15));
         int w = fm.stringWidth(message) + 72, h = 48;
-        int existing = 0;
-        for (Component c : lp.getComponentsInLayer(JLayeredPane.POPUP_LAYER)) existing++;
+        int existing = lp.getComponentCountInLayer(JLayeredPane.POPUP_LAYER);
         t.setBounds((frame.getRootPane().getWidth() - w) / 2, 96 + existing * 56, w, h);
         lp.add(t, JLayeredPane.POPUP_LAYER);
         lp.repaint();

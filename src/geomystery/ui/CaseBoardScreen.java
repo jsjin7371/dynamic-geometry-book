@@ -110,8 +110,7 @@ public class CaseBoardScreen extends JPanel {
     public void prewarm() {
         lastSig = signature();
         if (board.getWidth() <= 0 || board.getHeight() <= 0) return;
-        double sc = 1;
-        try { sc = Math.max(1, getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+        double sc = Ui.screenScale(this);
         board.request(board.getWidth(), board.getHeight(), sc);
     }
 
@@ -505,7 +504,7 @@ public class CaseBoardScreen extends JPanel {
                 c.translate(-2, -3);
                 c.setColor(new Color(0xF4E8CC));
                 c.fill(card);
-                c.setColor(new Color(0xD9B456));
+                c.setColor(Theme.GOLD);
                 c.setStroke(new BasicStroke(2.2f));
                 c.draw(card);
                 Icons.theorem(c, t.icon, new Rectangle2D.Double(9, 8, 36, 36), new Color(0x3A2819), new Color(0xA33A28));
@@ -518,7 +517,7 @@ public class CaseBoardScreen extends JPanel {
                     ly += 10;
                 }
                 c.dispose();
-                pin(g0, cx + 27, y + 20, new Color(0xD9B456));
+                pin(g0, cx + 27, y + 20, Theme.GOLD);
             }
         }
 
@@ -633,7 +632,7 @@ public class CaseBoardScreen extends JPanel {
         Chapter ch = game.content.chapterOf(l);
         Ui.Modal m = Ui.modal(frame, (l.boss ? "최종 사건 · " : "사건 " + l.order + " · ") + l.caseName, 540);
         m.add(Ui.label(ch.label + "  ·  " + l.title + "  ·  " + l.location, Theme.serif(14), Theme.INK_SOFT));
-        m.add((JComponent) Ui.vgap(12));
+        m.add(Ui.vgap(12));
         JPanel memo = Ui.vbox();
         for (String s : l.memo) {
             JLabel b = Ui.label("•  " + s, Theme.serif(15), Theme.INK);
@@ -641,7 +640,7 @@ public class CaseBoardScreen extends JPanel {
             memo.add(b);
         }
         m.add(memo);
-        m.add((JComponent) Ui.vgap(10));
+        m.add(Ui.vgap(10));
         if (done) {
             m.text("사건 결과 — " + l.resolution);
             if (l.boss && game.save.solvedFinales.contains(l.id)) m.text("최종 추리로 범인을 밝혀냈다.");

@@ -437,15 +437,12 @@ public class ResultScreen extends JPanel {
             setVisible(l != null);
             if (l == null) return;
             // 사진(현상 전·후)은 백그라운드에서 미리 그려 둔다. 움직이는 동안에는 복사만 한다
-            double sc = 1;
-            try { sc = Math.max(1, frame.getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+            double sc = Ui.screenScale(frame);
             final double fsc = sc;
-            Thread th = new Thread(() -> {
+            Ui.background("geomystery-photo", Thread.currentThread().getPriority(), () -> {
                 BufferedImage f = render(fsc, true), d = render(fsc, false);
                 SwingUtilities.invokeLater(() -> { if (lesson == l) { full = f; dark = d; builtScale = fsc; } });
-            }, "geomystery-photo");
-            th.setDaemon(true);
-            th.start();
+            });
             start = System.currentTimeMillis();
             t.start();
             revalidate();

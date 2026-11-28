@@ -58,7 +58,11 @@ public class Header extends JPanel {
 
     public void showTokens(int v) {
         tokensShown = v;
-        tokens.set("token", "단서 토큰 " + (v >= 0 ? v : game.save.tokens));
+        setTokenLabel();
+    }
+
+    private void setTokenLabel() {
+        tokens.set("token", "단서 토큰 " + (tokensShown >= 0 ? tokensShown : game.save.tokens));
     }
 
     public void pulseTokens() { tokens.pulse(); }
@@ -70,7 +74,7 @@ public class Header extends JPanel {
 
     public void refresh() {
         streak.set("flame", game.streakNow() + "일 연속");
-        tokens.set("token", "단서 토큰 " + (tokensShown >= 0 ? tokensShown : game.save.tokens));
+        setTokenLabel();
         int l = game.lanterns();
         lanterns.set("lantern", "등불 " + l);
         long ms = game.msToNextLantern();
