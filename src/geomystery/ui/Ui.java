@@ -715,7 +715,10 @@ public final class Ui {
         };
         FontMetrics fm = t.getFontMetrics(Theme.bold(15));
         int w = fm.stringWidth(message) + 72, h = 48;
-        int existing = lp.getComponentCountInLayer(JLayeredPane.POPUP_LAYER);
+        int existing = 0; // 축하 화면·보상 연출도 같은 층이라 토스트만 센다
+        for (Component c : lp.getComponentsInLayer(JLayeredPane.POPUP_LAYER))
+            if (c instanceof JComponent && ((JComponent) c).getClientProperty("toast") != null) existing++;
+        t.putClientProperty("toast", true);
         t.setBounds((frame.getRootPane().getWidth() - w) / 2, 96 + existing * 56, w, h);
         lp.add(t, JLayeredPane.POPUP_LAYER);
         lp.repaint();

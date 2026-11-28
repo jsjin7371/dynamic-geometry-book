@@ -149,6 +149,11 @@ public class CaseBoardScreen extends JPanel {
                 cg.scale(sc, sc);
                 try {
                     paintBoard(cg, w, h);
+                } catch (RuntimeException ex) {
+                    ex.printStackTrace();
+                    // 그리기 실패: 대기 표시를 풀어 다음 repaint 때 다시 그리게 한다
+                    SwingUtilities.invokeLater(() -> { if (k.equals(pendingKey)) pendingKey = null; });
+                    return;
                 } finally {
                     cg.dispose();
                 }
