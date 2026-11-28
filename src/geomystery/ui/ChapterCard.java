@@ -64,25 +64,25 @@ final class ChapterCard {
                 // 글자가 차례로 떠오른다
                 float l1 = clamp((el - 300) / 500f), l2 = clamp((el - 650) / 600f), l3 = clamp((el - 1100) / 600f);
                 g.setFont(Theme.tracked(Theme.bold(18), 0.45f));
-                g.setColor(alpha(Theme.GOLD, l1 * a));
+                g.setColor(Theme.alpha(Theme.GOLD, l1 * a));
                 Theme.drawCentered(g, ch.label, w / 2.0, cy - 92 + (1 - l1) * 10);
                 double lw = 160 * l1;
                 g.setStroke(new BasicStroke(1.6f));
                 g.draw(new Line2D.Double(w / 2.0 - 70 - lw, cy - 92, w / 2.0 - 150, cy - 92));
                 g.draw(new Line2D.Double(w / 2.0 + 150, cy - 92, w / 2.0 + 70 + lw, cy - 92));
                 g.setFont(Theme.xbold(64));
-                g.setColor(alpha(Theme.CREAM, l2 * a));
+                g.setColor(Theme.alpha(Theme.CREAM, l2 * a));
                 Theme.drawCentered(g, ch.title, w / 2.0, cy - 10 + (1 - l2) * 16);
                 g.setFont(Theme.hand(34));
-                g.setColor(alpha(new Color(0xE9D8B2), l3 * a));
+                g.setColor(Theme.alpha(new Color(0xE9D8B2), l3 * a));
                 Theme.drawCentered(g, ch.subtitle, w / 2.0, cy + 62);
                 // 장식: 컴퍼스로 그린 듯한 원호
-                g.setColor(alpha(Theme.GOLD, 0.6f * l3 * a));
+                g.setColor(Theme.alpha(Theme.GOLD, 0.6f * l3 * a));
                 g.setStroke(new BasicStroke(1.4f));
                 double r = 230;
                 g.draw(new java.awt.geom.Arc2D.Double(w / 2.0 - r, cy - r + 10, r * 2, r * 2, 200, -220 * l3, java.awt.geom.Arc2D.OPEN));
                 g.setFont(Theme.serif(13));
-                g.setColor(alpha(new Color(0xCDB68D), 0.8f * l3 * a));
+                g.setColor(Theme.alpha(new Color(0xCDB68D), 0.8f * l3 * a));
                 Theme.drawCentered(g, "클릭하면 넘어갑니다", w / 2.0, h - 40);
                 g.dispose();
             }
@@ -120,5 +120,4 @@ final class ChapterCard {
 
     private static float clamp(float v) { return Math.max(0f, Math.min(1f, v)); }
 
-    private static Color alpha(Color c, float a) { return Theme.alpha(c, Math.max(0f, Math.min(1f, a))); }
 }

@@ -37,7 +37,6 @@ public class FinaleScreen extends JPanel {
     private final Map<FinaleLine, JComponent> testimonyViews = new HashMap<>();
     private final Map<Theorem, JComponent> cardViews = new HashMap<>();
     private FinaleLine culprit;
-    private double shakeX, shakeY;
 
     private final JLabel topSmall, topTitle, mistakesLabel;
     private final Widgets.Pill lanternPill;
@@ -75,9 +74,7 @@ public class FinaleScreen extends JPanel {
         tr.add(mistakesLabel);
         lanternPill = new Widgets.Pill("lantern", "", Widgets.Pill.Kind.DARK);
         tr.add(lanternPill);
-        JPanel trWrap = Ui.clear(new GridBagLayout());
-        trWrap.add(tr);
-        top.add(trWrap, BorderLayout.EAST);
+        top.add(Ui.center(tr), BorderLayout.EAST);
         add(top, BorderLayout.NORTH);
 
         JPanel body = Ui.clear(new GridBagLayout());
@@ -330,12 +327,6 @@ public class FinaleScreen extends JPanel {
     }
 
     // ------------------------------------------------------------------ 모순 발견 연출
-    @Override
-    public void paint(Graphics g) {
-        if (shakeX != 0 || shakeY != 0) g.translate((int) shakeX, (int) shakeY);
-        super.paint(g);
-    }
-
     /**
      * 증거 카드가 증언으로 날아가 꽂히고, 번쩍임·흔들림과 함께 "모순 발견!" 도장이 찍힌다.
      * 범인의 얼굴은 당황한 표정으로 바뀐다. 클릭하면 건너뛴다.
@@ -445,16 +436,12 @@ public class FinaleScreen extends JPanel {
         };
         overlay.setOpaque(true);
         overlay.setBounds(0, 0, lp.getWidth(), lp.getHeight());
-        overlay.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override public void mouseClicked(java.awt.event.MouseEvent e) { /* 아래 타이머가 끝낸다 */ }
-        });
         lp.add(overlay, JLayeredPane.DRAG_LAYER);
         javax.swing.Timer tm = new javax.swing.Timer(16, null);
         Runnable finish = () -> {
             if (finished[0]) return;
             finished[0] = true;
             tm.stop();
-            shakeX = shakeY = 0;
             lastBackdrop = backDev[0]; // 이어지는 자백 만화가 같은 배경을 쓴다
             lp.remove(overlay);
             lp.repaint();
@@ -496,7 +483,7 @@ public class FinaleScreen extends JPanel {
         g.translate(-4, -6);
         g.setColor(new Color(0xF4E8CC));
         g.fill(r);
-        g.setColor(new Color(0xD9B456));
+        g.setColor(Theme.GOLD);
         g.setStroke(new BasicStroke(4f));
         g.draw(r);
         Icons.theorem(g, t.icon, new Rectangle2D.Double(-34, -60, 68, 68), new Color(0x3A2819), new Color(0xA33A28));
@@ -555,11 +542,7 @@ public class FinaleScreen extends JPanel {
             add(t, BorderLayout.CENTER);
             addMouseListener(new MouseAdapter() {
                 @Override public void mouseClicked(MouseEvent e) {
-                    if (solved) return;
-                    pickedLine = f;
-                    Sfx.play("select");
-                    bubble.setText(speakerName(f.speaker) + "의 증언을 골랐어. 이 말과 모순되는 정리 카드는 무엇일까?");
-                    rebuild();
+                    pickTestimony(testimonies.indexOf(f));
                 }
             });
         }

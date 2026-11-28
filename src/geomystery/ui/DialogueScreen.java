@@ -14,7 +14,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -194,9 +193,7 @@ public class DialogueScreen extends JPanel {
     public void prewarm() {
         int w = scene.getWidth(), h = scene.getHeight();
         if (w <= 0 || h <= 0) return;
-        double sc = 1;
-        try { sc = Math.max(1, getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
-        final double ds = sc;
+        final double ds = Ui.screenScale(this);
         // 지금 진행 중인 장의 장면과 그 장에 나오는 인물부터 준비한다(곧 들어갈 가능성이 가장 높다)
         Chapter now = game.currentChapter();
         java.util.List<String> scenes = new ArrayList<>();
@@ -213,7 +210,7 @@ public class DialogueScreen extends JPanel {
         for (Npc n : game.content.npcs.values()) if (!people.contains(n.image)) people.add(n.image);
         // 실제 화면 배율과, 화면 전환 사진(1배)용 두 가지를 만든다
         double[] scales = ds == 1 ? new double[]{1} : new double[]{ds, 1};
-        Thread t = new Thread(() -> {
+        Ui.background("geomystery-prewarm", Thread.MIN_PRIORITY, () -> {
             for (double sc2 : scales) {
                 for (String sname : scenes) {
                     BufferedImage bg = Ui.img("bg_" + sname);
@@ -232,10 +229,7 @@ public class DialogueScreen extends JPanel {
                     Ui.prescale(dimmedImg, Math.round(cw * 0.98), Math.round(ch * 0.98), sc2, mirror);
                 }
             }
-        }, "geomystery-prewarm");
-        t.setDaemon(true);
-        t.setPriority(Thread.MIN_PRIORITY);
-        t.start();
+        });
     }
 
     private void tick() {
@@ -381,10 +375,9 @@ public class DialogueScreen extends JPanel {
             BufferedImage orig = Ui.img(id);
             if (orig == null) return null;
             return dimmed.computeIfAbsent(id + "@" + System.identityHashCode(orig), k -> {
-                BufferedImage src = orig;
-                BufferedImage copy = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                BufferedImage copy = new BufferedImage(orig.getWidth(), orig.getHeight(), BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g = copy.createGraphics();
-                g.drawImage(src, 0, 0, null);
+                g.drawImage(orig, 0, 0, null);
                 g.dispose();
                 return new RescaleOp(new float[]{0.62f, 0.58f, 0.55f, 1f}, new float[4], null).filter(copy, null);
             });
@@ -396,12 +389,11 @@ public class DialogueScreen extends JPanel {
             int w = getWidth(), h = getHeight();
             g.setColor(new Color(0x5A3A22));
             g.fillRect(0, 0, w, h);
+            double s0 = bg == null ? 1 : Math.max(w / (double) bg.getWidth(), h / (double) bg.getHeight());
             if (bg != null) {
-                double s = Math.max(w / (double) bg.getWidth(), h / (double) bg.getHeight());
-                int bw = (int) (bg.getWidth() * s), bh = (int) (bg.getHeight() * s);
+                int bw = (int) (bg.getWidth() * s0), bh = (int) (bg.getHeight() * s0);
                 Ui.drawScaled(g, bg, (w - bw) / 2.0, h - bh, bw, bh);
             }
-            double s0 = bg == null ? 1 : Math.max(w / (double) bg.getWidth(), h / (double) bg.getHeight());
             double bx0 = bg == null ? 0 : (w - bg.getWidth() * s0) / 2, by0 = bg == null ? 0 : h - bg.getHeight() * s0;
             double bs = bg == null ? 1 : s0 * bg.getWidth() / 1600.0;
             double tt = System.currentTimeMillis() / 1000.0;
@@ -449,7 +441,6 @@ public class DialogueScreen extends JPanel {
             g.draw(new Line2D.Double(cx, cy, cx + Math.cos(a) * len, cy + Math.sin(a) * len));
         }
 
-        /** 실제 시각에 따라 새벽·노을·밤 빛을 덧씌운다. */
         /** 시간대 빛(새벽·노을·밤 그늘과 등불빛)은 시간대·크기가 바뀔 때만 다시 그린다. 반짝이는 별만 매 프레임. */
         private BufferedImage tintCache;
         private String tintKey;

@@ -59,8 +59,7 @@ public class BoxScreen extends JPanel {
         content.add(Ui.vgap(34));
 
         for (Chapter ch : game.content.chapters) {
-            JLabel h = Ui.label(ch.label + "  ·  " + ch.title, Theme.xbold(20), Theme.INK);
-            content.add(h);
+            content.add(Ui.label(ch.label + "  ·  " + ch.title, Theme.xbold(20), Theme.INK));
             content.add(Ui.vgap(4));
             content.add(Ui.label(ch.subtitle + "  —  " + game.doneCount(ch) + " / " + game.content.lessonsOf(ch).size() + " 해결",
                     Theme.serif(13.5f), Theme.INK_SOFT));
@@ -99,9 +98,7 @@ public class BoxScreen extends JPanel {
         if (btn != null) {
             Btn b = new Btn(btn, accent == Theme.GREEN ? Btn.Style.GREEN : Btn.Style.PRIMARY).font(15);
             b.addActionListener(e -> action.run());
-            JPanel bw = Ui.clear(new GridBagLayout());
-            bw.add(b);
-            p.add(bw, BorderLayout.EAST);
+            p.add(Ui.center(b), BorderLayout.EAST);
         }
         return p;
     }
@@ -126,7 +123,7 @@ public class BoxScreen extends JPanel {
         };
         p.add(mark, BorderLayout.WEST);
         JPanel t = Ui.vbox();
-        t.add(Ui.label((l.boss ? "최종 사건 · " : "사건 " + l.order + " · ") + l.caseName, Theme.bold(16), unlocked ? Theme.INK : Theme.MUTED));
+        t.add(Ui.label(l.heading(), Theme.bold(16), unlocked ? Theme.INK : Theme.MUTED));
         t.add(Ui.vgap(4));
         String sub = l.title + "  ·  수수께끼 " + game.content.puzzlesOf(l).size() + "개";
         if (done) {
@@ -154,9 +151,7 @@ public class BoxScreen extends JPanel {
         } else {
             btns.add(Ui.label("잠김", Theme.serif(14), Theme.MUTED));
         }
-        JPanel bw = Ui.clear(new GridBagLayout());
-        bw.add(btns);
-        p.add(bw, BorderLayout.EAST);
+        p.add(Ui.center(btns), BorderLayout.EAST);
         return p;
     }
 }

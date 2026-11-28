@@ -53,8 +53,6 @@ public final class Profiles {
         setActive(dest.getFileName().toString());
     }
 
-    public Path root() { return root; }
-
     public Path dirOf(String id) { return root.resolve("profiles").resolve(id); }
 
     public List<String> ids() {

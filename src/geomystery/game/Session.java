@@ -19,7 +19,6 @@ public final class Session {
     public final Set<String> wrongIds = new LinkedHashSet<>();
     public final Map<String, Integer> hintsOpened = new HashMap<>();
     public final Set<String> auxUsedOn = new HashSet<>();
-    public boolean failed = false;
     /** 지금 문제를 화면에 띄운 시각(문제별 풀이 시간 측정). */
     public long shownMs = System.currentTimeMillis();
     /** 최종 추리: 성공 여부와 잘못 제시한 횟수. */

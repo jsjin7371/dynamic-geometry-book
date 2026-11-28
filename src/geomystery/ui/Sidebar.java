@@ -61,13 +61,7 @@ public class Sidebar extends JPanel {
     }
 
     private NavItem item(String key, String text, String icon) {
-        NavItem it = new NavItem(text, icon, () -> {
-            if ("dex".equals(key)) frame.showAssocTab("dex");
-            else {
-                if ("assoc".equals(key)) frame.showAssocTab("league");
-                else frame.showTab(key);
-            }
-        });
+        NavItem it = new NavItem(text, icon, () -> frame.showNav(key));
         items.put(key, it);
         return it;
     }
@@ -154,7 +148,6 @@ public class Sidebar extends JPanel {
             int w = getWidth(), h = getHeight();
             Color fg = Theme.CREAM;
             if (selected) {
-                g.setColor(Theme.HIGHLIGHT.brighter());
                 g.setColor(Theme.c(0xF4E6C2));
                 g.fill(new RoundRectangle2D.Float(1, 1, w - 2, h - 2, 10, 10));
                 g.setColor(Theme.GOLD);

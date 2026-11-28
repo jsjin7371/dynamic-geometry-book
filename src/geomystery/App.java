@@ -44,7 +44,7 @@ public class App {
         });
     }
 
-    static Path home() {
+    public static Path home() {
         String p = System.getProperty("geomystery.home");
         if (p != null) return Paths.get(p).toAbsolutePath();
         Path d = Paths.get("").toAbsolutePath();

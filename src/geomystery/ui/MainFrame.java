@@ -111,8 +111,7 @@ public class MainFrame extends JFrame {
                 Theme.warmUp();
                 javax.swing.Timer warm = new javax.swing.Timer(400, ev -> {
                     board.prewarm(); dialogue.prewarm(); office.prewarm();
-                    double sc = 1;
-                    try { sc = Math.max(1, getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+                    double sc = Ui.screenScale(MainFrame.this);
                     RewardFly.prewarm(sc);
                     Ui.prewarmConfetti(sc);
                 });
@@ -139,9 +138,7 @@ public class MainFrame extends JFrame {
             am.put("tab-" + k, new AbstractAction() {
                 @Override public void actionPerformed(java.awt.event.ActionEvent e) {
                     if (!"shell".equals(rootCard)) return; // 대화·풀이 도중에는 무시
-                    if ("dex".equals(k)) showAssocTab("dex");
-                    else if ("assoc".equals(k)) showAssocTab("league");
-                    else showTab(k);
+                    showNav(k);
                 }
             });
         }
@@ -242,6 +239,13 @@ public class MainFrame extends JFrame {
         };
         boolean fromFull = !"shell".equals(rootCard);
         go("shell", fromFull && isShowing() ? Transition.Kind.FADE : null, prep, this::flyTokens);
+    }
+
+    /** 사이드바 메뉴 키로 화면을 연다(assoc·dex 는 협회 화면의 두 탭). */
+    public void showNav(String key) {
+        if ("dex".equals(key)) showAssocTab("dex");
+        else if ("assoc".equals(key)) showAssocTab("league");
+        else showTab(key);
     }
 
     public void showAssocTab(String sub) {

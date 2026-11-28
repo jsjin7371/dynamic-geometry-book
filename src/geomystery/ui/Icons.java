@@ -159,7 +159,7 @@ public final class Icons {
                 g.draw(new Line2D.Double(17, 7, 7, 17));
                 break;
             }
-            case "pen": case "aux": {
+            case "aux": {
                 g.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f, new float[]{2.5f, 3f}, 0));
                 g.draw(new Line2D.Double(5, 19, 19, 5));
                 g.setStroke(st(2f));

@@ -408,8 +408,7 @@ public class MapScreen extends JPanel {
 
         void beginFlip(int dir) {
             if (getWidth() <= 0 || !isShowing()) return;
-            double sc = 1;
-            try { sc = Math.max(1, getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+            double sc = Ui.screenScale(this);
             java.awt.image.BufferedImage im = new java.awt.image.BufferedImage((int) Math.ceil(getWidth() * sc), (int) Math.ceil(getHeight() * sc), java.awt.image.BufferedImage.TYPE_INT_ARGB_PRE);
             Graphics2D g = im.createGraphics();
             g.scale(sc, sc);
@@ -440,14 +439,14 @@ public class MapScreen extends JPanel {
                 o.setPaint(new GradientPaint((float) edge, 0, new Color(0f, 0f, 0f, 0.28f), (float) edge + 50, 0, new Color(0, 0, 0, 0)));
                 o.fillRect((int) edge, 0, 50, h);
                 // 말려 올라간 종이 뒷면
-                o.setPaint(new GradientPaint((float) (edge - fold), 0, new Color(0xD9C69A), (float) edge, 0, new Color(0xF7EEDC)));
+                o.setPaint(new GradientPaint((float) (edge - fold), 0, new Color(0xD9C69A), (float) edge, 0, Theme.CREAM));
                 o.fillRect((int) (edge - fold), 0, (int) Math.ceil(fold), h);
             } else {
                 int ex = (int) edge;
                 if (ex < w) o.drawImage(flipOld, ex, 0, w, h, (int) (ex * sx), 0, iw, ih, null);
                 o.setPaint(new GradientPaint((float) edge - 50, 0, new Color(0, 0, 0, 0), (float) edge, 0, new Color(0f, 0f, 0f, 0.28f)));
                 o.fillRect((int) edge - 50, 0, 50, h);
-                o.setPaint(new GradientPaint((float) edge, 0, new Color(0xF7EEDC), (float) (edge + fold), 0, new Color(0xD9C69A)));
+                o.setPaint(new GradientPaint((float) edge, 0, Theme.CREAM, (float) (edge + fold), 0, new Color(0xD9C69A)));
                 o.fillRect((int) edge, 0, (int) Math.ceil(fold), h);
             }
             o.dispose();
@@ -503,8 +502,7 @@ public class MapScreen extends JPanel {
         private void prepare() {
             int w = getWidth(), h = getHeight();
             if (chapter == null || w <= 0 || h <= 0) return;
-            double sc = 1;
-            try { sc = Math.max(1, getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+            double sc = Ui.screenScale(this);
             request(w, h, sc);
         }
 
@@ -930,9 +928,9 @@ public class MapScreen extends JPanel {
         }
         Chapter ch = game.content.chapterOf(l);
         boolean done = game.isDone(l);
-        Ui.Modal m = Ui.modal(frame, (l.boss ? "최종 사건 · " : "사건 " + l.order + " · ") + l.caseName, 520);
+        Ui.Modal m = Ui.modal(frame, l.heading(), 520);
         m.add(Ui.label(ch.label + "  ·  " + l.title + "  ·  " + l.location, Theme.serif(14), Theme.INK_SOFT));
-        m.add((JComponent) Ui.vgap(14));
+        m.add(Ui.vgap(14));
         JPanel memo = Ui.vbox();
         for (String s : l.memo) {
             JLabel b = Ui.label("•  " + s, Theme.serif(15), Theme.INK);
@@ -940,7 +938,7 @@ public class MapScreen extends JPanel {
             memo.add(b);
         }
         m.add(memo);
-        m.add((JComponent) Ui.vgap(12));
+        m.add(Ui.vgap(12));
         String info = "수수께끼 " + game.content.puzzlesOf(l).size() + "개 · 약 " + l.minutes + "분 · 보상 " + l.xp + " XP";
         if (done) {
             geomystery.data.SaveData.LessonRecord r = game.save.progress.get(l.id);

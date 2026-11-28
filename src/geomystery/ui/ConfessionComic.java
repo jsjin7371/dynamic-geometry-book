@@ -32,12 +32,6 @@ final class ConfessionComic {
     private static final long FADE = 260, POP = 300;
     /** 칸마다 저절로 넘어가기까지(동기, 수법). 체포 칸은 클릭할 때까지 남는다. */
     private static final long[] AUTO = {2400, 3600};
-    /** 수법 칸에 쓸 수 있는 장면. */
-    static final List<String> SCENES = Arrays.asList("channel", "gear", "rope", "disc");
-
-    static boolean has(Game game, Lesson l) {
-        return l != null && game.content.confessions.containsKey(l.id) && game.content.culpritOf(l) != null;
-    }
 
     static void play(JFrame frame, Game game, Lesson lesson, Runnable done) { play(frame, game, lesson, null, done); }
 
@@ -64,9 +58,7 @@ final class ConfessionComic {
         int pw = Math.min(1180, w - 80), ph = Math.min(600, h - 110);
         int px = (w - pw) / 2, py = (h - ph) / 2 - 10;
         List<Shape> shapes = layout(pw, ph);
-        double sc = 1;
-        try { sc = Math.max(1, frame.getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
-        final double scale = sc;
+        final double scale = Ui.screenScale(frame);
         Npc cn = game.content.npc(culprit);
         Chapter ch = game.content.chapterOf(lesson);
         Npc client = ch == null ? null : game.content.npc(ch.npc);
@@ -82,11 +74,9 @@ final class ConfessionComic {
             panels[i] = Panel.of(game, cfs.get(i), cast, local, new Rectangle2D.Double(px + b.getX(), py + b.getY(), b.getWidth(), b.getHeight()));
         }
         // 칸 바탕은 백그라운드에서(첫 칸부터 차례로) 그린다
-        Thread painter = new Thread(() -> {
+        Ui.background("geomystery-comic", Thread.currentThread().getPriority(), () -> {
             for (Panel p : panels) p.build(scale);
-        }, "geomystery-comic");
-        painter.setDaemon(true);
-        painter.start();
+        });
 
         long t0 = System.currentTimeMillis();
         int[] shown = {0};
@@ -129,7 +119,7 @@ final class ConfessionComic {
                 Composite keep = g.getComposite();
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, in));
                 // 만화 원고지
-                g.setColor(new Color(0xF7EEDC));
+                g.setColor(Theme.CREAM);
                 g.fill(new RoundRectangle2D.Double(px - 16, py - 16, pw + 32, ph + 32, 10, 10));
                 g.setColor(new Color(0x3A2819));
                 g.setStroke(new BasicStroke(3f));
@@ -249,18 +239,10 @@ final class ConfessionComic {
     private static List<Shape> layout(int pw, int ph) {
         List<Shape> out = new ArrayList<>();
         double gap = 14, topH = ph * 0.55, split = pw * 0.42, slant = 26;
-        out.add(poly(0, 0, split + slant, 0, split - slant, topH, 0, topH));
-        out.add(poly(split + slant + gap, 0, pw, 0, pw, topH - 18, split - slant + gap, topH));
-        out.add(poly(0, topH + gap, pw, topH + gap - 18, pw, ph, 0, ph));
+        out.add(Ui.poly(0, 0, split + slant, 0, split - slant, topH, 0, topH));
+        out.add(Ui.poly(split + slant + gap, 0, pw, 0, pw, topH - 18, split - slant + gap, topH));
+        out.add(Ui.poly(0, topH + gap, pw, topH + gap - 18, pw, ph, 0, ph));
         return out;
-    }
-
-    private static Path2D poly(double... xy) {
-        Path2D p = new Path2D.Double();
-        p.moveTo(xy[0], xy[1]);
-        for (int i = 2; i < xy.length; i += 2) p.lineTo(xy[i], xy[i + 1]);
-        p.closePath();
-        return p;
     }
 
     // ================================================================== 등장인물
@@ -671,7 +653,7 @@ final class ConfessionComic {
             q.translate(gx() + jx - (1 - push) * 14, gy() + jy);
             q.rotate(Math.toRadians(8 + Math.sin(t * 5) * 4));
             double r = gr();
-            Path2D quad = poly(-r * 0.95, -r * 0.2, -r * 0.15, -r * 0.98, r * 0.92, -r * 0.05, r * 0.05, r * 1.05);
+            Path2D quad = Ui.poly(-r * 0.95, -r * 0.2, -r * 0.15, -r * 0.98, r * 0.92, -r * 0.05, r * 0.05, r * 1.05);
             q.setColor(new Color(0xC9A456));
             q.fill(quad);
             q.setColor(new Color(0x3A2819));
@@ -732,7 +714,7 @@ final class ConfessionComic {
             bell.lineTo(r * 1.0, r * 1.45);
             bell.curveTo(r * 0.9, r * 1.25, r * 0.5, r * 1.2, r * 0.45, r * 0.25);
             bell.curveTo(r * 0.3, -r * 0.05, -r * 0.3, -r * 0.05, -r * 0.45, r * 0.25);
-            b.setColor(new Color(0xD9B456));
+            b.setColor(Theme.GOLD);
             b.fill(bell);
             b.setColor(new Color(0x3A2819));
             b.setStroke(new BasicStroke(3f));
@@ -840,7 +822,7 @@ final class ConfessionComic {
             g.fillRect(0, 0, (int) w + 1, (int) h + 1);
             List<Cmd> script = game.content.diagrams.get(cf.prop);
             if (script != null) {
-                double s = Math.min(w * 0.70 / DiagramView.W, (h - 60) / DiagramView.H);
+                double s = DiagramView.fit(w * 0.70, h - 60);
                 Graphics2D d = (Graphics2D) g.create();
                 d.translate(w * 0.28 + (w * 0.70 - DiagramView.W * s) / 2, (h - DiagramView.H * s) / 2 + 14);
                 d.scale(s, s);
@@ -1035,15 +1017,8 @@ final class ConfessionComic {
                 break;
             }
             case "gear": {
-                Path2D p = new Path2D.Double();
-                int n = 12 * 4;
-                for (int i = 0; i < n; i++) {
-                    double a = 2 * Math.PI * i / n;
-                    double rr = (i % 4 == 0 || i % 4 == 1) ? r * 0.85 : r * 0.68;
-                    double x = cx + rr * Math.cos(a), y = cy + rr * Math.sin(a);
-                    if (i == 0) p.moveTo(x, y); else p.lineTo(x, y);
-                }
-                p.closePath();
+                Path2D p = Panel.gearShape(r * 0.68, 12, r * 0.85 - r * 0.68);
+                p.transform(AffineTransform.getTranslateInstance(cx, cy));
                 g.setColor(new Color(0xC9A456)); g.fill(p);
                 g.setColor(ol); g.draw(p);
                 g.setColor(new Color(0x8C6A3A));

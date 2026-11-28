@@ -105,7 +105,6 @@ public class AssocScreen extends JPanel {
 
         // ---------- 오른쪽: 등급 + 훈장
         JPanel right = Ui.vtrack();
-        right.setPreferredSize(new Dimension(290, 600));
         right.setMinimumSize(new Dimension(290, 300));
         RoundPanel lv = new RoundPanel(null, Theme.GREEN, Theme.GOLD_DARK, 14).borderWidth(2.5f);
         lv.setLayout(new BoxLayout(lv, BoxLayout.Y_AXIS));
@@ -141,7 +140,6 @@ public class AssocScreen extends JPanel {
         right.add(bd);
         right.add(Box.createVerticalGlue());
         // 창이 낮으면 오른쪽 열(등급·훈장)을 스크롤한다
-        right.setPreferredSize(null);
         right.setBorder(BorderFactory.createEmptyBorder(0, 0, 2, 10));
         JScrollPane rightScroll = Ui.scroll(right);
         rightScroll.setPreferredSize(new Dimension(310, 600));
@@ -458,73 +456,6 @@ public class AssocScreen extends JPanel {
             g.setFont(Theme.serif(16));
             g.setColor(Theme.INK);
             g.drawString(xp, w - 26 - g.getFontMetrics().stringWidth(xp), by);
-            g.dispose();
-        }
-    }
-
-    private static class Row extends JComponent {
-        final int rank;
-        final Game.LeagueRow r;
-
-        Row(int rank, Game.LeagueRow r) {
-            this.rank = rank;
-            this.r = r;
-            setAlignmentX(LEFT_ALIGNMENT);
-            setPreferredSize(new Dimension(600, 54));
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, 54));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g0) {
-            Graphics2D g = Theme.aa(g0.create());
-            int w = getWidth(), h = getHeight();
-            if (r.me) {
-                g.setColor(Theme.c(0xF2DC9E));
-                g.fillRect(0, 0, w, h);
-            }
-            g.setColor(Theme.c(0xE6D6B6));
-            g.fillRect(0, h - 1, w, 1);
-            g.setFont(Theme.serif(20));
-            g.setColor(Theme.RED);
-            FontMetrics fm = g.getFontMetrics();
-            int by = (h + fm.getAscent() - fm.getDescent()) / 2;
-            g.drawString("" + rank, 24, by);
-            Color av = new Color(r.color);
-            g.setColor(av);
-            g.fill(new Ellipse2D.Double(70, h / 2.0 - 19, 38, 38));
-            g.setColor(Theme.INK);
-            g.setStroke(new BasicStroke(1.6f));
-            g.draw(new Ellipse2D.Double(70, h / 2.0 - 19, 38, 38));
-            g.setFont(Theme.bold(16));
-            g.setColor(Theme.CREAM);
-            String initial = r.me ? "나" : r.name.substring(0, 1);
-            Theme.drawCentered(g, initial, 89, h / 2.0);
-            g.setFont(r.me ? Theme.bold(16.5f) : Theme.serif(16.5f));
-            g.setColor(Theme.INK);
-            g.drawString(r.name, 128, by);
-            String xp = Ui.num(r.xp) + " XP";
-            g.setFont(Theme.serif(16));
-            g.drawString(xp, w - 26 - g.getFontMetrics().stringWidth(xp), by);
-            g.dispose();
-        }
-    }
-
-    private static class PromoLine extends JComponent {
-        private final Color color;
-
-        PromoLine(Color color) {
-            this.color = color;
-            setAlignmentX(LEFT_ALIGNMENT);
-            setPreferredSize(new Dimension(100, 6));
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, 6));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g0) {
-            Graphics2D g = Theme.aa(g0.create());
-            g.setColor(color);
-            g.setStroke(new BasicStroke(1.6f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{4, 3}, 0));
-            g.drawLine(0, 3, getWidth(), 3);
             g.dispose();
         }
     }

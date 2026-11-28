@@ -63,9 +63,6 @@ public class ExploreBoard extends JComponent {
         repaint();
     }
 
-    /** (예전의 반짝임 타이머 자리) 정리할 자원이 없지만 호출하는 쪽과의 호환을 위해 남겨 둔다. */
-    public void stop() { }
-
     private Map<String, Point2D.Double> pts() { return DiagramView.points(script, overrides); }
 
     private Drag dragOf(String name) {
@@ -293,7 +290,7 @@ public class ExploreBoard extends JComponent {
     }
 
     // ------------------------------------------------------------------ 그리기
-    private double scale() { return Math.min((getWidth() - 20) / DiagramView.W, (getHeight() - 20) / DiagramView.H); }
+    private double scale() { return DiagramView.fit(getWidth() - 20, getHeight() - 20); }
     private double ox() { return (getWidth() - DiagramView.W * scale()) / 2; }
     private double oy() { return (getHeight() - DiagramView.H * scale()) / 2; }
 
@@ -337,7 +334,7 @@ public class ExploreBoard extends JComponent {
     private double bgScale;
 
     private void drawBackground(Graphics2D g, int w, int h) {
-        double sc = Math.max(1, g.getTransform().getScaleX());
+        double sc = Ui.deviceScale(g);
         if (bgCache == null || bgCache.getWidth() != (int) Math.ceil(w * sc) || bgCache.getHeight() != (int) Math.ceil(h * sc) || bgScale != sc) {
             bgScale = sc;
             bgCache = new java.awt.image.BufferedImage((int) Math.ceil(w * sc), (int) Math.ceil(h * sc), java.awt.image.BufferedImage.TYPE_INT_RGB);
@@ -345,9 +342,9 @@ public class ExploreBoard extends JComponent {
             b.scale(sc, sc);
             b.setColor(Theme.PAPER);
             b.fillRect(0, 0, w, h);
-            b.setColor(new Color(0x2F5E50));
+            b.setColor(Theme.GREEN);
             b.fill(new RoundRectangle2D.Float(1, 1, w - 2, h - 2, 18, 18));
-            b.setColor(new Color(0xD9B456));
+            b.setColor(Theme.GOLD);
             b.setStroke(new BasicStroke(3f));
             b.draw(new RoundRectangle2D.Float(1.5f, 1.5f, w - 3, h - 3, 18, 18));
             b.dispose();
@@ -359,34 +356,30 @@ public class ExploreBoard extends JComponent {
     }
 
     // ------------------------------------------------------------------ 창
-    /** 정리 하나의 탐구 창을 연다. 설정이 없으면 false. */
-    public static boolean open(MainFrame frame, Theorem t) {
-        if (t == null) return false;
+    /** 정리 하나의 탐구 창을 연다. 설정이 없으면 아무것도 하지 않는다. */
+    public static void open(MainFrame frame, Theorem t) {
+        if (t == null) return;
         Explore spec = frame.game.content.explores.get(t.id);
-        if (spec == null) return false;
+        if (spec == null) return;
         List<Cmd> script = frame.game.content.diagrams.get(spec.diagram);
-        if (script == null) return false;
+        if (script == null) return;
         Ui.Modal m = Ui.solidModal(frame, "정리 탐구 · " + t.name, 780);
         m.text(spec.caption == null || spec.caption.isEmpty() ? "반짝이는 점을 끌어 보세요." : spec.caption + "  (반짝이는 점을 끌어 보세요)");
-        m.add((JComponent) Ui.vgap(10));
+        m.add(Ui.vgap(10));
         Widgets.TextBlock rel = new Widgets.TextBlock("", Theme.bold(16), Theme.INK).spacing(1.6f).prefWidth(700);
         ExploreBoard board = new ExploreBoard(script, spec, rel);
         m.add(board);
-        m.add((JComponent) Ui.vgap(12));
+        m.add(Ui.vgap(12));
         RoundPanel rp = new RoundPanel(new BorderLayout(), Theme.c(0xFBF3E1), Theme.GOLD_DARK, 12).borderWidth(1.8f);
         rp.pad(12, 16, 12, 16);
         rp.add(rel, BorderLayout.CENTER);
         m.add(rp);
-        m.add((JComponent) Ui.vgap(6));
+        m.add(Ui.vgap(6));
         m.add(Ui.label("측정값은 소수 첫째 자리까지 반올림해 보여 줍니다.", Theme.serif(12), Theme.MUTED));
         Btn reset = new Btn("처음 모양으로", Btn.Style.OUTLINE, "refresh");
         reset.addActionListener(e -> board.reset());
         m.buttons.add(reset);
-        m.button("닫기", Btn.Style.PRIMARY, board::stop);
-        m.dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override public void windowClosed(java.awt.event.WindowEvent e) { board.stop(); }
-        });
+        m.button("닫기", Btn.Style.PRIMARY, null);
         m.show();
-        return true;
     }
 }

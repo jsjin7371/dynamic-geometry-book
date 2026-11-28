@@ -1,7 +1,9 @@
 package geomystery.diagram;
 
 import geomystery.data.Model.Cmd;
+import geomystery.data.Csv;
 import geomystery.ui.Theme;
+import geomystery.ui.Ui;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,6 +40,8 @@ public class DiagramView extends JComponent {
     /** 칠판 위 색은 화면 테마와 상관없이 고정한다. */
     private static final Color INK = new Color(0x3A2819), BOARD_GREEN = new Color(0x2F5E50), CHALK = new Color(0xF4ECD8);
     private static final Color GLOW = new Color(0xFFE08A);
+    private static final Color RED_LINE = new Color(0xE0664C), CREAM_LINE = new Color(0xF3E6C4), AMBER = new Color(230, 190, 85), CORAL = new Color(0xE05A42);
+    private static final List<String> DIRS = Arrays.asList("e", "ne", "n", "nw", "w", "sw", "s", "se");
 
     /** 그리기 옵션(연출·탐구 모드). */
     public static final class Opts {
@@ -161,16 +165,16 @@ public class DiagramView extends JComponent {
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, appear));
         g.setColor(new Color(20, 40, 34, 215));
         g.fill(new RoundRectangle2D.Double(18, by, W - 36, bh, 16, 16));
-        g.setColor(new Color(230, 190, 85, 160));
+        g.setColor(Theme.alpha(AMBER, 160 / 255f));
         g.setStroke(new BasicStroke(1.6f));
         g.draw(new RoundRectangle2D.Double(18, by, W - 36, bh, 16, 16));
         // 단계 점
         for (int i = 0; i < steps.size(); i++) {
-            g.setColor(i == stepIndex ? GLOW : i < stepIndex ? new Color(230, 190, 85, 160) : new Color(255, 255, 255, 60));
+            g.setColor(i == stepIndex ? GLOW : i < stepIndex ? Theme.alpha(AMBER, 160 / 255f) : new Color(255, 255, 255, 60));
             g.fill(new Ellipse2D.Double(W - 40 - (steps.size() - i) * 12, by + 9, 7, 7));
         }
         g.setFont(Theme.bold(12f / Theme.scale()));
-        g.setColor(new Color(230, 190, 85));
+        g.setColor(AMBER);
         g.drawString("풀이 " + (stepIndex + 1) + " / " + steps.size() + "  ·  칠판을 누르면 다음", 34, (float) by + 17);
         // 분필로 써 나가듯 왼쪽부터 드러난다
         g.setFont(Theme.hand(sz * 1.15f));
@@ -255,8 +259,6 @@ public class DiagramView extends JComponent {
         clearFx();
         repaint();
     }
-
-    public List<Cmd> script() { return script; }
 
     // ---- 정답·오답 분필 연출
     /** 칠판에 크게 쓰는 글자(분필), 찍히는 정리 도장, 오답이면 true. */
@@ -346,7 +348,7 @@ public class DiagramView extends JComponent {
         return Math.max(0.5, Math.hypot(t.getScaleX(), t.getShearY()));
     }
 
-    /** 칠판 좌표의 사각형(x, y, w, h)을 화면 픽셀 크기 그대로 담는 이미지와 그 이미지에 그릴 Graphics. */
+    /** 칠판 좌표의 사각형(x, y, w, h)을 화면 픽셀 크기 그대로 담는 빈 이미지. */
     private static java.awt.image.BufferedImage fxCanvas(Rectangle2D r, double sc) {
         return new java.awt.image.BufferedImage(Math.max(1, (int) Math.ceil(r.getWidth() * sc)), Math.max(1, (int) Math.ceil(r.getHeight() * sc)),
                 java.awt.image.BufferedImage.TYPE_INT_ARGB_PRE);
@@ -400,7 +402,7 @@ public class DiagramView extends JComponent {
         st.scale(sc, sc);
         st.translate(half, half);
         st.rotate(Math.toRadians(-8));
-        Color red = new Color(0xE05A42);
+        Color red = CORAL;
         st.setColor(red);
         st.setStroke(new BasicStroke(3.2f));
         st.draw(new RoundRectangle2D.Double(-bw / 2, -bh / 2, bw, bh, 12, 12));
@@ -416,11 +418,6 @@ public class DiagramView extends JComponent {
         if (!name.equals(fxStamp)) name = name.substring(0, name.length() - 1) + "…";
         Theme.drawString(st, name, (float) (-Theme.width(st.getFontMetrics(), name) / 2.0), (float) (bh / 2 - 12));
         st.dispose();
-    }
-
-    /** 미리 그린 이미지를 칠판 좌표 r 에 1:1(화면 픽셀)로 복사한다. */
-    private static void fxBlit(Graphics2D g, java.awt.image.BufferedImage img, Rectangle2D r) {
-        geomystery.ui.Ui.blit(g, img, r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
 
     private void paintFx(Graphics2D g) {
@@ -444,7 +441,7 @@ public class DiagramView extends JComponent {
                 Shape oldClip = g.getClip();
                 double x0 = tb.getX() - 6 + (tb.getWidth() + 12) * erase;
                 g.clip(new Rectangle2D.Double(x0, tb.getY() - 30, (tb.getX() - 6 + (tb.getWidth() + 12) * write) - x0, tb.getHeight() + 60));
-                fxBlit(g, fxTextImg, fxTextBox);
+                Ui.blit(g, fxTextImg, fxTextBox.getX(), fxTextBox.getY(), fxTextBox.getWidth(), fxTextBox.getHeight());
                 g.setClip(oldClip);
                 // 분필 끝 가루
                 if (write < 1) {
@@ -458,7 +455,7 @@ public class DiagramView extends JComponent {
                 }
                 if (fxWrong) {
                     // 빨간 X 두 획
-                    g.setColor(new Color(0xE0664C));
+                    g.setColor(RED_LINE);
                     g.setStroke(new BasicStroke(9f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                     double pad = 18;
                     double ax = tb.getX() - pad, ay = tb.getY() - pad, bx = tb.getMaxX() + pad, by = tb.getMaxY() + pad;
@@ -500,14 +497,14 @@ public class DiagramView extends JComponent {
                         (int) Math.round(fxStampBox.getWidth()), (int) Math.round(fxStampBox.getHeight()), null);
                 st.dispose();
             } else {
-                fxBlit(g, fxStampImg, new Rectangle2D.Double(cx + fxStampBox.getX(), cy + fxStampBox.getY(), fxStampBox.getWidth(), fxStampBox.getHeight()));
+                Ui.blit(g, fxStampImg, cx + fxStampBox.getX(), cy + fxStampBox.getY(), fxStampBox.getWidth(), fxStampBox.getHeight());
             }
             g.setComposite(keep);
             // 도장 잉크가 튄 자국(찍히는 순간)
             long since = el - STAMP_AT - STAMP_IN;
             if (since > 0 && since < 320) {
                 float sa = (float) (1 - since / 320.0);
-                g.setColor(new Color(224, 90, 66, Math.round(160 * sa)));
+                g.setColor(Theme.alpha(CORAL, 160 * sa / 255f));
                 double rx = fxStampBox.getWidth() * 0.42 + since * 0.05;
                 for (int i = 0; i < 8; i++) {
                     double ang = i * Math.PI / 4 + 0.3;
@@ -561,7 +558,7 @@ public class DiagramView extends JComponent {
     }
 
     /** '?' 이름표가 있는지(정답을 칠판에 쓸 자리가 있는지). */
-    public boolean hasQuestionLabel() {
+    public static boolean hasQuestionLabel(List<Cmd> script) {
         for (Cmd c : script) for (String a : c.args) if (a.contains("?")) return true;
         return false;
     }
@@ -576,8 +573,6 @@ public class DiagramView extends JComponent {
 
     public void clearScribbles() { scribbles.clear(); repaint(); }
 
-    public boolean hasScribbles() { return !scribbles.isEmpty(); }
-
     private void erase(Point2D.Double p) {
         boolean removed = scribbles.removeIf(s -> {
             for (Point2D.Double q : s.pts) if (q.distance(p) < 14) return true;
@@ -586,7 +581,10 @@ public class DiagramView extends JComponent {
         if (removed) repaint();
     }
 
-    private double scale() { return Math.min(getWidth() / W, getHeight() / H); }
+    /** 가로 w × 세로 h 칸에 칠판(W×H) 전체가 들어가는 배율. */
+    public static double fit(double w, double h) { return Math.min(w / W, h / H); }
+
+    private double scale() { return fit(getWidth(), getHeight()); }
 
     public Point2D.Double toLogical(Point p) {
         double s = scale();
@@ -863,7 +861,7 @@ public class DiagramView extends JComponent {
             if (reveal >= 0 && isRed(c)) {
                 Stroke keep = g.getStroke();
                 float w = keep instanceof BasicStroke ? ((BasicStroke) keep).getLineWidth() : 3f;
-                g.setColor(new Color(GLOW.getRed(), GLOW.getGreen(), GLOW.getBlue(), Math.round(110 * glow())));
+                g.setColor(Theme.alpha(GLOW, 110 * glow() / 255f));
                 g.setStroke(new BasicStroke(w + 9, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g.draw(shape);
                 g.setStroke(keep);
@@ -915,7 +913,7 @@ public class DiagramView extends JComponent {
 
     private static double d(String[] a, int i, double def) {
         if (a.length <= i) return def;
-        try { return Double.parseDouble(a[i]); } catch (NumberFormatException e) { return def; }
+        return Csv.toDouble(a[i], def);
     }
 
     private static String sArg(String[] a, int i, String def) { return a.length > i ? a[i] : def; }
@@ -990,10 +988,10 @@ public class DiagramView extends JComponent {
         if (name == null) return CHALK;
         switch (name) {
             case "ink": return INK;
-            case "red": return new Color(0xE0664C);
+            case "red": return RED_LINE;
             case "gold": return new Color(0xE6BE55);
             case "chalk": return CHALK;
-            case "cream": return new Color(0xF3E6C4);
+            case "cream": return CREAM_LINE;
             case "green": return BOARD_GREEN;
             case "tan": return new Color(0xB98E5A);
             case "blue": return new Color(0x8DB7DA);
@@ -1045,7 +1043,7 @@ public class DiagramView extends JComponent {
         float x = (float) (cx - w / 2.0), y = (float) (cy + (fm.getAscent() - fm.getDescent()) / 2.0);
         // 빛나는 바탕
         float gl = ctx.glow();
-        g.setColor(new Color(GLOW.getRed(), GLOW.getGreen(), GLOW.getBlue(), Math.round(70 * gl)));
+        g.setColor(Theme.alpha(GLOW, 70 * gl / 255f));
         g.fill(new RoundRectangle2D.Double(x - 8, cy - fm.getAscent() / 2.0 - 6, w + 16, fm.getAscent() + 12, 14, 14));
         double write = Math.min(1, ctx.reveal * 1.8);
         Shape oldClip = g.getClip();
@@ -1112,7 +1110,7 @@ public class DiagramView extends JComponent {
             case "dial": {
                 Point2D.Double o = ctx.p(a[0]);
                 double r = d(a, 1, 170);
-                g.setColor(new Color(0xF3E6C4));
+                g.setColor(CREAM_LINE);
                 g.fill(new Ellipse2D.Double(o.x - r, o.y - r, r * 2, r * 2));
                 g.setColor(new Color(0xD9B456));
                 g.setStroke(new BasicStroke(9f));
@@ -1257,7 +1255,7 @@ public class DiagramView extends JComponent {
                 while (ext >= 360) ext -= 360;
                 Color col = color(sArg(a, 3, "gold"));
                 float alpha = (float) d(a, 4, 0.3);
-                g.setColor(new Color(col.getRed(), col.getGreen(), col.getBlue(), Math.round(alpha * 255)));
+                g.setColor(Theme.alpha(col, alpha));
                 g.fill(new Arc2D.Double(o.x - r, o.y - r, r * 2, r * 2, from, ext, Arc2D.PIE));
                 break;
             }
@@ -1267,7 +1265,7 @@ public class DiagramView extends JComponent {
                 double r = d(a, 1, 100), from = d(a, 2, 0), to = d(a, 3, 90);
                 Color col = color(sArg(a, 4, "gold"));
                 float alpha = (float) d(a, 5, 0.3);
-                g.setColor(new Color(col.getRed(), col.getGreen(), col.getBlue(), Math.round(alpha * 255)));
+                g.setColor(Theme.alpha(col, alpha));
                 g.fill(new Arc2D.Double(o.x - r, o.y - r, r * 2, r * 2, from, to - from, Arc2D.PIE));
                 break;
             }
@@ -1280,7 +1278,7 @@ public class DiagramView extends JComponent {
                     if (i == 2) poly.moveTo(p.x, p.y); else poly.lineTo(p.x, p.y);
                 }
                 poly.closePath();
-                g.setColor(new Color(col.getRed(), col.getGreen(), col.getBlue(), Math.round(alpha * 255)));
+                g.setColor(Theme.alpha(col, alpha));
                 g.fill(poly);
                 break;
             }
@@ -1301,17 +1299,8 @@ public class DiagramView extends JComponent {
                     g.draw(new Ellipse2D.Double(p.x - 7.5, p.y - 7.5, 15, 15));
                 }
                 if (!"none".equals(dir)) {
-                    double ang;
-                    switch (dir) {
-                        case "e": ang = 0; break;
-                        case "ne": ang = 45; break;
-                        case "n": ang = 90; break;
-                        case "nw": ang = 135; break;
-                        case "w": ang = 180; break;
-                        case "sw": ang = 225; break;
-                        case "s": ang = 270; break;
-                        default: ang = 315; break;
-                    }
+                    int di = DIRS.indexOf(dir);
+                    double ang = (di < 0 ? 7 : di) * 45; // 모르는 방향은 'se'
                     Point2D.Double lp = polar(p, 24, ang);
                     text(g, a[0].replaceAll("[0-9]+$", ""), lp.x, lp.y, lc, 23f, false);
                 }

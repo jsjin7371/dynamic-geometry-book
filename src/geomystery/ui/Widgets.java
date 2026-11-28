@@ -182,7 +182,6 @@ public final class Widgets {
             });
             shineTimer.start();
         }
-        public void setFill(Color c) { fill = c; repaint(); }
 
         @Override public Dimension getPreferredSize() { return new Dimension(100, thickness); }
         @Override public Dimension getMaximumSize() { return new Dimension(Integer.MAX_VALUE, thickness); }
@@ -226,10 +225,9 @@ public final class Widgets {
     /** 단어 단위로 자동 줄바꿈되는 텍스트 블록(줄 간격 조절 가능). */
     public static class TextBlock extends JComponent {
         private String text;
-        private Color color;
+        private final Color color;
         private float spacing = 1.55f;
         private int prefWidth = 320;
-        private boolean center;
         private int lastWidth = -1;
 
         public TextBlock(String text, Font font, Color color) {
@@ -242,7 +240,6 @@ public final class Widgets {
 
         public TextBlock spacing(float s) { spacing = s; return this; }
         public TextBlock prefWidth(int w) { prefWidth = w; return this; }
-        public TextBlock center(boolean c) { center = c; return this; }
 
         public void setText(String t) {
             text = t == null ? "" : t;
@@ -262,10 +259,6 @@ public final class Widgets {
             if (getPreferredSize().height != before) revalidate();
             repaint();
         }
-
-        public String getText() { return text; }
-
-        public void setColor(Color c) { color = c; repaint(); }
 
         public static List<String> wrap(String text, FontMetrics fm, int width) {
             List<String> lines = new ArrayList<>();
@@ -335,7 +328,7 @@ public final class Widgets {
             int y = in.top + fm.getAscent();
             for (String line : wrap(text, fm, w)) {
                 if (line.isEmpty()) { y += Math.round(lineHeight(fm) * 0.45f); continue; }
-                int x = in.left + (center ? (w - Theme.width(fm, line)) / 2 : 0);
+                int x = in.left;
                 Theme.drawString(g, line, x, y);
                 y += lineHeight(fm);
             }
@@ -371,8 +364,6 @@ public final class Widgets {
 
         /** 얼굴 이미지가 없을 때 쓸 첫 글자와 색. */
         public FaceView fallback(String initial, Color c) { this.initial = initial; fallback = c; return this; }
-
-        public void setImage(String img) { image = img; repaint(); }
 
         /** 표정을 짓는다. holdMs 가 0이면 계속 유지. */
         public void mood(Mood m, long holdMs) {
@@ -548,7 +539,7 @@ public final class Widgets {
             double p = Math.max(0, Math.min(1, (System.currentTimeMillis() - start) / (double) DURATION));
             double e = 1 - Math.pow(1 - p, 3);
             int v = (int) Math.round(goal * e);
-            return prefix + (time ? (v / 60) + ":" + String.format("%02d", v % 60) : String.valueOf(v)) + suffix;
+            return prefix + (time ? Ui.time(v) : String.valueOf(v)) + suffix;
         }
 
         @Override public Dimension getPreferredSize() {

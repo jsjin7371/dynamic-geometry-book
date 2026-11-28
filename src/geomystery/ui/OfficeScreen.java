@@ -55,8 +55,7 @@ public class OfficeScreen extends JPanel {
     /** 시작 직후 미리 그려 둔다. */
     public void prewarm() {
         if (room.getWidth() <= 0) return;
-        double sc = 1;
-        try { sc = Math.max(1, getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
+        double sc = Ui.screenScale(this);
         room.request(room.getWidth(), room.getHeight(), sc);
     }
 
@@ -359,7 +358,7 @@ public class OfficeScreen extends JPanel {
             g.fill(new RoundRectangle2D.Double(x - 6, y - 6, w + 12, h + 12, 8, 8));
             g.setColor(new Color(0xEFE3C6));
             g.fill(new Rectangle2D.Double(x, y, w, h));
-            g.setColor(new Color(0xD9B456));
+            g.setColor(Theme.GOLD);
             g.setStroke(new BasicStroke(2f));
             g.draw(new Rectangle2D.Double(x + 4, y + 4, w - 8, h - 8));
             List<Theorem> all = new ArrayList<>(game.content.theorems.values());
@@ -374,7 +373,7 @@ public class OfficeScreen extends JPanel {
                 boolean have = owned.contains(t);
                 g.setColor(have ? new Color(0xF4E8CC) : new Color(0xDCD1B8));
                 g.fill(rr);
-                g.setColor(have ? new Color(0xD9B456) : new Color(0xBFB298));
+                g.setColor(have ? Theme.GOLD : new Color(0xBFB298));
                 g.setStroke(new BasicStroke(1.5f));
                 g.draw(rr);
                 if (have) Icons.theorem(g, t.icon, new Rectangle2D.Double(rr.getX() + 2, rr.getY() + 3, cardW - 4, cardW - 4), new Color(0x3A2819), new Color(0xA33A28));
@@ -410,10 +409,10 @@ public class OfficeScreen extends JPanel {
                 if (have) {
                     // 리본과 메달
                     g.setColor(new Color(0xA33A28));
-                    g.fill(poly(cx - r * 0.55, cy - r * 1.6, cx - r * 0.05, cy - r * 1.6, cx - r * 0.25, cy - r * 0.6, cx - r * 0.75, cy - r * 0.6));
+                    g.fill(Ui.poly(cx - r * 0.55, cy - r * 1.6, cx - r * 0.05, cy - r * 1.6, cx - r * 0.25, cy - r * 0.6, cx - r * 0.75, cy - r * 0.6));
                     g.setColor(new Color(0x2F5E4F));
-                    g.fill(poly(cx + r * 0.05, cy - r * 1.6, cx + r * 0.55, cy - r * 1.6, cx + r * 0.75, cy - r * 0.6, cx + r * 0.25, cy - r * 0.6));
-                    g.setColor(new Color(0xD9B456));
+                    g.fill(Ui.poly(cx + r * 0.05, cy - r * 1.6, cx + r * 0.55, cy - r * 1.6, cx + r * 0.75, cy - r * 0.6, cx + r * 0.25, cy - r * 0.6));
+                    g.setColor(Theme.GOLD);
                     g.fill(new Ellipse2D.Double(cx - r, cy - r, r * 2, r * 2));
                     g.setColor(new Color(0xF2D27A));
                     g.fill(new Ellipse2D.Double(cx - r * 0.78, cy - r * 0.78, r * 1.56, r * 1.56));
@@ -523,7 +522,7 @@ public class OfficeScreen extends JPanel {
             RoundRectangle2D bub = new RoundRectangle2D.Double(x + 8, 18, bw, bh, 14, 14);
             g.setColor(new Color(0xFFFBF2));
             g.fill(bub);
-            g.setColor(new Color(0xD9B456));
+            g.setColor(Theme.GOLD);
             g.setStroke(new BasicStroke(2f));
             g.draw(bub);
             g.setColor(new Color(0x3A2819));
@@ -583,7 +582,7 @@ public class OfficeScreen extends JPanel {
             int hearts = game.hearts(n.id);
             boolean epi = game.epilogueOpen(n.id), fresh = epi && !game.save.epiloguesSeen.contains(n.id);
             Rectangle2D frameR = new Rectangle2D.Double(cx - fs / 2 - 6, y - 6, fs + 12, fs + 12);
-            g.setColor(epi ? new Color(0xD9B456) : new Color(0xB59C78));
+            g.setColor(epi ? Theme.GOLD : new Color(0xB59C78));
             g.fill(new RoundRectangle2D.Double(frameR.getX(), frameR.getY(), frameR.getWidth(), frameR.getHeight(), 10, 10));
             g.setColor(new Color(0xE9D8B2));
             g.fill(new Ellipse2D.Double(cx - fs / 2, y, fs, fs));
@@ -628,14 +627,6 @@ public class OfficeScreen extends JPanel {
             String tip = !open ? "아직 만나지 못한 인물" : n.name + " · " + n.role + " · 호감도 " + hearts + "/" + Game.HEARTS
                     + (epi ? " — 눌러서 후일담 보기" : " — 그 장의 사건을 모두 풀고 범인을 밝히면 후일담이 열려요");
             bSpots.add(new Spot(new Ellipse2D.Double(cx - fs / 2 - 2, y - 2, fs + 4, fs + 4), "npc", n.id, tip));
-        }
-
-        private Path2D poly(double... xy) {
-            Path2D p = new Path2D.Double();
-            p.moveTo(xy[0], xy[1]);
-            for (int i = 2; i < xy.length; i += 2) p.lineTo(xy[i], xy[i + 1]);
-            p.closePath();
-            return p;
         }
     }
 }

@@ -30,15 +30,12 @@ public final class Content {
     public final Map<String, List<Confession>> confessions = new HashMap<>();
     /** 인물 → 후일담 대사(호감도를 가득 채우면 열린다). */
     public final Map<String, List<Line>> epilogues = new LinkedHashMap<>();
-    /** 불러온 폴더(도구에서 다시 읽거나 저장할 때 사용). */
-    public Path dir;
 
     public static Content load(Path dir) throws IOException {
         if (!Files.exists(dir.resolve("chapters.csv"))) {
             throw new IOException("콘텐츠 폴더를 찾을 수 없습니다: " + dir.toAbsolutePath());
         }
         Content c = new Content();
-        c.dir = dir;
 
         for (Map<String, String> r : Csv.readTable(dir.resolve("chapters.csv"))) {
             Chapter ch = new Chapter();
@@ -235,7 +232,7 @@ public final class Content {
     }
 
     /** 공백으로 구분하되 '작은따옴표'로 감싼 토큰은 하나로 취급한다. */
-    static String[] tokenize(String s) {
+    public static String[] tokenize(String s) {
         List<String> out = new ArrayList<>();
         if (s == null) return new String[0];
         StringBuilder cur = new StringBuilder();
