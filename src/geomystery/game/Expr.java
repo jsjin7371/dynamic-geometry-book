@@ -59,7 +59,7 @@ public final class Expr {
         try {
             for (double xv : SAMPLES) {
                 double va = eval(a, xv), vb = eval(b, xv);
-                if (Double.isNaN(va) || Double.isNaN(vb)) return false;
+                if (!Double.isFinite(va) || !Double.isFinite(vb)) return false;
                 if (Math.abs(va - vb) > 1e-9 * Math.max(1, Math.max(Math.abs(va), Math.abs(vb)))) return false;
             }
             return true;

@@ -23,6 +23,7 @@ public final class SaveData {
     public static final long REGEN_MS = 30L * 60 * 1000;
 
     private final Path dir;
+    public java.util.function.Consumer<String> onSaveError;
 
     public String name = "견습 탐정";
     public int xp = 0, tokens = 5, lanterns = MAX_LANTERNS, streak = 0, bestStreak = 0;
@@ -277,6 +278,7 @@ public final class SaveData {
             Csv.writeTable(dir.resolve("slips.csv"), Arrays.asList("tag", "count"), rows);
         } catch (IOException e) {
             System.err.println("[geomystery] 저장 실패: " + e);
+            if (onSaveError != null) onSaveError.accept(e.toString());
         }
     }
 
@@ -298,6 +300,7 @@ public final class SaveData {
         progress.clear(); history.clear(); mistakes.clear(); stats.clear(); slips.clear();
         leagueTier = 0; leagueWeek = ""; leagueNotice = ""; finalesSolved = 0;
         solvedFinales.clear(); seenCards.clear(); endingSeen = false;
+        outfit = "0,0,0"; leagueSeen = "";
         photosPinned.clear(); epiloguesSeen.clear();
         save();
     }

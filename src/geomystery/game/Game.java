@@ -170,9 +170,14 @@ public final class Game {
     }
 
     // ------------------------------------------------------------------ 연속 학습
+    private static LocalDate parseDate(String s) {
+        if (s == null || s.isEmpty()) return null;
+        try { return LocalDate.parse(s); } catch (Exception e) { return null; }
+    }
+
     public int streakNow() {
-        if (save.lastStudy == null || save.lastStudy.isEmpty()) return 0;
-        LocalDate last = LocalDate.parse(save.lastStudy);
+        LocalDate last = parseDate(save.lastStudy);
+        if (last == null) return 0;
         long gap = ChronoUnit.DAYS.between(last, today());
         return gap <= 1 ? save.streak : 0;
     }
@@ -182,7 +187,8 @@ public final class Game {
     private void recordStudyDay() {
         LocalDate t = today();
         if (t.toString().equals(save.lastStudy)) return;
-        if (!save.lastStudy.isEmpty() && LocalDate.parse(save.lastStudy).plusDays(1).equals(t)) save.streak++;
+        LocalDate last = parseDate(save.lastStudy);
+        if (last != null && last.plusDays(1).equals(t)) save.streak++;
         else save.streak = 1;
         save.lastStudy = t.toString();
         save.bestStreak = Math.max(save.bestStreak, save.streak);
@@ -303,8 +309,8 @@ public final class Game {
     private int weekXp(LocalDate monday, LocalDate until) {
         int sum = 0;
         for (Map.Entry<String, int[]> e : save.history.entrySet()) {
-            LocalDate d = LocalDate.parse(e.getKey());
-            if (!d.isBefore(monday) && !d.isAfter(until) && !d.isAfter(monday.plusDays(6))) sum += e.getValue()[0];
+            LocalDate d = parseDate(e.getKey());
+            if (d != null && !d.isBefore(monday) && !d.isAfter(until) && !d.isAfter(monday.plusDays(6))) sum += e.getValue()[0];
         }
         return sum;
     }
@@ -705,6 +711,11 @@ public final class Game {
 
     public static int finaleBonus(int mistakes) { return Math.max(20, 60 - mistakes * 15); }
 
+    public int finaleBonusFor(Session s) {
+        int b = finaleBonus(s.finaleMistakes);
+        return s.lesson != null && save.solvedFinales.contains(s.lesson.id) ? b / 2 : b;
+    }
+
     // ------------------------------------------------------------------ 약점 분석
     /** 정리(사건) 하나에 대한 누적 실력. */
     public static final class Skill {
@@ -809,7 +820,7 @@ public final class Game {
             xp = r.firstTry * 10 + (r.total - r.firstTry) * 5;
         }
         if (s.finaleSolved) {
-            r.finaleXp = finaleBonus(s.finaleMistakes);
+            r.finaleXp = finaleBonusFor(s);
             xp += r.finaleXp;
         }
         r.xp = xp;
@@ -838,17 +849,21 @@ public final class Game {
             if (r.firstClear) { save.tokens += 2; r.tokensGained += 2; }
             if (s.wrongIds.isEmpty()) {
                 save.perfectLessons++;
-                save.tokens += 1;
-                r.tokensGained += 1;
+                if (r.firstClear) {
+                    save.tokens += 1;
+                    r.tokensGained += 1;
+                }
             }
             if (r.firstClear) {
                 justCleared = s.lesson.id;
                 r.gameCleared = s.lesson == content.lessons.get(content.lessons.size() - 1);
             }
             if (s.finaleSolved) {
-                if (save.solvedFinales.add(s.lesson.id)) save.finalesSolved = Math.max(save.finalesSolved, save.solvedFinales.size());
-                save.tokens += 1;
-                r.tokensGained += 1;
+                if (save.solvedFinales.add(s.lesson.id)) {
+                    save.finalesSolved = Math.max(save.finalesSolved, save.solvedFinales.size());
+                    save.tokens += 1;
+                    r.tokensGained += 1;
+                }
             }
             r.card = content.theorems.get(s.lesson.theoremId);
             r.cardIsNew = r.firstClear;

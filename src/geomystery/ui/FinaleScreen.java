@@ -234,8 +234,8 @@ public class FinaleScreen extends JPanel {
 
     private void rebuild() {
         lanternPill.set("lantern", "등불 " + game.lanterns());
-        mistakesLabel.setText(session.finaleMistakes == 0 ? "보너스 +" + Game.finaleBonus(0) + " XP"
-                : "잘못 제시 " + session.finaleMistakes + "회 · 보너스 +" + Game.finaleBonus(session.finaleMistakes) + " XP");
+        mistakesLabel.setText(session.finaleMistakes == 0 ? "보너스 +" + game.finaleBonusFor(session) + " XP"
+                : "잘못 제시 " + session.finaleMistakes + "회 · 보너스 +" + game.finaleBonusFor(session) + " XP");
         testimonyList.removeAll();
         testimonyViews.clear();
         cardViews.clear();

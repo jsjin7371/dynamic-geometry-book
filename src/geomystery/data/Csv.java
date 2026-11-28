@@ -82,7 +82,7 @@ public final class Csv {
         Files.write(tmp, sb.toString().getBytes(StandardCharsets.UTF_8));
         try {
             Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } catch (AtomicMoveNotSupportedException e) {
+        } catch (FileSystemException e) {
             Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING);
         }
     }
