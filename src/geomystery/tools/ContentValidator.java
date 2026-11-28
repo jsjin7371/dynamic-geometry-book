@@ -280,6 +280,15 @@ public final class ContentValidator {
                 break;
             default: break;
         }
+        // 숫자·식 문제는 도형에 '?' 이름표가 있어야 정답을 맞혔을 때 칠판에 답이 써진다
+        if ((p.isNumber() || p.isExpr()) && p.diagram != null && c.diagrams.containsKey(p.diagram.trim())) {
+            boolean hasSlot = false;
+            for (geomystery.data.Model.Cmd cmd : c.diagrams.get(p.diagram.trim())) {
+                for (String arg : cmd.args) if (arg.contains("?")) { hasSlot = true; break; }
+                if (hasSlot) break;
+            }
+            if (!hasSlot) warn(f, w, "도형 " + p.diagram + "에 '?' 이름표가 없어 정답이 칠판에 써지지 않습니다");
+        }
         for (Feedback fb : p.feedback) {
             if (fb.tag != null && !fb.tag.isEmpty() && !c.misconceptions.containsKey(fb.tag)) warn(f, w, "모르는 실수 유형 #" + fb.tag);
             if (fb.text == null || fb.text.isEmpty()) warn(f, w, "피드백 대사가 비었습니다: " + fb.value);
