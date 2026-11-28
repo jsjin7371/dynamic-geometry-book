@@ -16,6 +16,22 @@ D101,base,dot,A nw
 D101,base,dot,B ne
 D101,base,dot,C se
 D101,base,dot,D sw
+D101b,base,pt,A 170 130
+D101b,base,pt,B 470 100
+D101b,base,pt,C 530 330
+D101b,base,pt,D 140 320
+D101b,base,text,320 415 '어느 세 점도 한 직선 위에 있지 않다' dim 16
+D101b,aux,line,A B gold 2d 30
+D101b,aux,line,A C gold 2d 30
+D101b,aux,line,A D gold 2d 30
+D101b,aux,line,B C gold 2d 30
+D101b,aux,line,B D gold 2d 30
+D101b,aux,line,C D gold 2d 30
+D101b,base,dot,A nw
+D101b,base,dot,B ne
+D101b,base,dot,C se
+D101b,base,dot,D sw
+D101b,base,text,320 40 '줄의 수 = ? 가닥' red 22
 D102,base,pt,A 150 240
 D102,base,pt,B 320 240
 D102,base,pt,C 490 240
@@ -39,6 +55,7 @@ D102,aux,text,535 330 CB red 17
 D102,base,dot,A s
 D102,base,dot,B s
 D102,base,dot,C s
+D102,base,text,320 40 '반직선의 수 = ? 개' red 22
 D103,base,pt,A 220 240
 D103,base,pt,B 420 240
 D103,base,seg,A B chalk 4
@@ -112,6 +129,7 @@ D107,base,dot,P n
 D107,base,dot,H s
 D107,base,dot,A s
 D107,base,dot,B s
+D107,base,text,320 40 '거리 = ?' red 22
 D108,base,pt,O 320 350
 D108,base,polar,A O 240 0
 D108,base,polar,B O 240 35
@@ -158,12 +176,14 @@ D110,base,dot,A s
 D110,base,dot,O s
 D110,base,dot,C s
 D110,base,dot,B n
+D110,base,text,320 40 'x = ?' red 22
 # ----- CHAPTER II : 각도의 시계탑
 D201,base,pt,O 320 220
 D201,base,dial,O 185
 D201,base,hand,O 90 140 6 ink
 D201,base,hand,O 0 100 9 ink
 D201,base,hub,O
+D201,base,text,95 45 '각 = ?' red 22
 D201,aux,polar,HA O 70 0
 D201,aux,polar,HB O 70 90
 D201,aux,angle,HA O HB 52 90° red 3
@@ -231,6 +251,7 @@ D206,base,seg,Q1 Q2 chalk 3
 D206,base,angle,P1 O Q1 70 '(3x+10)°' gold
 D206,base,angle,P2 O Q2 70 '(5x-30)°' red
 D206,base,text,350 250 O chalk 21
+D206,base,text,95 45 'x = ?' red 22
 D206,aux,arc,O 100 25 205 gold 2d
 D206,aux,arc,O 125 95 275 blue 2d
 D207,base,pt,L1 40 140
@@ -303,6 +324,7 @@ D209,base,text,618 330 m chalk 24
 D209,base,angle,L2 A X 40 40° gold
 D209,base,angle,M2 B X 40 30° gold
 D209,base,angle,A X B 34 x red
+D209,base,text,320 50 'x = ?' red 22
 D209,aux,pt,N1 70 220
 D209,aux,pt,N2 600 220
 D209,aux,seg,N1 N2 gold 2d
@@ -354,6 +376,7 @@ D211,aux,seg,C C2 gold 3d
 D211,base,dot,A w
 D211,base,dot,B se
 D211,base,dot,C n
+D211,base,text,110 45 '∠ACB = ?' red 22
 D212,base,pt,O 320 222
 D212,base,dial,O 178
 D212,base,polar,A O 178 235
@@ -430,6 +453,7 @@ D216,base,dial,O 185
 D216,base,hand,O 90 140 6 ink
 D216,base,hand,O 150 100 9 ink
 D216,base,hub,O
+D216,base,text,95 45 '각 = ?' red 22
 D216,aux,polar,S1 O 155 120
 D216,aux,seg,O S1 gold 2d
 D216,aux,polar,HA O 70 150
@@ -456,6 +480,7 @@ D217,base,text,618 140 l chalk 24
 D217,base,text,618 300 m chalk 24
 D217,base,angle,L2 P Q 60 '(2x+10)°' gold
 D217,base,angle,M1 Q P 60 '(4x-50)°' red
+D217,base,text,320 50 'x = ?' red 22
 D217,aux,pt,Zr 430 140
 D217,aux,pt,Zl 165 300
 D217,aux,seg,Zr P gold 6
@@ -518,6 +543,7 @@ D301,aux,angle,C2 C B 64 75° gold 2
 D301,base,dot,A sw
 D301,base,dot,B se
 D301,base,dot,C n
+D301,base,text,110 45 'x = ?' red 22
 D302,base,pt,A 140 370
 D302,base,pt,B 460 370
 D302,base,apex,C A B 34 90
@@ -546,6 +572,7 @@ D303,aux,text,320 418 '2x + 3x + 4x = 180°' gold 20
 D303,base,dot,A sw
 D303,base,dot,B se
 D303,base,dot,C n
+D303,base,text,320 45 '가장 큰 각 = ?' red 22
 D304,base,pt,A 110 370
 D304,base,pt,B 390 370
 D304,base,pt,D 600 370
@@ -597,6 +624,7 @@ D306,aux,angle,E B D 120 40° gold 2
 D306,base,dot,A sw
 D306,base,dot,B s
 D306,base,dot,C n
+D306,base,text,150 50 'x = ?' red 22
 D307,base,pt,B 220 390
 D307,base,pt,C 420 390
 D307,base,apex,A B C 70 70
@@ -710,6 +738,7 @@ D313,aux,angle,E B D 100 x° gold 2
 D313,base,dot,A sw
 D313,base,dot,B s
 D313,base,dot,C n
+D313,base,text,150 50 'x = ?' red 22
 # ----- 새 문제 유형(식·참거짓·추리 순서)용 도형
 D112,base,pt,A 120 250
 D112,base,pt,B 520 250
@@ -1163,6 +1192,7 @@ D406,base,dot,O w solid
 D406,base,dot,P e
 D406,base,dot,A n
 D406,base,dot,B s
+D406,base,text,320 45 'x = ?' red 22
 D407,base,pt,O 250 220
 D407,base,pt,P 560 220
 D407,base,pt,A 304.5 102
