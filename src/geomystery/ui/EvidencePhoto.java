@@ -37,7 +37,7 @@ final class EvidencePhoto {
         g.setPaint(new GradientPaint(0, 0, new Color(0x356A5B), 0, dh, new Color(0x274F44)));
         g.fillRect(0, 0, dw, dh);
         // 칠판 전체가 보이도록 맞추고(남는 곳은 칠판색), 가운데에 둔다
-        double s = Math.min(dw / DiagramView.W, dh / DiagramView.H) * 1.08;
+        double s = DiagramView.fit(dw, dh) * 1.08;
         Graphics2D d = (Graphics2D) g.create();
         d.translate((dw - DiagramView.W * s) / 2, (dh - DiagramView.H * s) / 2);
         d.scale(s, s);

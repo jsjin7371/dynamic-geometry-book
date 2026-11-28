@@ -290,7 +290,7 @@ public class ExploreBoard extends JComponent {
     }
 
     // ------------------------------------------------------------------ 그리기
-    private double scale() { return Math.min((getWidth() - 20) / DiagramView.W, (getHeight() - 20) / DiagramView.H); }
+    private double scale() { return DiagramView.fit(getWidth() - 20, getHeight() - 20); }
     private double ox() { return (getWidth() - DiagramView.W * scale()) / 2; }
     private double oy() { return (getHeight() - DiagramView.H * scale()) / 2; }
 

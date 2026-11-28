@@ -17,6 +17,9 @@ import java.util.Random;
  */
 public final class AssetBaker {
     private static final Color OL = new Color(0x3A2819);
+    private static final Color GOLD = new Color(0xD9B456);
+    /** 스테인드글라스 4색(파랑·빨강·노랑·초록). */
+    private static final Color[] GLASS = {new Color(0x3E6E9C), new Color(0xB5402E), new Color(0xE0B850), new Color(0x2F6E5E)};
     private static final int VERSION = 7;
 
     public static void main(String[] args) throws IOException {
@@ -46,7 +49,7 @@ public final class AssetBaker {
         suspect(dir, "pigeon", new Color(0x7E8594), new Color(0xE07A6A), AssetBaker::pigeon);
         suspect(dir, "cat", new Color(0x2B2B31), new Color(0xF4F1EA), AssetBaker::cat);
         suspect(dir, "mouse", new Color(0x7A5A3A), new Color(0x9C9CA8), AssetBaker::mouse);
-        suspect(dir, "fox", new Color(0x6E5A44), new Color(0x3A2819), AssetBaker::fox);
+        suspect(dir, "fox", new Color(0x6E5A44), OL, AssetBaker::fox);
         suspect(dir, "bat", new Color(0x4A3D55), new Color(0x6A5A78), AssetBaker::bat);
         suspect(dir, "hedgehog", new Color(0x8A6B4A), new Color(0xEBD3A6), AssetBaker::hedgehog);
         background(dir, "bg_garden", AssetBaker::garden);
@@ -116,8 +119,6 @@ public final class AssetBaker {
         return new Color((int) Math.min(255, c.getRed() * k), (int) Math.min(255, c.getGreen() * k), (int) Math.min(255, c.getBlue() * k));
     }
 
-    private static Color Theme_alpha(Color c, float a) { return new Color(c.getRed(), c.getGreen(), c.getBlue(), Math.round(a * 255)); }
-
     /** 용의자 전신: 공통 몸통(옷 색·발 색) 위에 상반신 그림을 얹는다. 얼굴 이미지도 함께 만든다. */
     private static void suspect(Path dir, String name, Color body, Color feet, Painter bust) throws IOException {
         character(dir, name, g -> {
@@ -149,7 +150,7 @@ public final class AssetBaker {
 
     private static void whiskers(Graphics2D g, Color c, double cx, double cy, double spread) {
         g.setColor(c);
-        g.setStroke(new BasicStroke(1.8f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(1.8f));
         for (int k = -1; k <= 1; k++) {
             g.draw(new Line2D.Double(cx - 14, cy + k * 5, cx - 14 - spread, cy + k * 9 - 2));
             g.draw(new Line2D.Double(cx + 14, cy + k * 5, cx + 14 + spread, cy + k * 9 - 2));
@@ -168,8 +169,8 @@ public final class AssetBaker {
         shoulders(g, new Color(0x6B7F3A));
         line(g, new Color(0x4E5E28), 6f, 140, 244, 146, 300);
         line(g, new Color(0x4E5E28), 6f, 220, 244, 214, 300);
-        shape(g, ell(146, 262, 10, 10), new Color(0xD9B456), 1.5f);
-        shape(g, ell(214, 262, 10, 10), new Color(0xD9B456), 1.5f);
+        shape(g, ell(146, 262, 10, 10), GOLD, 1.5f);
+        shape(g, ell(214, 262, 10, 10), GOLD, 1.5f);
         shape(g, ell(180, 188, 152, 136), fur, 3f);
         shape(g, ell(180, 214, 76, 48), furL, 2f);
         eye(g, 150, 180, 4.2);
@@ -177,9 +178,7 @@ public final class AssetBaker {
         shape(g, ell(180, 202, 36, 25), pink, 2.5f);
         g.setColor(new Color(255, 255, 255, 170));
         g.fill(ell(172, 196, 10, 6));
-        g.setColor(OL);
-        g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.draw(new Arc2D.Double(168, 214, 24, 14, 200, 140, Arc2D.OPEN));
+        smile(g, 168, 214, 24, 14);
         whiskers(g, new Color(0x3A2C25), 180, 214, 30);
         blush(g, 134, 226, 206);
         // 밀짚모자
@@ -212,7 +211,7 @@ public final class AssetBaker {
         shape(g, poly(166, 128, 170, 92, 184, 124), black, 3f);
         shape(g, poly(182, 124, 196, 96, 200, 130), black, 3f);
         shape(g, ell(176, 186, 140, 132), black, 3f);
-        g.setColor(Theme_alpha(sheen, 0.9f));
+        g.setColor(geomystery.ui.Theme.alpha(sheen, 0.9f));
         g.fill(rot(ell(150, 146, 52, 20), -28, 150, 146));
         g.setColor(new Color(255, 255, 255, 40));
         g.fill(rot(ell(146, 144, 26, 8), -28, 146, 144));
@@ -261,7 +260,7 @@ public final class AssetBaker {
         shape(g, ell(180, 112, 12, 10), new Color(0xE6BE55), 1.5f);
         // 빗자루 끝
         line(g, new Color(0x8A5A34), 6f, 252, 300, 268, 218);
-        shape(g, poly(260, 222, 278, 214, 286, 196, 266, 192), new Color(0xD9B456), 2f);
+        shape(g, poly(260, 222, 278, 214, 286, 196, 266, 192), GOLD, 2f);
     }
 
     // ------------------------------------------------------------------ 용의자: 고양이 집사 토크 (턱시도 고양이)
@@ -294,7 +293,7 @@ public final class AssetBaker {
         g.fill(ell(156, 179, 5, 5));
         g.fill(ell(212, 179, 5, 5));
         // 외눈 안경
-        g.setColor(new Color(0xD9B456));
+        g.setColor(GOLD);
         g.setStroke(new BasicStroke(4f));
         g.draw(ell(208, 184, 40, 40));
         g.setStroke(new BasicStroke(1.8f));
@@ -303,7 +302,7 @@ public final class AssetBaker {
         g.draw(chain);
         shape(g, poly(173, 204, 187, 204, 180, 213), pink, 2f);
         g.setColor(OL);
-        g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(2.2f));
         Path2D m = new Path2D.Double();
         m.moveTo(180, 213); m.lineTo(180, 218);
         m.moveTo(170, 220); m.quadTo(175, 225, 180, 218); m.quadTo(185, 225, 190, 220);
@@ -367,7 +366,7 @@ public final class AssetBaker {
         eye(g, 156, 182, 6.5);
         eye(g, 204, 182, 6.5);
         g.setColor(OL);
-        g.setStroke(new BasicStroke(2.4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(2.4f));
         g.draw(new Arc2D.Double(144, 168, 22, 12, 30, 120, Arc2D.OPEN));
         g.draw(new Arc2D.Double(194, 168, 22, 12, 30, 120, Arc2D.OPEN));
         shape(g, ell(180, 214, 16, 11), OL, 0);
@@ -411,8 +410,7 @@ public final class AssetBaker {
         g.setColor(OL);
         g.fill(ell(176, 208, 4, 4));
         g.fill(ell(184, 208, 4, 4));
-        g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.draw(new Arc2D.Double(164, 214, 32, 16, 200, 140, Arc2D.OPEN));
+        smile(g, 164, 214, 32, 16);
         shape(g, poly(169, 225, 175, 225, 172, 234), Color.WHITE, 1.4f);
         shape(g, poly(185, 225, 191, 225, 188, 234), Color.WHITE, 1.4f);
     }
@@ -421,8 +419,8 @@ public final class AssetBaker {
     static void hedgehog(Graphics2D g) {
         Color spine = new Color(0x7A5A3E), spineD = new Color(0x5E4430), face = new Color(0xEBD3A6);
         shoulders(g, new Color(0x8A6B4A));
-        g.setColor(new Color(0xD9B456));
-        g.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setColor(GOLD);
+        g.setStroke(round(5));
         Path2D rope = new Path2D.Double();
         rope.moveTo(132, 246); rope.quadTo(180, 270, 228, 246);
         g.draw(rope);
@@ -439,7 +437,7 @@ public final class AssetBaker {
         spikes.closePath();
         shape(g, spikes, spine, 3f);
         g.setColor(spineD);
-        g.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(2f));
         for (int i = 1; i < n; i += 2) {
             double a = Math.toRadians(160 + 220.0 * i / n);
             g.draw(new Line2D.Double(180 + 52 * Math.cos(a), 196 + 48 * Math.sin(a), 180 + 66 * Math.cos(a), 196 + 61 * Math.sin(a)));
@@ -452,9 +450,7 @@ public final class AssetBaker {
         shape(g, ell(180, 214, 18, 13), OL, 0);
         g.setColor(Color.WHITE);
         g.fill(ell(176, 210, 5, 4));
-        g.setColor(OL);
-        g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.draw(new Arc2D.Double(170, 218, 20, 12, 200, 140, Arc2D.OPEN));
+        smile(g, 170, 218, 20, 12);
         blush(g, 140, 220, 214);
         // 머리 위 작은 묵주알
         shape(g, ell(180, 118, 10, 10), new Color(0xB33A2A), 1.5f);
@@ -472,7 +468,7 @@ public final class AssetBaker {
         if (fill != null) { g.setColor(fill); g.fill(s); }
         if (stroke > 0) {
             g.setColor(OL);
-            g.setStroke(new BasicStroke(stroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g.setStroke(round(stroke));
             g.draw(s);
         }
     }
@@ -493,9 +489,18 @@ public final class AssetBaker {
         return p;
     }
 
+    private static BasicStroke round(float w) { return new BasicStroke(w, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND); }
+
+    /** 윤곽선 색의 둥근 미소 호(x, y, w, h 상자 안). */
+    private static void smile(Graphics2D g, double x, double y, double w, double h) {
+        g.setColor(OL);
+        g.setStroke(round(2.2f));
+        g.draw(new Arc2D.Double(x, y, w, h, 200, 140, Arc2D.OPEN));
+    }
+
     private static void line(Graphics2D g, Color c, float w, double x1, double y1, double x2, double y2) {
         g.setColor(c);
-        g.setStroke(new BasicStroke(w, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(w));
         g.draw(new Line2D.Double(x1, y1, x2, y2));
     }
 
@@ -534,7 +539,7 @@ public final class AssetBaker {
         tail.closePath();
         shape(g, tail, new Color(0xB5652B), 3f);
         g.setColor(new Color(0xD58F4E));
-        g.setStroke(new BasicStroke(9, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(9));
         Path2D hl = new Path2D.Double();
         hl.moveTo(306, 240); hl.curveTo(326, 290, 306, 356, 250, 390);
         g.draw(hl);
@@ -548,7 +553,7 @@ public final class AssetBaker {
         shape(g, body, coat, 3f);
         line(g, shade(coat, 0.77), 2.5f, 180, 330, 180, 448);
         for (int y : new int[]{350, 388, 424}) {
-            shape(g, ell(196, y, 10, 10), new Color(0xD9B456), 1.5f);
+            shape(g, ell(196, y, 10, 10), GOLD, 1.5f);
         }
         // 망토
         Path2D cape = new Path2D.Double();
@@ -563,14 +568,14 @@ public final class AssetBaker {
         shape(g, ell(256, 366, 22, 22), fur, 2.5f);
         g.setColor(new Color(255, 248, 220, 110));
         g.fill(ell(290, 318, 46, 46));
-        g.setColor(new Color(0xD9B456));
+        g.setColor(GOLD);
         g.setStroke(new BasicStroke(7));
         g.draw(ell(290, 318, 46, 46));
         g.setColor(OL);
         g.setStroke(new BasicStroke(2f));
         g.draw(ell(290, 318, 54, 54));
         g.setColor(new Color(255, 255, 255, 170));
-        g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(3));
         g.draw(new Arc2D.Double(276, 304, 26, 26, 100, 70, Arc2D.OPEN));
         // 나비넥타이
         shape(g, poly(180, 270, 160, 260, 160, 282), o.tie, 2f);
@@ -594,7 +599,7 @@ public final class AssetBaker {
         eye(g, 204, 184, 7.5);
         shape(g, ell(180, 201, 16, 11), OL, 0);
         g.setColor(OL);
-        g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(2.2f));
         Path2D m = new Path2D.Double();
         m.moveTo(180, 206); m.lineTo(180, 212);
         m.moveTo(170, 212); m.quadTo(180, 220, 190, 212);
@@ -642,7 +647,7 @@ public final class AssetBaker {
         line(g, OL, 2.5f, 142, 300, 150, 266);
         line(g, OL, 2.5f, 218, 300, 210, 266);
         shape(g, new RoundRectangle2D.Double(158, 344, 44, 32, 6, 6), new Color(0x8A5A2E), 2.5f);
-        g.setColor(new Color(0xD9B456));
+        g.setColor(GOLD);
         g.setStroke(new BasicStroke(3));
         g.draw(ell(172, 334, 10, 10));
         g.draw(new Line2D.Double(177, 334, 192, 334));
@@ -679,7 +684,7 @@ public final class AssetBaker {
         shape(g, ell(148, 214, 60, 40), white, 0);
         shape(g, ell(212, 214, 60, 40), white, 0);
         // 안경
-        g.setColor(new Color(0xD9B456));
+        g.setColor(GOLD);
         g.setStroke(new BasicStroke(4));
         g.draw(ell(150, 180, 38, 38));
         g.draw(ell(210, 180, 38, 38));
@@ -707,7 +712,7 @@ public final class AssetBaker {
         shape(g, ell(180, 352, 196, 214), feather, 3f);
         shape(g, ell(180, 372, 126, 156), belly, 2f);
         g.setColor(new Color(0xC9B088));
-        g.setStroke(new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(2.5f));
         for (int r = 0; r < 4; r++) {
             for (int c = -1; c <= 1; c++) {
                 double x = 180 + c * 26 + (r % 2) * 13 - 6, y = 320 + r * 30;
@@ -719,12 +724,12 @@ public final class AssetBaker {
         // 컴퍼스(제도 도구)
         line(g, new Color(0xB8903A), 6f, 286, 300, 262, 410);
         line(g, new Color(0xB8903A), 6f, 286, 300, 306, 410);
-        shape(g, ell(286, 296, 16, 16), new Color(0xD9B456), 2f);
+        shape(g, ell(286, 296, 16, 16), GOLD, 2f);
         line(g, OL, 2f, 262, 410, 262, 420);
         // 스카프
         shape(g, new RoundRectangle2D.Double(110, 246, 140, 30, 18, 18), new Color(0x2F5E50), 3f);
         shape(g, poly(196, 262, 222, 262, 232, 338, 210, 334), new Color(0x2F5E50), 3f);
-        line(g, new Color(0xD9B456), 3f, 214, 322, 228, 324);
+        line(g, GOLD, 3f, 214, 322, 228, 324);
         // 머리
         shape(g, poly(104, 132, 108, 66, 146, 112), feather, 3f);
         shape(g, poly(256, 132, 252, 66, 214, 112), feather, 3f);
@@ -745,8 +750,8 @@ public final class AssetBaker {
         // 학자 모자
         shape(g, poly(110, 88, 180, 62, 250, 88, 180, 112), new Color(0x2F2A26), 3f);
         shape(g, new Rectangle2D.Double(150, 92, 60, 22), new Color(0x2F2A26), 3f);
-        line(g, new Color(0xD9B456), 3f, 238, 90, 246, 128);
-        shape(g, ell(246, 132, 10, 12), new Color(0xD9B456), 1.5f);
+        line(g, GOLD, 3f, 238, 90, 246, 128);
+        shape(g, ell(246, 132, 10, 12), GOLD, 1.5f);
     }
 
     // ------------------------------------------------------------------ 토르투 수도사 (거북이)
@@ -778,15 +783,15 @@ public final class AssetBaker {
         line(g, new Color(0x5F3E24), 2.5f, 150, 300, 140, 446);
         line(g, new Color(0x5F3E24), 2.5f, 210, 300, 220, 446);
         // 허리끈
-        g.setColor(new Color(0xD9B456));
-        g.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setColor(GOLD);
+        g.setStroke(round(6));
         Path2D rope = new Path2D.Double();
         rope.moveTo(112, 362); rope.quadTo(180, 376, 250, 362);
         g.draw(rope);
         g.draw(new Line2D.Double(200, 370, 206, 420));
         g.fill(ell(206, 424, 12, 12));
         // 삼각자를 든 손
-        shape(g, poly(130, 296, 236, 296, 130, 364), new Color(0xD9B456), 3f);
+        shape(g, poly(130, 296, 236, 296, 130, 364), GOLD, 3f);
         shape(g, poly(146, 308, 196, 308, 146, 342), robe, 2f);
         shape(g, ell(132, 330, 26, 26), skin, 2.5f);
         shape(g, ell(226, 302, 26, 26), skin, 2.5f);
@@ -803,11 +808,11 @@ public final class AssetBaker {
         eye(g, 158, 186, 7);
         eye(g, 202, 186, 7);
         g.setColor(skin.darker());
-        g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(3));
         g.draw(new Arc2D.Double(146, 170, 24, 14, 20, 140, Arc2D.OPEN));
         g.draw(new Arc2D.Double(190, 170, 24, 14, 20, 140, Arc2D.OPEN));
         g.setColor(OL);
-        g.setStroke(new BasicStroke(2.4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(2.4f));
         g.draw(new Arc2D.Double(166, 204, 28, 16, 200, 140, Arc2D.OPEN));
         g.setColor(new Color(229, 140, 110, 80));
         g.fill(ell(140, 210, 18, 10));
@@ -875,7 +880,7 @@ public final class AssetBaker {
             g.draw(new RoundRectangle2D.Double(x - 8, y - 60, 16, 70, 6, 6));
             if (i % 3 != 1) {
                 g.setColor(new Color(0xE9D7A9));
-                g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g.setStroke(round(3));
                 g.draw(new QuadCurve2D.Double(x + 8, y - 40, x + 30, y - 20, x + 40, y - 6));
             }
         }
@@ -930,15 +935,15 @@ public final class AssetBaker {
         for (int x : new int[]{580, 1020}) {
             g.setColor(new Color(255, 220, 140, 40));
             g.fill(ell(x, 130, 110, 110));
-            line(g, new Color(0x3A2819), 3, x, 0, x, 92);
+            line(g, OL, 3, x, 0, x, 92);
             shape(g, poly(x - 22, 96, x + 22, 96, x + 15, 140, x - 15, 140), new Color(0xF2C75A), 4f);
         }
         // 대형 시계
-        g.setColor(new Color(0x3A2819));
+        g.setColor(OL);
         g.fill(ell(800, 250, 470, 470));
         g.setColor(new Color(0xF3D88A));
         g.fill(ell(800, 250, 420, 420));
-        g.setColor(new Color(0xD9B456));
+        g.setColor(GOLD);
         g.setStroke(new BasicStroke(4));
         g.draw(ell(800, 250, 376, 376));
         g.setColor(new Color(0x9A6B3C));
@@ -964,7 +969,7 @@ public final class AssetBaker {
                 x += w + 3;
             }
         }
-        g.setColor(new Color(0xD9B456));
+        g.setColor(GOLD);
         g.setStroke(new BasicStroke(6));
         g.draw(ell(1350, 260, 46, 46));
         // 바닥
@@ -991,15 +996,14 @@ public final class AssetBaker {
         for (int x : new int[]{230, 1370}) {
             g.setColor(new Color(0x4A443B));
             g.fill(poly(x - 90, 470, x - 90, 210, x, 90, x + 90, 210, x + 90, 470));
-            Color[] glass = {new Color(0x3E6E9C), new Color(0xB5402E), new Color(0xE0B850), new Color(0x2F6E5E)};
             int k = 0;
             for (int row = 0; row < 4; row++) {
                 for (int col = 0; col < 2; col++) {
-                    g.setColor(glass[(k++) % glass.length]);
+                    g.setColor(GLASS[(k++) % GLASS.length]);
                     g.fill(new Rectangle2D.Double(x - 72 + col * 74, 220 + row * 60, 70, 56));
                 }
             }
-            g.setColor(glass[2]);
+            g.setColor(GLASS[2]);
             g.fill(poly(x - 72, 212, x, 110, x + 72, 212));
             g.setColor(new Color(0x2E2A24));
             g.setStroke(new BasicStroke(5));
@@ -1010,7 +1014,7 @@ public final class AssetBaker {
         g.fill(poly(800, 70, 1050, 520, 550, 520));
         sierpinski(g, 800, 70, 1040, 470, 560, 470, 4);
         g.setColor(new Color(0x2E2A24));
-        g.setStroke(new BasicStroke(8, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(8));
         g.draw(poly(800, 70, 1040, 470, 560, 470));
         // 촛대
         for (int x : new int[]{470, 1130}) {
@@ -1077,7 +1081,7 @@ public final class AssetBaker {
         eye(g, 204, 184, 6.5);
         shape(g, ell(180, 214, 18, 12), OL, 0);
         g.setColor(OL);
-        g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(2.2f));
         g.draw(new Arc2D.Double(170, 222, 20, 12, 200, 140, Arc2D.OPEN));
         whiskers(g, new Color(0x5A5650), 180, 222, 26);
         blush(g, 134, 226, 214);
@@ -1108,7 +1112,7 @@ public final class AssetBaker {
         eye(g, 202, 190, 7.5);
         shape(g, poly(172, 210, 188, 210, 180, 220), pink, 2f);
         g.setColor(OL);
-        g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(2.2f));
         g.draw(new Line2D.Double(180, 220, 180, 228));
         g.draw(new Arc2D.Double(168, 222, 12, 12, 200, 140, Arc2D.OPEN));
         g.draw(new Arc2D.Double(180, 222, 12, 12, 200, 140, Arc2D.OPEN));
@@ -1141,11 +1145,11 @@ public final class AssetBaker {
         shape(g, face, light, 0);
         eye(g, 156, 186, 6);
         eye(g, 204, 186, 6);
-        shape(g, ell(180, 210, 26, 16), new Color(0x3A2819), 0);
+        shape(g, ell(180, 210, 26, 16), OL, 0);
         g.setColor(new Color(255, 255, 255, 120));
         g.fill(ell(174, 206, 8, 4));
         g.setColor(OL);
-        g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(2.2f));
         g.draw(new Arc2D.Double(168, 218, 24, 14, 200, 140, Arc2D.OPEN));
         whiskers(g, new Color(0x5A3C26), 180, 220, 30);
         blush(g, 136, 224, 214);
@@ -1182,7 +1186,7 @@ public final class AssetBaker {
         g.draw(new Line2D.Double(173, 190, 187, 190));
         shape(g, ell(180, 222, 22, 12), new Color(0x8A6A58), 0);
         g.setColor(OL);
-        g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(2.2f));
         g.draw(new Arc2D.Double(170, 226, 20, 12, 200, 140, Arc2D.OPEN));
         blush(g, 140, 220, 220);
         // 귀 뒤에 꽂은 깃펜
@@ -1210,7 +1214,7 @@ public final class AssetBaker {
         g.setPaint(new GradientPaint(0, 0, new Color(0x1E2340), 0, 520, new Color(0x34304E)));
         g.fillRect(0, 0, 1600, 640);
         // 돔 갈빗대(꼭대기로 모이는 곡선)
-        g.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(6));
         for (int i = -6; i <= 6; i++) {
             if (Math.abs(i) <= 1) continue;
             double x = 800 + i * 140;
@@ -1219,7 +1223,7 @@ public final class AssetBaker {
             g.setColor(new Color(0x47436A));
             g.setStroke(new BasicStroke(2));
             g.draw(new QuadCurve2D.Double(x + 6, 520, 800 + i * 60 + 4, 120, 800, -160));
-            g.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g.setStroke(round(6));
         }
         g.setColor(new Color(0x26243F));
         g.fillRect(0, 470, 1600, 50);
@@ -1274,7 +1278,7 @@ public final class AssetBaker {
         t.dispose();
         // 받침대(삼각대)
         g.setColor(new Color(0x5A3A22));
-        g.setStroke(new BasicStroke(12, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(round(12));
         g.draw(new Line2D.Double(820, 430, 740, 560));
         g.draw(new Line2D.Double(820, 430, 900, 560));
         g.draw(new Line2D.Double(820, 430, 822, 570));
@@ -1309,9 +1313,8 @@ public final class AssetBaker {
 
     private static void sierpinski(Graphics2D g, double ax, double ay, double bx, double by, double cx, double cy, int depth) {
         if (depth == 0) {
-            Color[] cs = {new Color(0x3E6E9C), new Color(0xB5402E), new Color(0xE0B850), new Color(0x2F6E5E)};
-            int k = (int) Math.abs((ax * 7 + ay * 13) / 10) % cs.length;
-            g.setColor(cs[k]);
+            int k = (int) Math.abs((ax * 7 + ay * 13) / 10) % GLASS.length;
+            g.setColor(GLASS[k]);
             g.fill(poly(ax, ay, bx, by, cx, cy));
             g.setColor(new Color(0x2E2A24));
             g.setStroke(new BasicStroke(3));
@@ -1337,9 +1340,9 @@ public final class AssetBaker {
     private static void appIcon(Path dir) throws IOException {
         BufferedImage im = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = hq(im);
-        g.setColor(new Color(0x3A2819));
+        g.setColor(OL);
         g.fill(new RoundRectangle2D.Double(8, 8, 240, 240, 56, 56));
-        g.setColor(new Color(0xD9B456));
+        g.setColor(GOLD);
         g.setStroke(new BasicStroke(8));
         g.draw(ell(128, 128, 170, 170));
         Path2D s = new Path2D.Double();

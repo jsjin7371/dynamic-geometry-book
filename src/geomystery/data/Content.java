@@ -232,7 +232,7 @@ public final class Content {
     }
 
     /** 공백으로 구분하되 '작은따옴표'로 감싼 토큰은 하나로 취급한다. */
-    static String[] tokenize(String s) {
+    public static String[] tokenize(String s) {
         List<String> out = new ArrayList<>();
         if (s == null) return new String[0];
         StringBuilder cur = new StringBuilder();

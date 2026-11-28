@@ -126,10 +126,7 @@ public final class Game {
         return n;
     }
 
-    public Lesson lessonForTheorem(String theoremId) {
-        for (Lesson l : content.lessons) if (theoremId.equals(l.theoremId)) return l;
-        return null;
-    }
+    public Lesson lessonForTheorem(String theoremId) { return content.lessonOfTheorem(theoremId); }
 
     // ------------------------------------------------------------------ 등불(하트)
     public int lanterns() {
@@ -210,16 +207,16 @@ public final class Game {
 
     public String title() { return titleFor(level()); }
 
+    /** 레벨 lv 다음에 칭호가 바뀌는 레벨. */
+    private static int nextTitleLevel(int lv) { return lv < 10 ? 10 : lv < 20 ? 20 : 30; }
+
     public String nextTitle() {
         int lv = level();
-        if (lv >= 30) return null;
-        return titleFor(lv < 10 ? 10 : lv < 20 ? 20 : 30);
+        return lv >= 30 ? null : titleFor(nextTitleLevel(lv));
     }
 
     public int xpToNextTitle() {
-        int lv = level();
-        int target = lv < 10 ? 10 : lv < 20 ? 20 : 30;
-        return (target - 1) * XP_PER_LEVEL - save.xp;
+        return (nextTitleLevel(level()) - 1) * XP_PER_LEVEL - save.xp;
     }
 
     // ------------------------------------------------------------------ 오늘의 의뢰
@@ -329,8 +326,9 @@ public final class Game {
         return rows;
     }
 
-    public int myRank() {
-        List<LeagueRow> rows = league();
+    public int myRank() { return rankOf(league()); }
+
+    private static int rankOf(List<LeagueRow> rows) {
         for (int i = 0; i < rows.size(); i++) if (rows.get(i).me) return i + 1;
         return rows.size();
     }
@@ -354,23 +352,21 @@ public final class Game {
         if (!last.isBefore(monday)) return;
         int before = tier();
         List<LeagueRow> rows = league(last, 6, before);
-        int rank = rows.size();
-        for (int i = 0; i < rows.size(); i++) if (rows.get(i).me) rank = i + 1;
+        int rank = rankOf(rows);
         int t = before;
-        String what;
-        if (rank <= PROMOTE_RANK && t < TIERS.length - 1) { t++; what = "승급"; }
-        else if (rank >= demoteRank() && t > 0) { t--; what = "강등"; }
-        else what = "유지";
+        int delta = 0; // +1 승급, -1 강등
+        if (rank <= PROMOTE_RANK && t < TIERS.length - 1) { t++; delta = 1; }
+        else if (rank >= demoteRank() && t > 0) { t--; delta = -1; }
         boolean skipped = ChronoUnit.WEEKS.between(last, monday) > 1;
-        if (skipped && t > 0 && !"승급".equals(what)) { t--; what = "강등"; }
+        if (skipped && t > 0 && delta <= 0) { t--; delta = -1; }
         save.leagueTier = t;
         save.leagueWeek = monday.toString();
         String msg = "지난주 " + TIERS[before] + " 리그 " + rank + "위 — ";
-        if ("승급".equals(what)) msg += TIERS[t] + " 리그로 승급했습니다!";
-        else if ("강등".equals(what)) msg += TIERS[t] + " 리그로 내려갔습니다." + (skipped ? " (쉬는 동안 순위가 밀렸어요)" : "");
+        if (delta > 0) msg += TIERS[t] + " 리그로 승급했습니다!";
+        else if (delta < 0) msg += TIERS[t] + " 리그로 내려갔습니다." + (skipped ? " (쉬는 동안 순위가 밀렸어요)" : "");
         else msg += TIERS[t] + " 리그에 머뭅니다.";
         save.leagueNotice = msg;
-        if ("승급".equals(what)) save.tokens += 2;
+        if (delta > 0) save.tokens += 2;
         save.save();
     }
 

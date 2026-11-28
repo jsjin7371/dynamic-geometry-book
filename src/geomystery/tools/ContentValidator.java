@@ -1,16 +1,21 @@
 package geomystery.tools;
 
+import geomystery.App;
 import geomystery.data.Content;
 import geomystery.data.Csv;
 import geomystery.data.Model.*;
 import geomystery.diagram.DiagramView;
 import geomystery.game.Expr;
 import geomystery.game.Game;
+import geomystery.ui.ExploreBoard;
 
+import java.awt.geom.Point2D;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * data/*.csv 콘텐츠 검사기. 사건·수수께끼를 추가한 뒤 실행해 깨진 참조나 잘못된 정답을 찾는다.
@@ -41,6 +46,9 @@ public final class ContentValidator {
     private static final Set<String> QUEST_TYPES = new HashSet<>(Arrays.asList("solve", "nohint", "aux", "lesson", "xp", "review"));
     private static final Set<String> BADGE_STATS = new HashSet<>(Arrays.asList("aux_total", "nohint_best", "streak_best",
             "lessons_done", "perfect_lessons", "chapters_done", "cards", "solved_total", "finales", "league_tier"));
+    private static final Set<String> MOVE_KINDS = new HashSet<>(Arrays.asList("free", "hline", "vline", "circle", "arc"));
+    private static final Set<String> PANEL_KINDS = new HashSet<>(Arrays.asList(Confession.MOTIVE, Confession.METHOD, Confession.ARREST));
+    private static final Set<String> SCENES = new HashSet<>(Arrays.asList("channel", "gear", "rope", "disc"));
     private static final Set<String> EMOTIONS = new HashSet<>(Arrays.asList("happy", "surprised", "puzzled", "worried", "angry"));
     private static final Set<String> TYPES = new HashSet<>(Arrays.asList(
             Puzzle.NUMBER, Puzzle.CHOICE, Puzzle.ORDER, Puzzle.TF, Puzzle.EXPR));
@@ -114,15 +122,15 @@ public final class ContentValidator {
             List<Cmd> sc = c.diagrams.get(x.diagram);
             if (sc == null) { err("explore.csv", w, "없는 도형: " + x.diagram); continue; }
             usedDiagrams.add(x.diagram);
-            Map<String, java.awt.geom.Point2D.Double> pts = DiagramView.points(sc);
+            Map<String, Point2D.Double> pts = DiagramView.points(sc);
             if (x.drags.isEmpty()) err("explore.csv", w, "끌 수 있는 점(drag)이 없습니다");
             for (Drag d : x.drags) {
                 if (!pts.containsKey(d.point)) err("explore.csv", w, "도형에 없는 점: " + d.point);
-                if (!Arrays.asList("free", "hline", "vline", "circle", "arc").contains(d.kind)) err("explore.csv", w, "모르는 움직임: " + d.kind);
+                if (!MOVE_KINDS.contains(d.kind)) err("explore.csv", w, "모르는 움직임: " + d.kind);
                 if (("circle".equals(d.kind) || "arc".equals(d.kind)) && (d.center == null || !pts.containsKey(d.center))) err("explore.csv", w, d.point + "의 원 중심이 없습니다");
                 if ("arc".equals(d.kind) && d.args.length != 2) err("explore.csv", w, d.point + ": arc 는 시작각과 끝각이 필요합니다");
             }
-            geomystery.ui.ExploreBoard probe = new geomystery.ui.ExploreBoard(sc, x, null);
+            ExploreBoard probe = new ExploreBoard(sc, x, null);
             String rel = probe.relationText();
             if (rel.contains("?")) err("explore.csv", w, "관계식을 계산하지 못한 부분이 있습니다: " + rel);
         }
@@ -136,10 +144,10 @@ public final class ContentValidator {
             if (!c.hasFinale(l)) warn("confessions.csv", l.id, "최종 추리가 없는 사건이라 자백 만화가 나오지 않습니다");
             for (Confession cf : e.getValue()) {
                 String w = l.id + "#" + cf.panel;
-                if (!Arrays.asList(Confession.MOTIVE, Confession.METHOD, Confession.ARREST).contains(cf.kind)) err("confessions.csv", w, "모르는 칸 종류: " + cf.kind + " (motive|method|arrest)");
+                if (!PANEL_KINDS.contains(cf.kind)) err("confessions.csv", w, "모르는 칸 종류: " + cf.kind + " (motive|method|arrest)");
                 if (Confession.METHOD.equals(cf.kind)) {
                     // 수법 칸: 범행 장면 이름(channel|gear|rope|disc) 또는 칠판에 그릴 도형 이름
-                    if (!java.util.Arrays.asList("channel", "gear", "rope", "disc").contains(cf.prop)) {
+                    if (!SCENES.contains(cf.prop)) {
                         if (!c.diagrams.containsKey(cf.prop)) err("confessions.csv", w, "수법 칸의 장면(channel|gear|rope|disc)이나 도형이 없습니다: " + cf.prop);
                         usedDiagrams.add(cf.prop);
                     }
@@ -197,13 +205,13 @@ public final class ContentValidator {
      * 따옴표 없이 쓴 쉼표가 칸을 밀어 내면 뒤쪽 칸(예: puzzles.csv 의 feedback)이 조용히 사라지기 때문이다.
      */
     private void columnCounts(Path data) {
-        try (java.util.stream.Stream<Path> files = Files.list(data)) {
+        try (Stream<Path> files = Files.list(data)) {
             List<Path> csvs = new ArrayList<>();
             files.filter(x -> x.getFileName().toString().endsWith(".csv")).sorted().forEach(csvs::add);
             for (Path file : csvs) {
                 String name = file.getFileName().toString();
                 try {
-                    List<List<String>> rows = Csv.parse(new String(Files.readAllBytes(file), java.nio.charset.StandardCharsets.UTF_8));
+                    List<List<String>> rows = Csv.parse(new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
                     if (rows.isEmpty()) continue;
                     int cols = rows.get(0).size();
                     for (int i = 1; i < rows.size(); i++) {
@@ -328,7 +336,7 @@ public final class ContentValidator {
 
     // ------------------------------------------------------------------
     public static void main(String[] args) {
-        Path home = args.length > 0 ? Paths.get(args[0]) : findHome();
+        Path home = args.length > 0 ? Paths.get(args[0]) : App.home();
         List<Issue> list = run(home.toAbsolutePath());
         int errors = 0, warns = 0;
         for (Issue i : list) {
@@ -339,12 +347,5 @@ public final class ContentValidator {
         System.out.println(errors == 0 ? "콘텐츠 검사 통과" : "콘텐츠 검사 실패");
         System.out.println("오류 " + errors + "개, 주의 " + warns + "개  (" + home.toAbsolutePath().resolve("data") + ")");
         System.exit(errors == 0 ? 0 : 1);
-    }
-
-    static Path findHome() {
-        for (Path c = Paths.get("").toAbsolutePath(); c != null; c = c.getParent()) {
-            if (Files.exists(c.resolve("data/chapters.csv"))) return c;
-        }
-        return Paths.get("").toAbsolutePath();
     }
 }

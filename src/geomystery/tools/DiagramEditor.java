@@ -108,7 +108,7 @@ public final class DiagramEditor extends JFrame {
         JPanel mid = new JPanel(new BorderLayout(0, 6));
         mid.setBorder(BorderFactory.createEmptyBorder(8, 4, 8, 4));
         JLabel help = new JLabel("<html><body style='width:440px'>한 줄 = <b>레이어 명령 인자…</b> &nbsp;예) <tt>base pt A 170 130</tt>, <tt>aux seg A B gold 2d</tt>"
-                + "<br>명령: pt polar along offset vec foot apex · seg line ray arrow circle arc angle right tick parallel len tag text fill dot dial hand hub</html>");
+                + "<br>명령: " + String.join(" ", DiagramView.DEFINE_OPS) + " · " + String.join(" ", DiagramView.DRAW_OPS) + "</html>");
         mid.add(help, BorderLayout.NORTH);
         mid.add(new JScrollPane(editor), BorderLayout.CENTER);
         JPanel south = new JPanel(new BorderLayout(0, 4));
@@ -205,26 +205,10 @@ public final class DiagramEditor extends JFrame {
             Cmd c = new Cmd();
             c.layer = r[0];
             c.op = r[1];
-            c.args = tokenize(r[2]);
+            c.args = Content.tokenize(r[2]);
             out.add(c);
         }
         return out;
-    }
-
-    /** Content.tokenize 와 같은 규칙('작은따옴표' 묶음). */
-    private static String[] tokenize(String s) {
-        List<String> out = new ArrayList<>();
-        StringBuilder cur = new StringBuilder();
-        boolean q = false, has = false;
-        for (char ch : s.toCharArray()) {
-            if (q) { if (ch == '\'') q = false; else cur.append(ch); }
-            else if (ch == '\'') { q = true; has = true; }
-            else if (Character.isWhitespace(ch)) {
-                if (has || cur.length() > 0) { out.add(cur.toString()); cur.setLength(0); has = false; }
-            } else { cur.append(ch); has = true; }
-        }
-        if (has || cur.length() > 0) out.add(cur.toString());
-        return out.toArray(new String[0]);
     }
 
     /** 이 도형의 줄만 바꿔 diagrams.csv 를 다시 쓴다(첫 등장 위치에 새 묶음, 나머지 줄·주석은 그대로). */
@@ -428,7 +412,7 @@ public final class DiagramEditor extends JFrame {
 
         void setScript(List<Cmd> s) { sc = s; repaint(); }
 
-        private double scale() { return Math.min(getWidth() / DiagramView.W, getHeight() / DiagramView.H); }
+        private double scale() { return DiagramView.fit(getWidth(), getHeight()); }
         private double ox() { return (getWidth() - DiagramView.W * scale()) / 2; }
         private double oy() { return (getHeight() - DiagramView.H * scale()) / 2; }
 
@@ -489,7 +473,7 @@ public final class DiagramEditor extends JFrame {
     // ------------------------------------------------------------------
     public static void main(String[] args) throws Exception {
         System.setProperty("awt.useSystemAAFontSettings", "on");
-        java.nio.file.Path home = args.length > 0 ? java.nio.file.Paths.get(args[0]) : ContentValidator.findHome();
+        java.nio.file.Path home = args.length > 0 ? java.nio.file.Paths.get(args[0]) : geomystery.App.home();
         SwingUtilities.invokeLater(() -> {
             try {
                 Theme.loadFonts(home.resolve("assets/fonts"));

@@ -834,7 +834,7 @@ final class ConfessionComic {
             g.fillRect(0, 0, (int) w + 1, (int) h + 1);
             List<Cmd> script = game.content.diagrams.get(cf.prop);
             if (script != null) {
-                double s = Math.min(w * 0.70 / DiagramView.W, (h - 60) / DiagramView.H);
+                double s = DiagramView.fit(w * 0.70, h - 60);
                 Graphics2D d = (Graphics2D) g.create();
                 d.translate(w * 0.28 + (w * 0.70 - DiagramView.W * s) / 2, (h - DiagramView.H * s) / 2 + 14);
                 d.scale(s, s);
