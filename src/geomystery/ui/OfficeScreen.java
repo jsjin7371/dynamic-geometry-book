@@ -409,9 +409,9 @@ public class OfficeScreen extends JPanel {
                 if (have) {
                     // 리본과 메달
                     g.setColor(new Color(0xA33A28));
-                    g.fill(poly(cx - r * 0.55, cy - r * 1.6, cx - r * 0.05, cy - r * 1.6, cx - r * 0.25, cy - r * 0.6, cx - r * 0.75, cy - r * 0.6));
+                    g.fill(Ui.poly(cx - r * 0.55, cy - r * 1.6, cx - r * 0.05, cy - r * 1.6, cx - r * 0.25, cy - r * 0.6, cx - r * 0.75, cy - r * 0.6));
                     g.setColor(new Color(0x2F5E4F));
-                    g.fill(poly(cx + r * 0.05, cy - r * 1.6, cx + r * 0.55, cy - r * 1.6, cx + r * 0.75, cy - r * 0.6, cx + r * 0.25, cy - r * 0.6));
+                    g.fill(Ui.poly(cx + r * 0.05, cy - r * 1.6, cx + r * 0.55, cy - r * 1.6, cx + r * 0.75, cy - r * 0.6, cx + r * 0.25, cy - r * 0.6));
                     g.setColor(Theme.GOLD);
                     g.fill(new Ellipse2D.Double(cx - r, cy - r, r * 2, r * 2));
                     g.setColor(new Color(0xF2D27A));
@@ -627,14 +627,6 @@ public class OfficeScreen extends JPanel {
             String tip = !open ? "아직 만나지 못한 인물" : n.name + " · " + n.role + " · 호감도 " + hearts + "/" + Game.HEARTS
                     + (epi ? " — 눌러서 후일담 보기" : " — 그 장의 사건을 모두 풀고 범인을 밝히면 후일담이 열려요");
             bSpots.add(new Spot(new Ellipse2D.Double(cx - fs / 2 - 2, y - 2, fs + 4, fs + 4), "npc", n.id, tip));
-        }
-
-        private Path2D poly(double... xy) {
-            Path2D p = new Path2D.Double();
-            p.moveTo(xy[0], xy[1]);
-            for (int i = 2; i < xy.length; i += 2) p.lineTo(xy[i], xy[i + 1]);
-            p.closePath();
-            return p;
         }
     }
 }

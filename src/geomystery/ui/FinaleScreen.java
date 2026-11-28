@@ -74,9 +74,7 @@ public class FinaleScreen extends JPanel {
         tr.add(mistakesLabel);
         lanternPill = new Widgets.Pill("lantern", "", Widgets.Pill.Kind.DARK);
         tr.add(lanternPill);
-        JPanel trWrap = Ui.clear(new GridBagLayout());
-        trWrap.add(tr);
-        top.add(trWrap, BorderLayout.EAST);
+        top.add(Ui.center(tr), BorderLayout.EAST);
         add(top, BorderLayout.NORTH);
 
         JPanel body = Ui.clear(new GridBagLayout());
@@ -545,11 +543,7 @@ public class FinaleScreen extends JPanel {
             add(t, BorderLayout.CENTER);
             addMouseListener(new MouseAdapter() {
                 @Override public void mouseClicked(MouseEvent e) {
-                    if (solved) return;
-                    pickedLine = f;
-                    Sfx.play("select");
-                    bubble.setText(speakerName(f.speaker) + "의 증언을 골랐어. 이 말과 모순되는 정리 카드는 무엇일까?");
-                    rebuild();
+                    pickTestimony(testimonies.indexOf(f));
                 }
             });
         }

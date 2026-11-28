@@ -188,6 +188,15 @@ public final class Ui {
     }
 
     // ----------------------------------------------------------- 레이아웃
+    /** 꼭짓점을 이은 닫힌 다각형. */
+    public static java.awt.geom.Path2D poly(double... xy) {
+        java.awt.geom.Path2D p = new java.awt.geom.Path2D.Double();
+        p.moveTo(xy[0], xy[1]);
+        for (int i = 2; i < xy.length; i += 2) p.lineTo(xy[i], xy[i + 1]);
+        p.closePath();
+        return p;
+    }
+
     /** 커스텀 페인팅과 같은 렌더링 힌트로 글자를 그리는 라벨. */
     public static class AALabel extends JLabel {
         public AALabel(String text) { super(text); }
@@ -242,6 +251,13 @@ public final class Ui {
     public static JPanel clear(LayoutManager lm) {
         JPanel p = new JPanel(lm);
         p.setOpaque(false);
+        return p;
+    }
+
+    /** 컴포넌트를 (크기를 늘리지 않고) 가운데에 두는 투명 패널. */
+    public static JPanel center(Component c) {
+        JPanel p = clear(new GridBagLayout());
+        p.add(c);
         return p;
     }
 

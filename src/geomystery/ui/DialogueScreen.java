@@ -376,10 +376,9 @@ public class DialogueScreen extends JPanel {
             BufferedImage orig = Ui.img(id);
             if (orig == null) return null;
             return dimmed.computeIfAbsent(id + "@" + System.identityHashCode(orig), k -> {
-                BufferedImage src = orig;
-                BufferedImage copy = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                BufferedImage copy = new BufferedImage(orig.getWidth(), orig.getHeight(), BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g = copy.createGraphics();
-                g.drawImage(src, 0, 0, null);
+                g.drawImage(orig, 0, 0, null);
                 g.dispose();
                 return new RescaleOp(new float[]{0.62f, 0.58f, 0.55f, 1f}, new float[4], null).filter(copy, null);
             });
@@ -391,12 +390,11 @@ public class DialogueScreen extends JPanel {
             int w = getWidth(), h = getHeight();
             g.setColor(new Color(0x5A3A22));
             g.fillRect(0, 0, w, h);
+            double s0 = bg == null ? 1 : Math.max(w / (double) bg.getWidth(), h / (double) bg.getHeight());
             if (bg != null) {
-                double s = Math.max(w / (double) bg.getWidth(), h / (double) bg.getHeight());
-                int bw = (int) (bg.getWidth() * s), bh = (int) (bg.getHeight() * s);
+                int bw = (int) (bg.getWidth() * s0), bh = (int) (bg.getHeight() * s0);
                 Ui.drawScaled(g, bg, (w - bw) / 2.0, h - bh, bw, bh);
             }
-            double s0 = bg == null ? 1 : Math.max(w / (double) bg.getWidth(), h / (double) bg.getHeight());
             double bx0 = bg == null ? 0 : (w - bg.getWidth() * s0) / 2, by0 = bg == null ? 0 : h - bg.getHeight() * s0;
             double bs = bg == null ? 1 : s0 * bg.getWidth() / 1600.0;
             double tt = System.currentTimeMillis() / 1000.0;

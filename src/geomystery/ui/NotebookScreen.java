@@ -117,12 +117,7 @@ public class NotebookScreen extends JPanel {
         JPanel nameRow = Ui.hbox();
         nameRow.setAlignmentX(LEFT_ALIGNMENT);
         nameField = new JTextField(14);
-        nameField.setFont(Theme.xbold(22));
-        nameField.setForeground(Theme.INK);
-        nameField.setBackground(Theme.c(0xFFFBF2));
-        nameField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Theme.BORDER, 1, true), BorderFactory.createEmptyBorder(6, 10, 6, 10)));
-        nameField.setMaximumSize(new Dimension(280, 46));
+        styleField(nameField, Theme.xbold(22), 280, 46);
         nameField.addActionListener(e -> saveName());
         nameRow.add(nameField);
         nameRow.add(Ui.hgap(10));
@@ -309,7 +304,14 @@ public class NotebookScreen extends JPanel {
         add(body, BorderLayout.CENTER);
     }
 
-    private interface IntAction { void run(int i); }
+    private static void styleField(JTextField f, Font font, int maxW, int maxH) {
+        f.setFont(font);
+        f.setForeground(Theme.INK);
+        f.setBackground(Theme.c(0xFFFBF2));
+        f.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Theme.BORDER, 1, true), BorderFactory.createEmptyBorder(6, 10, 6, 10)));
+        f.setMaximumSize(new Dimension(maxW, maxH));
+    }
 
     private static RoundPanel section(String title) {
         RoundPanel p = new RoundPanel(null, Theme.PAPER, Theme.BORDER, 14).borderWidth(2f);
@@ -321,14 +323,14 @@ public class NotebookScreen extends JPanel {
         return p;
     }
 
-    private static RoundPanel segmented(String[] names, Btn[] out, IntAction act) {
+    private static RoundPanel segmented(String[] names, Btn[] out, java.util.function.IntConsumer act) {
         RoundPanel seg = new RoundPanel(new GridLayout(1, names.length, 4, 0), Theme.c(0xE6D5AF), null, 12);
         seg.pad(4, 4, 4, 4);
         seg.setAlignmentX(LEFT_ALIGNMENT);
         for (int i = 0; i < names.length; i++) {
             final int k = i;
             out[i] = new Btn(names[i], Btn.Style.TAB).font(14);
-            out[i].addActionListener(e -> act.run(k));
+            out[i].addActionListener(e -> act.accept(k));
             seg.add(out[i]);
         }
         seg.setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
@@ -353,13 +355,8 @@ public class NotebookScreen extends JPanel {
         Ui.Modal m = Ui.modal(frame, "새 탐정 프로필", 460);
         m.text("새 수첩에 적을 탐정 이름을 입력하세요. (최대 12자)");
         JTextField f = new JTextField(14);
-        f.setFont(Theme.bold(18));
-        f.setForeground(Theme.INK);
-        f.setBackground(Theme.c(0xFFFBF2));
+        styleField(f, Theme.bold(18), 380, 44);
         f.setCaretColor(Theme.INK);
-        f.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Theme.BORDER, 1, true), BorderFactory.createEmptyBorder(6, 10, 6, 10)));
-        f.setMaximumSize(new Dimension(380, 44));
         m.add(Ui.vgap(10));
         m.add(f);
         m.button("취소", Btn.Style.OUTLINE, null);

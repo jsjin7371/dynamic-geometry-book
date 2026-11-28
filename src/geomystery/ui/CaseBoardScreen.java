@@ -630,7 +630,7 @@ public class CaseBoardScreen extends JPanel {
     private void openRecord(Lesson l) {
         boolean done = game.isDone(l);
         Chapter ch = game.content.chapterOf(l);
-        Ui.Modal m = Ui.modal(frame, (l.boss ? "최종 사건 · " : "사건 " + l.order + " · ") + l.caseName, 540);
+        Ui.Modal m = Ui.modal(frame, l.heading(), 540);
         m.add(Ui.label(ch.label + "  ·  " + l.title + "  ·  " + l.location, Theme.serif(14), Theme.INK_SOFT));
         m.add(Ui.vgap(12));
         JPanel memo = Ui.vbox();

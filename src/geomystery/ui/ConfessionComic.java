@@ -240,18 +240,10 @@ final class ConfessionComic {
     private static List<Shape> layout(int pw, int ph) {
         List<Shape> out = new ArrayList<>();
         double gap = 14, topH = ph * 0.55, split = pw * 0.42, slant = 26;
-        out.add(poly(0, 0, split + slant, 0, split - slant, topH, 0, topH));
-        out.add(poly(split + slant + gap, 0, pw, 0, pw, topH - 18, split - slant + gap, topH));
-        out.add(poly(0, topH + gap, pw, topH + gap - 18, pw, ph, 0, ph));
+        out.add(Ui.poly(0, 0, split + slant, 0, split - slant, topH, 0, topH));
+        out.add(Ui.poly(split + slant + gap, 0, pw, 0, pw, topH - 18, split - slant + gap, topH));
+        out.add(Ui.poly(0, topH + gap, pw, topH + gap - 18, pw, ph, 0, ph));
         return out;
-    }
-
-    private static Path2D poly(double... xy) {
-        Path2D p = new Path2D.Double();
-        p.moveTo(xy[0], xy[1]);
-        for (int i = 2; i < xy.length; i += 2) p.lineTo(xy[i], xy[i + 1]);
-        p.closePath();
-        return p;
     }
 
     // ================================================================== 등장인물
@@ -662,7 +654,7 @@ final class ConfessionComic {
             q.translate(gx() + jx - (1 - push) * 14, gy() + jy);
             q.rotate(Math.toRadians(8 + Math.sin(t * 5) * 4));
             double r = gr();
-            Path2D quad = poly(-r * 0.95, -r * 0.2, -r * 0.15, -r * 0.98, r * 0.92, -r * 0.05, r * 0.05, r * 1.05);
+            Path2D quad = Ui.poly(-r * 0.95, -r * 0.2, -r * 0.15, -r * 0.98, r * 0.92, -r * 0.05, r * 0.05, r * 1.05);
             q.setColor(new Color(0xC9A456));
             q.fill(quad);
             q.setColor(new Color(0x3A2819));
@@ -1026,15 +1018,8 @@ final class ConfessionComic {
                 break;
             }
             case "gear": {
-                Path2D p = new Path2D.Double();
-                int n = 12 * 4;
-                for (int i = 0; i < n; i++) {
-                    double a = 2 * Math.PI * i / n;
-                    double rr = (i % 4 == 0 || i % 4 == 1) ? r * 0.85 : r * 0.68;
-                    double x = cx + rr * Math.cos(a), y = cy + rr * Math.sin(a);
-                    if (i == 0) p.moveTo(x, y); else p.lineTo(x, y);
-                }
-                p.closePath();
+                Path2D p = Panel.gearShape(r * 0.68, 12, r * 0.85 - r * 0.68);
+                p.transform(AffineTransform.getTranslateInstance(cx, cy));
                 g.setColor(new Color(0xC9A456)); g.fill(p);
                 g.setColor(ol); g.draw(p);
                 g.setColor(new Color(0x8C6A3A));

@@ -116,9 +116,7 @@ public class PuzzleScreen extends JPanel {
         tr.add(lanternPill);
         tr.add(tokenPill);
         tr.add(rewardPill);
-        JPanel trWrap = Ui.clear(new GridBagLayout());
-        trWrap.add(tr);
-        top.add(trWrap, BorderLayout.EAST);
+        top.add(Ui.center(tr), BorderLayout.EAST);
         add(top, BorderLayout.NORTH);
 
         // ---------------- 본문
@@ -194,14 +192,13 @@ public class PuzzleScreen extends JPanel {
         // 낙서 펜 도구
         JPanel pens = Ui.clear(new FlowLayout(FlowLayout.RIGHT, 4, 0));
         String[] tips = {"분필(흰색)", "분필(노랑)", "분필(빨강)", "지우개 — 낙서를 문질러 지우기", "낙서 모두 지우기"};
-        DiagramView.Tool[] tools = {DiagramView.Tool.CHALK, DiagramView.Tool.GOLD, DiagramView.Tool.RED, DiagramView.Tool.ERASER, null};
         Color[] dots = {new Color(0xF7F1E3), new Color(0xF2CE63), new Color(0xF08A70), null, null};
         for (int i = 0; i < 5; i++) {
             final int k = i;
             Btn b = new PenButton(dots[i], i == 3 ? "eraser" : i == 4 ? "trash" : null);
             b.setToolTipText(tips[i] + (i < 3 ? " — 칠판 위에 직접 써 보세요. 한 번 더 누르면 펜을 내려놓아요" : ""));
             b.addActionListener(e -> {
-                togglePen(tools[k]);
+                togglePen(PEN_TOOLS[k]);
             });
             penBtns[i] = b;
             pens.add(b);
@@ -281,9 +278,7 @@ public class PuzzleScreen extends JPanel {
         choiceSubmit = new Btn("제출", Btn.Style.PRIMARY).font(16);
         choiceSubmit.setPreferredSize(new Dimension(120, 60));
         choiceSubmit.addActionListener(e -> submit());
-        JPanel csWrap = Ui.clear(new GridBagLayout());
-        csWrap.add(choiceSubmit);
-        chCard.add(csWrap, BorderLayout.EAST);
+        chCard.add(Ui.center(choiceSubmit), BorderLayout.EAST);
         answerArea.add(chCard, "choice");
 
         // ---- 참/거짓 + 이유 카드
@@ -306,9 +301,7 @@ public class PuzzleScreen extends JPanel {
         tfSubmit = new Btn("제출", Btn.Style.PRIMARY).font(16);
         tfSubmit.setPreferredSize(new Dimension(120, 60));
         tfSubmit.addActionListener(e -> submit());
-        JPanel tsWrap = Ui.clear(new GridBagLayout());
-        tsWrap.add(tfSubmit);
-        tfCard.add(tsWrap, BorderLayout.EAST);
+        tfCard.add(Ui.center(tfSubmit), BorderLayout.EAST);
         answerArea.add(tfCard, "tf");
 
         // ---- 추리 순서 카드
@@ -337,9 +330,7 @@ public class PuzzleScreen extends JPanel {
         orBtns.add(orderReset);
         orBtns.add(orderSubmit);
         orBtns.setPreferredSize(new Dimension(120, 120));
-        JPanel obWrap = Ui.clear(new GridBagLayout());
-        obWrap.add(orBtns);
-        orCard.add(obWrap, BorderLayout.EAST);
+        orCard.add(Ui.center(orBtns), BorderLayout.EAST);
         answerArea.add(orCard, "order");
 
         answerPanel.setPreferredSize(new Dimension(700, 214));
@@ -381,6 +372,9 @@ public class PuzzleScreen extends JPanel {
         return wrap;
     }
 
+    /** 낙서 펜 단추 순서(마지막 null 은 '모두 지우기'). */
+    private static final DiagramView.Tool[] PEN_TOOLS = {DiagramView.Tool.CHALK, DiagramView.Tool.GOLD, DiagramView.Tool.RED, DiagramView.Tool.ERASER, null};
+
     /** null 이면 낙서를 모두 지우고, 같은 펜을 다시 누르면 내려놓는다. */
     private void togglePen(DiagramView.Tool t) {
         if (t == null) { diagram.clearScribbles(); return; }
@@ -389,8 +383,7 @@ public class PuzzleScreen extends JPanel {
 
     private void setTool(DiagramView.Tool t) {
         diagram.setTool(t);
-        DiagramView.Tool[] tools = {DiagramView.Tool.CHALK, DiagramView.Tool.GOLD, DiagramView.Tool.RED, DiagramView.Tool.ERASER};
-        for (int i = 0; i < 4; i++) penBtns[i].setSelected(diagram.tool() == tools[i]);
+        for (int i = 0; i < 4; i++) penBtns[i].setSelected(diagram.tool() == PEN_TOOLS[i]);
     }
 
     /** 칠판 위 작은 펜 단추(색 점 또는 아이콘). */
@@ -802,10 +795,15 @@ public class PuzzleScreen extends JPanel {
     /** 정답 순간 칠판에 크게 쓸 글자: 숫자·식은 답(단위 포함), 나머지는 '정답!'. */
     private String bigAnswer() {
         if (puzzle.isNumber() || puzzle.isExpr()) {
-            String u = puzzle.unit == null ? "" : puzzle.unit.trim();
-            return puzzle.answer + (u.length() <= 3 ? u : "");
+            return withUnit(puzzle.answer);
         }
         return "정답!";
+    }
+
+    /** 값 뒤에 단위를 붙인다(단위가 길면 붙이지 않는다). */
+    private String withUnit(String v) {
+        String u = puzzle.unit == null ? "" : puzzle.unit.trim();
+        return v + (u.length() <= 3 ? u : "");
     }
 
     /** 이 문제의 정리 이름(도장). */
@@ -818,8 +816,7 @@ public class PuzzleScreen extends JPanel {
     /** 오답 때 칠판에 적었다가 지울 글자. */
     private String wrongText(String ans) {
         if (puzzle.isNumber() || puzzle.isExpr()) {
-            String u = puzzle.unit == null ? "" : puzzle.unit.trim();
-            return ans + (u.length() <= 3 ? u : "");
+            return withUnit(ans);
         }
         if (puzzle.isTf()) {
             int i = ans.indexOf('|');

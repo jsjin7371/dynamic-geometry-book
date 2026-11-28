@@ -19,6 +19,9 @@ public final class Model {
         public boolean boss;
         /** 전체 학습 경로에서의 순서(0부터). */
         public int globalIndex;
+
+        /** 목록·창 제목: "최종 사건 · 이름" 또는 "사건 3 · 이름". */
+        public String heading() { return (boss ? "최종 사건 · " : "사건 " + order + " · ") + caseName; }
     }
 
     public static class Line {

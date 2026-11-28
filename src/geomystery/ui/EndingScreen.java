@@ -70,13 +70,13 @@ public class EndingScreen extends JPanel {
 
     public void start() {
         items.clear();
-        add(new Item("gap", null, 120));
-        add(new Item("hanja", "幾 何 迷 宮", 40));
-        add(new Item("title", "모든 수수께끼가 풀렸다", 90));
-        add(new Item("text", "선의 정원에서 시작된 작은 사건은 시계탑과 수도원을 지나 천문대의 별빛 아래에서 막을 내렸다.", 40));
-        add(new Item("text", "보이지 않는 선을 그을 줄 아는 탐정, " + game.save.name + "에게 감사를.", 40));
-        add(new Item("gap", null, 120));
-        add(new Item("head", "등장인물", 70));
+        addItem(new Item("gap", null, 120));
+        addItem(new Item("hanja", "幾 何 迷 宮", 40));
+        addItem(new Item("title", "모든 수수께끼가 풀렸다", 90));
+        addItem(new Item("text", "선의 정원에서 시작된 작은 사건은 시계탑과 수도원을 지나 천문대의 별빛 아래에서 막을 내렸다.", 40));
+        addItem(new Item("text", "보이지 않는 선을 그을 줄 아는 탐정, " + game.save.name + "에게 감사를.", 40));
+        addItem(new Item("gap", null, 120));
+        addItem(new Item("head", "등장인물", 70));
         String[][] groups = {{"hazel", "minerva", "gregor", "toru", "luna"}, {"mole", "crow", "pigeon", "cat", "mouse"}, {"fox", "bat", "hedgehog", "rabbit", "otter", "sheep"}};
         for (String[] gp : groups) {
             Item row = new Item("faces", null, 190);
@@ -84,30 +84,30 @@ public class EndingScreen extends JPanel {
                 Npc n = game.content.npc(id);
                 if (n != null) row.people.add(new String[]{n.image, n.name, n.role});
             }
-            add(row);
+            addItem(row);
         }
-        add(new Item("gap", null, 80));
-        add(new Item("head", "모은 정리 카드", 70));
+        addItem(new Item("gap", null, 80));
+        addItem(new Item("head", "모은 정리 카드", 70));
         List<Theorem> cards = game.cards();
         for (int i = 0; i < cards.size(); i += 5) {
             Item row = new Item("cards", null, 170);
             row.cards.addAll(cards.subList(i, Math.min(cards.size(), i + 5)));
-            add(row);
+            addItem(row);
         }
-        add(new Item("gap", null, 80));
-        add(new Item("head", "탐정 기록", 70));
-        add(new Item("text", "해결한 사건 " + game.lessonsDone() + "건  ·  푼 수수께끼 " + game.save.solvedTotal + "개  ·  첫 시도 정답률 " + game.overallAccuracy() + "%", 40));
-        add(new Item("text", "밝혀낸 범인 " + game.save.solvedFinales.size() + "명  ·  보조선 " + game.save.auxTotal + "번  ·  최장 연속 학습 " + Math.max(game.save.bestStreak, game.streakNow()) + "일", 40));
-        add(new Item("text", game.title() + " Lv." + game.level() + "  ·  누적 " + Ui.num(game.save.xp) + " XP  ·  " + game.tierName(), 40));
-        add(new Item("gap", null, 100));
-        add(new Item("head", "만든 것들", 70));
-        add(new Item("text", "그림 — 모든 인물과 배경은 Java2D 벡터 드로잉으로 구웠습니다", 36));
-        add(new Item("text", "소리 — 효과음과 배경음악은 코드로 직접 작곡·합성했습니다", 36));
-        add(new Item("text", "글꼴 — 나눔명조 · 나눔손글씨 펜 (SIL Open Font License)", 36));
-        add(new Item("gap", null, 160));
-        add(new Item("title", "그리고, 수수께끼는 계속된다…", 90));
-        add(new Item("small", "수수께끼 상자에서 언제든 다시 풀 수 있어요", 40));
-        add(new Item("gap", null, 260));
+        addItem(new Item("gap", null, 80));
+        addItem(new Item("head", "탐정 기록", 70));
+        addItem(new Item("text", "해결한 사건 " + game.lessonsDone() + "건  ·  푼 수수께끼 " + game.save.solvedTotal + "개  ·  첫 시도 정답률 " + game.overallAccuracy() + "%", 40));
+        addItem(new Item("text", "밝혀낸 범인 " + game.save.solvedFinales.size() + "명  ·  보조선 " + game.save.auxTotal + "번  ·  최장 연속 학습 " + Math.max(game.save.bestStreak, game.streakNow()) + "일", 40));
+        addItem(new Item("text", game.title() + " Lv." + game.level() + "  ·  누적 " + Ui.num(game.save.xp) + " XP  ·  " + game.tierName(), 40));
+        addItem(new Item("gap", null, 100));
+        addItem(new Item("head", "만든 것들", 70));
+        addItem(new Item("text", "그림 — 모든 인물과 배경은 Java2D 벡터 드로잉으로 구웠습니다", 36));
+        addItem(new Item("text", "소리 — 효과음과 배경음악은 코드로 직접 작곡·합성했습니다", 36));
+        addItem(new Item("text", "글꼴 — 나눔명조 · 나눔손글씨 펜 (SIL Open Font License)", 36));
+        addItem(new Item("gap", null, 160));
+        addItem(new Item("title", "그리고, 수수께끼는 계속된다…", 90));
+        addItem(new Item("small", "수수께끼 상자에서 언제든 다시 풀 수 있어요", 40));
+        addItem(new Item("gap", null, 260));
         total = 0;
         for (Item it : items) total += it.height;
         scroll = 0;
@@ -121,7 +121,7 @@ public class EndingScreen extends JPanel {
         timer.start();
     }
 
-    private void add(Item it) { items.add(it); }
+    private void addItem(Item it) { items.add(it); }
 
     private void tick() {
         long now = System.currentTimeMillis();
