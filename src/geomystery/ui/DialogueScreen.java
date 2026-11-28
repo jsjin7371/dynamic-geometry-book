@@ -193,8 +193,7 @@ public class DialogueScreen extends JPanel {
     public void prewarm() {
         int w = scene.getWidth(), h = scene.getHeight();
         if (w <= 0 || h <= 0) return;
-        double sc = Ui.screenScale(this);
-        final double ds = sc;
+        final double ds = Ui.screenScale(this);
         // 지금 진행 중인 장의 장면과 그 장에 나오는 인물부터 준비한다(곧 들어갈 가능성이 가장 높다)
         Chapter now = game.currentChapter();
         java.util.List<String> scenes = new ArrayList<>();

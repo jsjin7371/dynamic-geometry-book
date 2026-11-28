@@ -58,8 +58,7 @@ final class ConfessionComic {
         int pw = Math.min(1180, w - 80), ph = Math.min(600, h - 110);
         int px = (w - pw) / 2, py = (h - ph) / 2 - 10;
         List<Shape> shapes = layout(pw, ph);
-        double sc = Ui.screenScale(frame);
-        final double scale = sc;
+        final double scale = Ui.screenScale(frame);
         Npc cn = game.content.npc(culprit);
         Chapter ch = game.content.chapterOf(lesson);
         Npc client = ch == null ? null : game.content.npc(ch.npc);

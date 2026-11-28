@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Random;
+import static geomystery.ui.Ui.poly;
 
 /**
  * 게임에 쓰이는 캐릭터·배경 이미지를 Java2D 벡터 드로잉으로 "구워" PNG로 저장한다.
@@ -202,14 +203,14 @@ public final class AssetBaker {
         Path2D scarf = new Path2D.Double();
         scarf.moveTo(126, 246); scarf.quadTo(180, 270, 234, 246); scarf.lineTo(236, 262); scarf.quadTo(180, 288, 124, 262); scarf.closePath();
         shape(g, scarf, new Color(0xA33A28), 2.5f);
-        shape(g, geomystery.ui.Ui.poly(200, 266, 218, 268, 214, 300, 198, 298), new Color(0xA33A28), 2.5f);
+        shape(g, poly(200, 266, 218, 268, 214, 300, 198, 298), new Color(0xA33A28), 2.5f);
         // 훔친 반짝이 장식
         shape(g, ell(152, 280, 16, 16), new Color(0xE6BE55), 2f);
         g.setColor(Color.WHITE);
         g.fill(ell(149, 277, 5, 5));
         // 머리 깃
-        shape(g, geomystery.ui.Ui.poly(166, 128, 170, 92, 184, 124), black, 3f);
-        shape(g, geomystery.ui.Ui.poly(182, 124, 196, 96, 200, 130), black, 3f);
+        shape(g, poly(166, 128, 170, 92, 184, 124), black, 3f);
+        shape(g, poly(182, 124, 196, 96, 200, 130), black, 3f);
         shape(g, ell(176, 186, 140, 132), black, 3f);
         g.setColor(geomystery.ui.Theme.alpha(sheen, 0.9f));
         g.fill(rot(ell(150, 146, 52, 20), -28, 150, 146));
@@ -250,7 +251,7 @@ public final class AssetBaker {
         eye(g, 156, 178, 6);
         eye(g, 204, 178, 6);
         shape(g, ell(180, 200, 18, 9), new Color(0xF2EEE6), 1.5f);
-        shape(g, geomystery.ui.Ui.poly(171, 204, 189, 204, 180, 226), new Color(0x3A3A3A), 2.5f);
+        shape(g, poly(171, 204, 189, 204, 180, 226), new Color(0x3A3A3A), 2.5f);
         blush(g, 138, 222, 208);
         // 청소부 모자
         Path2D cap = new Path2D.Double();
@@ -260,23 +261,23 @@ public final class AssetBaker {
         shape(g, ell(180, 112, 12, 10), new Color(0xE6BE55), 1.5f);
         // 빗자루 끝
         line(g, new Color(0x8A5A34), 6f, 252, 300, 268, 218);
-        shape(g, geomystery.ui.Ui.poly(260, 222, 278, 214, 286, 196, 266, 192), GOLD, 2f);
+        shape(g, poly(260, 222, 278, 214, 286, 196, 266, 192), GOLD, 2f);
     }
 
     // ------------------------------------------------------------------ 용의자: 고양이 집사 토크 (턱시도 고양이)
     static void cat(Graphics2D g) {
         Color black = new Color(0x2B2B31), white = new Color(0xF4F1EA), pink = new Color(0xE7A0A0);
         shoulders(g, black);
-        shape(g, geomystery.ui.Ui.poly(150, 240, 210, 240, 180, 300), white, 2.5f);
-        shape(g, geomystery.ui.Ui.poly(180, 256, 156, 246, 156, 268), new Color(0xA33A28), 2f);
-        shape(g, geomystery.ui.Ui.poly(180, 256, 204, 246, 204, 268), new Color(0xA33A28), 2f);
+        shape(g, poly(150, 240, 210, 240, 180, 300), white, 2.5f);
+        shape(g, poly(180, 256, 156, 246, 156, 268), new Color(0xA33A28), 2f);
+        shape(g, poly(180, 256, 204, 246, 204, 268), new Color(0xA33A28), 2f);
         shape(g, ell(180, 257, 9, 9), new Color(0x74271A), 1.5f);
         // 귀
-        shape(g, geomystery.ui.Ui.poly(114, 158, 124, 90, 166, 128), black, 3f);
-        shape(g, geomystery.ui.Ui.poly(246, 158, 236, 90, 194, 128), black, 3f);
+        shape(g, poly(114, 158, 124, 90, 166, 128), black, 3f);
+        shape(g, poly(246, 158, 236, 90, 194, 128), black, 3f);
         g.setColor(pink);
-        g.fill(geomystery.ui.Ui.poly(126, 146, 130, 106, 154, 130));
-        g.fill(geomystery.ui.Ui.poly(234, 146, 230, 106, 206, 130));
+        g.fill(poly(126, 146, 130, 106, 154, 130));
+        g.fill(poly(234, 146, 230, 106, 206, 130));
         shape(g, ell(180, 188, 150, 130), black, 3f);
         // 흰 얼굴 무늬
         Path2D blaze = new Path2D.Double();
@@ -300,7 +301,7 @@ public final class AssetBaker {
         Path2D chain = new Path2D.Double();
         chain.moveTo(226, 198); chain.quadTo(246, 232, 222, 252);
         g.draw(chain);
-        shape(g, geomystery.ui.Ui.poly(173, 204, 187, 204, 180, 213), pink, 2f);
+        shape(g, poly(173, 204, 187, 204, 180, 213), pink, 2f);
         g.setColor(OL);
         g.setStroke(round(2.2f));
         Path2D m = new Path2D.Double();
@@ -349,14 +350,14 @@ public final class AssetBaker {
         hood.moveTo(98, 262); hood.curveTo(78, 120, 282, 120, 262, 262); hood.quadTo(180, 246, 98, 262); hood.closePath();
         shape(g, hood, new Color(0x5E4C38), 3f);
         // 귀(두건 밖으로)
-        shape(g, geomystery.ui.Ui.poly(124, 160, 118, 84, 164, 130), fur, 3f);
-        shape(g, geomystery.ui.Ui.poly(236, 160, 242, 84, 196, 130), fur, 3f);
+        shape(g, poly(124, 160, 118, 84, 164, 130), fur, 3f);
+        shape(g, poly(236, 160, 242, 84, 196, 130), fur, 3f);
         g.setColor(OL);
-        g.fill(geomystery.ui.Ui.poly(119, 96, 118, 84, 130, 96));
-        g.fill(geomystery.ui.Ui.poly(241, 96, 242, 84, 230, 96));
+        g.fill(poly(119, 96, 118, 84, 130, 96));
+        g.fill(poly(241, 96, 242, 84, 230, 96));
         g.setColor(new Color(0xF0B27A));
-        g.fill(geomystery.ui.Ui.poly(130, 148, 128, 104, 154, 132));
-        g.fill(geomystery.ui.Ui.poly(230, 148, 232, 104, 206, 132));
+        g.fill(poly(130, 148, 128, 104, 154, 132));
+        g.fill(poly(230, 148, 232, 104, 206, 132));
         shape(g, ell(180, 186, 136, 120), fur, 3f);
         // 흰 볼과 주둥이
         Path2D cheeks = new Path2D.Double();
@@ -395,11 +396,11 @@ public final class AssetBaker {
         shape(g, bell, new Color(0xE6BE55), 2f);
         shape(g, ell(180, 286, 8, 8), new Color(0xB8903A), 1.5f);
         // 큰 귀
-        shape(g, geomystery.ui.Ui.poly(126, 166, 92, 70, 166, 132), fur, 3f);
-        shape(g, geomystery.ui.Ui.poly(234, 166, 268, 70, 194, 132), fur, 3f);
+        shape(g, poly(126, 166, 92, 70, 166, 132), fur, 3f);
+        shape(g, poly(234, 166, 268, 70, 194, 132), fur, 3f);
         g.setColor(new Color(0xC48FA8));
-        g.fill(geomystery.ui.Ui.poly(132, 152, 108, 92, 156, 134));
-        g.fill(geomystery.ui.Ui.poly(228, 152, 252, 92, 204, 134));
+        g.fill(poly(132, 152, 108, 92, 156, 134));
+        g.fill(poly(228, 152, 252, 92, 204, 134));
         shape(g, ell(180, 192, 130, 118), fur, 3f);
         shape(g, ell(180, 208, 84, 62), face, 0);
         shape(g, ell(158, 186, 22, 22), new Color(0xF2D46A), 2f);
@@ -411,8 +412,8 @@ public final class AssetBaker {
         g.fill(ell(176, 208, 4, 4));
         g.fill(ell(184, 208, 4, 4));
         smile(g, 164, 214, 32, 16);
-        shape(g, geomystery.ui.Ui.poly(169, 225, 175, 225, 172, 234), Color.WHITE, 1.4f);
-        shape(g, geomystery.ui.Ui.poly(185, 225, 191, 225, 188, 234), Color.WHITE, 1.4f);
+        shape(g, poly(169, 225, 175, 225, 172, 234), Color.WHITE, 1.4f);
+        shape(g, poly(185, 225, 191, 225, 188, 234), Color.WHITE, 1.4f);
     }
 
     // ------------------------------------------------------------------ 용의자: 고슴도치 견습 수사 마르코
@@ -570,17 +571,17 @@ public final class AssetBaker {
         g.setStroke(round(3));
         g.draw(new Arc2D.Double(276, 304, 26, 26, 100, 70, Arc2D.OPEN));
         // 나비넥타이
-        shape(g, geomystery.ui.Ui.poly(180, 270, 160, 260, 160, 282), o.tie, 2f);
-        shape(g, geomystery.ui.Ui.poly(180, 270, 200, 260, 200, 282), o.tie, 2f);
+        shape(g, poly(180, 270, 160, 260, 160, 282), o.tie, 2f);
+        shape(g, poly(180, 270, 200, 260, 200, 282), o.tie, 2f);
         shape(g, ell(180, 271, 9, 9), shade(o.tie, 0.78), 1.5f);
         // 귀 (머리 묶음은 몸통과 겹치도록 아래로 이동)
         AffineTransform keep = g.getTransform();
         g.translate(0, 24);
-        shape(g, geomystery.ui.Ui.poly(126, 150, 132, 92, 166, 130), fur, 3f);
-        shape(g, geomystery.ui.Ui.poly(234, 150, 228, 92, 194, 130), fur, 3f);
+        shape(g, poly(126, 150, 132, 92, 166, 130), fur, 3f);
+        shape(g, poly(234, 150, 228, 92, 194, 130), fur, 3f);
         g.setColor(new Color(0xE8A86A));
-        g.fill(geomystery.ui.Ui.poly(136, 140, 138, 108, 156, 132));
-        g.fill(geomystery.ui.Ui.poly(224, 140, 222, 108, 204, 132));
+        g.fill(poly(136, 140, 138, 108, 156, 132));
+        g.fill(poly(224, 140, 222, 108, 204, 132));
         // 얼굴
         shape(g, ell(180, 180, 130, 114), fur, 3f);
         shape(g, ell(180, 208, 88, 56), cream, 2f);
@@ -616,8 +617,8 @@ public final class AssetBaker {
         shape(g, brim, hatBrim, 2.5f);
         shape(g, ell(180, 101, 14, 10), hatBand, 2f);
         // 귀 끝이 모자 위로
-        shape(g, geomystery.ui.Ui.poly(128, 128, 134, 90, 152, 116), fur, 3f);
-        shape(g, geomystery.ui.Ui.poly(232, 128, 226, 90, 208, 116), fur, 3f);
+        shape(g, poly(128, 128, 134, 90, 152, 116), fur, 3f);
+        shape(g, poly(232, 128, 226, 90, 208, 116), fur, 3f);
         g.setTransform(keep);
     }
 
@@ -720,11 +721,11 @@ public final class AssetBaker {
         line(g, OL, 2f, 262, 410, 262, 420);
         // 스카프
         shape(g, new RoundRectangle2D.Double(110, 246, 140, 30, 18, 18), new Color(0x2F5E50), 3f);
-        shape(g, geomystery.ui.Ui.poly(196, 262, 222, 262, 232, 338, 210, 334), new Color(0x2F5E50), 3f);
+        shape(g, poly(196, 262, 222, 262, 232, 338, 210, 334), new Color(0x2F5E50), 3f);
         line(g, GOLD, 3f, 214, 322, 228, 324);
         // 머리
-        shape(g, geomystery.ui.Ui.poly(104, 132, 108, 66, 146, 112), feather, 3f);
-        shape(g, geomystery.ui.Ui.poly(256, 132, 252, 66, 214, 112), feather, 3f);
+        shape(g, poly(104, 132, 108, 66, 146, 112), feather, 3f);
+        shape(g, poly(256, 132, 252, 66, 214, 112), feather, 3f);
         shape(g, ell(180, 172, 196, 164), feather, 3f);
         shape(g, ell(144, 176, 84, 84), new Color(0xF1E2BF), 2.5f);
         shape(g, ell(216, 176, 84, 84), new Color(0xF1E2BF), 2.5f);
@@ -738,9 +739,9 @@ public final class AssetBaker {
         g.draw(new Arc2D.Double(118, 164, 52, 46, 180, 180, Arc2D.OPEN));
         g.draw(new Arc2D.Double(190, 164, 52, 46, 180, 180, Arc2D.OPEN));
         g.draw(new Line2D.Double(170, 187, 190, 187));
-        shape(g, geomystery.ui.Ui.poly(170, 200, 190, 200, 180, 226), new Color(0xE3A23B), 2.5f);
+        shape(g, poly(170, 200, 190, 200, 180, 226), new Color(0xE3A23B), 2.5f);
         // 학자 모자
-        shape(g, geomystery.ui.Ui.poly(110, 88, 180, 62, 250, 88, 180, 112), new Color(0x2F2A26), 3f);
+        shape(g, poly(110, 88, 180, 62, 250, 88, 180, 112), new Color(0x2F2A26), 3f);
         shape(g, new Rectangle2D.Double(150, 92, 60, 22), new Color(0x2F2A26), 3f);
         line(g, GOLD, 3f, 238, 90, 246, 128);
         shape(g, ell(246, 132, 10, 12), GOLD, 1.5f);
@@ -783,8 +784,8 @@ public final class AssetBaker {
         g.draw(new Line2D.Double(200, 370, 206, 420));
         g.fill(ell(206, 424, 12, 12));
         // 삼각자를 든 손
-        shape(g, geomystery.ui.Ui.poly(130, 296, 236, 296, 130, 364), GOLD, 3f);
-        shape(g, geomystery.ui.Ui.poly(146, 308, 196, 308, 146, 342), robe, 2f);
+        shape(g, poly(130, 296, 236, 296, 130, 364), GOLD, 3f);
+        shape(g, poly(146, 308, 196, 308, 146, 342), robe, 2f);
         shape(g, ell(132, 330, 26, 26), skin, 2.5f);
         shape(g, ell(226, 302, 26, 26), skin, 2.5f);
         // 두건
@@ -843,7 +844,7 @@ public final class AssetBaker {
             g.setColor(tree);
             switch (t[1]) {
                 case 0: g.fill(ell(x, 330, 150, 150)); g.setColor(treeHi); g.fill(ell(x - 25, 305, 60, 60)); break;
-                case 1: g.fill(geomystery.ui.Ui.poly(x, 190, x + 80, 400, x - 80, 400)); g.setColor(treeHi); g.fill(geomystery.ui.Ui.poly(x, 220, x + 30, 300, x - 30, 300)); break;
+                case 1: g.fill(poly(x, 190, x + 80, 400, x - 80, 400)); g.setColor(treeHi); g.fill(poly(x, 220, x + 30, 300, x - 30, 300)); break;
                 default: g.fill(new Rectangle2D.Double(x - 70, 260, 140, 140)); g.setColor(treeHi); g.fill(new Rectangle2D.Double(x - 50, 280, 40, 40));
             }
         }
@@ -854,7 +855,7 @@ public final class AssetBaker {
         g.fillRect(0, 470, 1600, 8);
         // 돌길
         g.setColor(new Color(0xD8C39A));
-        g.fill(geomystery.ui.Ui.poly(720, 470, 880, 470, 1060, 640, 540, 640));
+        g.fill(poly(720, 470, 880, 470, 1060, 640, 540, 640));
         g.setColor(new Color(0xBFA77A));
         g.setStroke(new BasicStroke(3));
         for (int y = 500; y < 640; y += 36) g.draw(new Line2D.Double(800 - (y - 470) * 1.6, y, 800 + (y - 470) * 1.6, y));
@@ -906,7 +907,7 @@ public final class AssetBaker {
         g.fillRect(1386, 0, 44, 520);
         // 빛 기둥
         g.setColor(new Color(255, 220, 150, 30));
-        g.fill(geomystery.ui.Ui.poly(690, 300, 910, 300, 1060, 520, 540, 520));
+        g.fill(poly(690, 300, 910, 300, 1060, 520, 540, 520));
         // 톱니바퀴
         g.setColor(new Color(0x9A6B3C));
         g.fill(gear(360, 230, 92, 14, 22));
@@ -928,7 +929,7 @@ public final class AssetBaker {
             g.setColor(new Color(255, 220, 140, 40));
             g.fill(ell(x, 130, 110, 110));
             line(g, OL, 3, x, 0, x, 92);
-            shape(g, geomystery.ui.Ui.poly(x - 22, 96, x + 22, 96, x + 15, 140, x - 15, 140), new Color(0xF2C75A), 4f);
+            shape(g, poly(x - 22, 96, x + 22, 96, x + 15, 140, x - 15, 140), new Color(0xF2C75A), 4f);
         }
         // 대형 시계
         g.setColor(OL);
@@ -987,7 +988,7 @@ public final class AssetBaker {
         // 측면 뾰족 아치 창
         for (int x : new int[]{230, 1370}) {
             g.setColor(new Color(0x4A443B));
-            g.fill(geomystery.ui.Ui.poly(x - 90, 470, x - 90, 210, x, 90, x + 90, 210, x + 90, 470));
+            g.fill(poly(x - 90, 470, x - 90, 210, x, 90, x + 90, 210, x + 90, 470));
             int k = 0;
             for (int row = 0; row < 4; row++) {
                 for (int col = 0; col < 2; col++) {
@@ -996,18 +997,18 @@ public final class AssetBaker {
                 }
             }
             g.setColor(GLASS[2]);
-            g.fill(geomystery.ui.Ui.poly(x - 72, 212, x, 110, x + 72, 212));
+            g.fill(poly(x - 72, 212, x, 110, x + 72, 212));
             g.setColor(new Color(0x2E2A24));
             g.setStroke(new BasicStroke(5));
-            g.draw(geomystery.ui.Ui.poly(x - 90, 470, x - 90, 210, x, 90, x + 90, 210, x + 90, 470));
+            g.draw(poly(x - 90, 470, x - 90, 210, x, 90, x + 90, 210, x + 90, 470));
         }
         // 중앙 시에르핀스키 삼각형 스테인드글라스
         g.setColor(new Color(255, 240, 200, 40));
-        g.fill(geomystery.ui.Ui.poly(800, 70, 1050, 520, 550, 520));
+        g.fill(poly(800, 70, 1050, 520, 550, 520));
         sierpinski(g, 800, 70, 1040, 470, 560, 470, 4);
         g.setColor(new Color(0x2E2A24));
         g.setStroke(round(8));
-        g.draw(geomystery.ui.Ui.poly(800, 70, 1040, 470, 560, 470));
+        g.draw(poly(800, 70, 1040, 470, 560, 470));
         // 촛대
         for (int x : new int[]{470, 1130}) {
             g.setColor(new Color(0xB8903A));
@@ -1102,7 +1103,7 @@ public final class AssetBaker {
         shape(g, ell(180, 196, 140, 124), fur, 3f);
         eye(g, 158, 190, 7.5);
         eye(g, 202, 190, 7.5);
-        shape(g, geomystery.ui.Ui.poly(172, 210, 188, 210, 180, 220), pink, 2f);
+        shape(g, poly(172, 210, 188, 210, 180, 220), pink, 2f);
         g.setColor(OL);
         g.setStroke(round(2.2f));
         g.draw(new Line2D.Double(180, 220, 180, 228));
@@ -1307,10 +1308,10 @@ public final class AssetBaker {
         if (depth == 0) {
             int k = (int) Math.abs((ax * 7 + ay * 13) / 10) % GLASS.length;
             g.setColor(GLASS[k]);
-            g.fill(geomystery.ui.Ui.poly(ax, ay, bx, by, cx, cy));
+            g.fill(poly(ax, ay, bx, by, cx, cy));
             g.setColor(new Color(0x2E2A24));
             g.setStroke(new BasicStroke(3));
-            g.draw(geomystery.ui.Ui.poly(ax, ay, bx, by, cx, cy));
+            g.draw(poly(ax, ay, bx, by, cx, cy));
             return;
         }
         double abx = (ax + bx) / 2, aby = (ay + by) / 2, bcx = (bx + cx) / 2, bcy = (by + cy) / 2, cax = (cx + ax) / 2, cay = (cy + ay) / 2;
@@ -1318,7 +1319,7 @@ public final class AssetBaker {
         sierpinski(g, abx, aby, bx, by, bcx, bcy, depth - 1);
         sierpinski(g, cax, cay, bcx, bcy, cx, cy, depth - 1);
         g.setColor(new Color(0x3B352D));
-        g.fill(geomystery.ui.Ui.poly(abx, aby, bcx, bcy, cax, cay));
+        g.fill(poly(abx, aby, bcx, bcy, cax, cay));
     }
 
     private static void vignette(Graphics2D g) {

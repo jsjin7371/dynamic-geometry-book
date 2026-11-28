@@ -436,7 +436,6 @@ public class FinaleScreen extends JPanel {
         };
         overlay.setOpaque(true);
         overlay.setBounds(0, 0, lp.getWidth(), lp.getHeight());
-        overlay.addMouseListener(new java.awt.event.MouseAdapter() { }); // 뒤 화면 클릭을 막는다
         lp.add(overlay, JLayeredPane.DRAG_LAYER);
         javax.swing.Timer tm = new javax.swing.Timer(16, null);
         Runnable finish = () -> {
