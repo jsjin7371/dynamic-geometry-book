@@ -32,16 +32,14 @@ final class Transition {
             if (onDone != null) onDone.run();
             return;
         }
-        double sc = 1;
-        try { sc = Math.max(1, frame.getGraphicsConfiguration().getDefaultTransform().getScaleX()); } catch (Exception ignored) { }
         int w = content.getWidth(), h = content.getHeight();
         // 이전 화면 사진은 움직이는 0.3~0.5초 동안만 보이므로 1배 해상도로 찍는다(레티나 2배보다 훨씬 빠르다)
-        BufferedImage before = snapshot(content, w, h, 1);
+        BufferedImage before = snapshot(content, w, h);
         switcher.run();
         content.validate();
         // 새 화면도 1배로 한 장 찍어 둔다. 전환 동안에는 이 두 장만 그려서(불투명) 아래 실제 화면을
         // 매 프레임 다시 그리지 않는다 — 그래야 0.3~0.5초 동안 매끄럽게 움직인다.
-        BufferedImage after = snapshot(content, w, h, 1);
+        BufferedImage after = snapshot(content, w, h);
         JLayeredPane lp = root.getLayeredPane();
         Point at = SwingUtilities.convertPoint(content, 0, 0, lp);
         long dur = kind == Kind.BOOK ? 560 : 300;
@@ -106,10 +104,9 @@ final class Transition {
         tm.start();
     }
 
-    private static BufferedImage snapshot(Container c, int w, int h, double sc) {
-        BufferedImage im = new BufferedImage((int) Math.ceil(w * sc), (int) Math.ceil(h * sc), BufferedImage.TYPE_INT_RGB);
+    private static BufferedImage snapshot(Container c, int w, int h) {
+        BufferedImage im = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = im.createGraphics();
-        g.scale(sc, sc);
         g.setColor(Theme.BG);
         g.fillRect(0, 0, w, h);
         c.paint(g);

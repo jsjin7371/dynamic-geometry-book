@@ -256,8 +256,6 @@ public class DiagramView extends JComponent {
         repaint();
     }
 
-    public List<Cmd> script() { return script; }
-
     // ---- 정답·오답 분필 연출
     /** 칠판에 크게 쓰는 글자(분필), 찍히는 정리 도장, 오답이면 true. */
     private String fxText, fxStamp;
@@ -346,7 +344,7 @@ public class DiagramView extends JComponent {
         return Math.max(0.5, Math.hypot(t.getScaleX(), t.getShearY()));
     }
 
-    /** 칠판 좌표의 사각형(x, y, w, h)을 화면 픽셀 크기 그대로 담는 이미지와 그 이미지에 그릴 Graphics. */
+    /** 칠판 좌표의 사각형(x, y, w, h)을 화면 픽셀 크기 그대로 담는 빈 이미지. */
     private static java.awt.image.BufferedImage fxCanvas(Rectangle2D r, double sc) {
         return new java.awt.image.BufferedImage(Math.max(1, (int) Math.ceil(r.getWidth() * sc)), Math.max(1, (int) Math.ceil(r.getHeight() * sc)),
                 java.awt.image.BufferedImage.TYPE_INT_ARGB_PRE);
@@ -561,7 +559,7 @@ public class DiagramView extends JComponent {
     }
 
     /** '?' 이름표가 있는지(정답을 칠판에 쓸 자리가 있는지). */
-    public boolean hasQuestionLabel() {
+    public static boolean hasQuestionLabel(List<Cmd> script) {
         for (Cmd c : script) for (String a : c.args) if (a.contains("?")) return true;
         return false;
     }
@@ -575,8 +573,6 @@ public class DiagramView extends JComponent {
     public Tool tool() { return tool; }
 
     public void clearScribbles() { scribbles.clear(); repaint(); }
-
-    public boolean hasScribbles() { return !scribbles.isEmpty(); }
 
     private void erase(Point2D.Double p) {
         boolean removed = scribbles.removeIf(s -> {

@@ -833,7 +833,7 @@ public class PuzzleScreen extends JPanel {
     private String boardAnswer() {
         if (!(puzzle.isNumber() || puzzle.isExpr())) return null;
         String u = puzzle.unit == null ? "" : puzzle.unit.trim();
-        String v = puzzle.isExpr() ? puzzle.answer : puzzle.answer;
+        String v = puzzle.answer;
         return v + (u.equals("°") || u.equals("m") || u.equals("cm") ? u : "");
     }
 

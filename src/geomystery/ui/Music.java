@@ -53,8 +53,6 @@ public final class Music {
         wake();
     }
 
-    public static int level() { return level; }
-
     private static volatile boolean preloading;
 
     /**
@@ -99,7 +97,7 @@ public final class Music {
                 String want = requested;
                 float target = LEVEL_GAIN[level];
                 if (want == null ? curName != null : !want.equals(curName)) {
-                    old = fade >= 1f ? cur : (fade > 0.5f ? cur : old); // 페이드 중 또 바뀌면 더 큰 쪽을 남긴다
+                    old = fade > 0.5f ? cur : old; // 페이드 중 또 바뀌면 더 큰 쪽을 남긴다
                     po = old == cur ? pc : po;
                     cur = want == null ? null : track(want);
                     curName = want;
@@ -150,7 +148,7 @@ public final class Music {
 
     // ------------------------------------------------------------------ 작곡
     /** 곡 하나를 합성한다(외부 미리 듣기·검사용으로도 공개). 값 범위는 대략 -0.9 ~ 0.9. */
-    public static float[] compose(String name) {
+    private static float[] compose(String name) {
         switch (name) {
             case "clock": return clock();
             case "monastery": return monastery();

@@ -6,7 +6,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 
 /** 레이아웃·모달·토스트·이미지 도우미. */
@@ -257,8 +256,6 @@ public final class Ui {
     public static Component vgap(int h) { return Box.createRigidArea(new Dimension(0, h)); }
     public static Component hgap(int w) { return Box.createRigidArea(new Dimension(w, 0)); }
 
-    public static <T extends JComponent> T left(T c) { c.setAlignmentX(Component.LEFT_ALIGNMENT); return c; }
-
     /**
      * 스크롤 영역. 내용을 불투명한 받침(OpaqueView)에 올려, Swing 이 스크롤할 때 이미 그린 화면을
      * 밀어서 복사(blit)하고 새로 드러난 띠만 그리게 한다. 투명한 채로 두면 스크롤 한 칸마다
@@ -346,7 +343,6 @@ public final class Ui {
         }
     }
 
-    /** 스크롤 영역에서 가로 폭을 뷰포트에 맞추는 패널. */
     /** 스크롤 영역의 폭에 맞춰 줄어드는 세로 상자(안의 카드·표가 보이는 폭보다 넓어져 잘리지 않도록). */
     public static TrackWidth vtrack() {
         TrackWidth p = new TrackWidth(null);
@@ -410,7 +406,6 @@ public final class Ui {
             buttons = clear(new FlowLayout(FlowLayout.RIGHT, 10, 0));
             card.add(buttons, BorderLayout.SOUTH);
             dialog.setContentPane(card);
-            card.setPreferredSize(null);
             dialog.getRootPane().registerKeyboardAction(e -> close(),
                     KeyStroke.getKeyStroke("ESCAPE"), JComponent.WHEN_IN_FOCUSED_WINDOW);
             this.width = width;

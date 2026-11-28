@@ -11,7 +11,6 @@ public class Header extends JPanel {
     private final JPanel right;
     private final Widgets.Pill streak, tokens, lanterns, xp;
     private final Game game;
-    private final JPanel titleRow;
 
     public Header(Game game) {
         this.game = game;
@@ -23,12 +22,9 @@ public class Header extends JPanel {
         JPanel left = Ui.vbox();
         small = Ui.label("", Theme.tracked(Theme.serif(13), 0.2f), Theme.INK_SOFT);
         title = Ui.label("", Theme.xbold(32), Theme.INK);
-        titleRow = Ui.hbox();
-        titleRow.setAlignmentX(LEFT_ALIGNMENT);
-        titleRow.add(title);
         left.add(small);
         left.add(Ui.vgap(2));
-        left.add(titleRow);
+        left.add(title);
         add(left, BorderLayout.WEST);
 
         right = Ui.clear(new FlowLayout(FlowLayout.RIGHT, 12, 6));
@@ -49,12 +45,6 @@ public class Header extends JPanel {
     public void setTitle(String smallText, String titleText) {
         small.setText(smallText);
         title.setText(titleText);
-    }
-
-    /** 제목 옆에 작은 컴포넌트(예: 챕터 넘김 버튼)를 붙인다. */
-    public void addTitleAccessory(JComponent c) {
-        titleRow.add(Ui.hgap(14));
-        titleRow.add(c);
     }
 
     /** 오른쪽 알약 대신 다른 컴포넌트를 둔다. */

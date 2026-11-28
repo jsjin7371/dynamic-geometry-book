@@ -116,21 +116,6 @@ public final class AssetBaker {
         return new Color((int) Math.min(255, c.getRed() * k), (int) Math.min(255, c.getGreen() * k), (int) Math.min(255, c.getBlue() * k));
     }
 
-    /** 상반신만 있는 인물: 캐릭터와 같은 좌표계(머리 중심 약 180,185)에 그리고 얼굴 이미지만 저장한다. */
-    private static void bust(Path dir, String name, Painter p) throws IOException {
-        int S = 2;
-        BufferedImage im = new BufferedImage(360 * S, 480 * S, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = hq(im);
-        g.scale(S, S);
-        p.paint(g);
-        g.dispose();
-        BufferedImage face = new BufferedImage(240, 240, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D f = hq(face);
-        f.drawImage(im.getSubimage(70 * S, 60 * S, 220 * S, 220 * S), 0, 0, 240, 240, null);
-        f.dispose();
-        ImageIO.write(face, "png", dir.resolve(name + "_face.png").toFile());
-    }
-
     private static Color Theme_alpha(Color c, float a) { return new Color(c.getRed(), c.getGreen(), c.getBlue(), Math.round(a * 255)); }
 
     /** 용의자 전신: 공통 몸통(옷 색·발 색) 위에 상반신 그림을 얹는다. 얼굴 이미지도 함께 만든다. */
@@ -602,7 +587,6 @@ public final class AssetBaker {
         // 얼굴
         shape(g, ell(180, 180, 130, 114), fur, 3f);
         shape(g, ell(180, 208, 88, 56), cream, 2f);
-        g.setColor(new Color(0xE58C6E, false));
         g.setColor(new Color(229, 140, 110, 90));
         g.fill(ell(134, 206, 20, 11));
         g.fill(ell(226, 206, 20, 11));
@@ -716,7 +700,6 @@ public final class AssetBaker {
     static void minerva(Graphics2D g) {
         Color feather = new Color(0x8B6B45), dark = new Color(0x6A4E30), belly = new Color(0xEAD8B2);
         // 발
-        g.setColor(new Color(0xE3A23B));
         for (double fx : new double[]{152, 208}) {
             for (int k = -1; k <= 1; k++) shape(g, ell(fx + k * 11, 456, 12, 18), new Color(0xE3A23B), 2f);
         }

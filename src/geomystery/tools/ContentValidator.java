@@ -124,7 +124,6 @@ public final class ContentValidator {
             }
             geomystery.ui.ExploreBoard probe = new geomystery.ui.ExploreBoard(sc, x, null);
             String rel = probe.relationText();
-            probe.stop();
             if (rel.contains("?")) err("explore.csv", w, "관계식을 계산하지 못한 부분이 있습니다: " + rel);
         }
         for (Theorem t : c.theorems.values()) if (!c.explores.containsKey(t.id)) warn("explore.csv", t.id, "정리 탐구 설정이 없습니다(도감에서 움직여 볼 수 없음)");
@@ -282,11 +281,7 @@ public final class ContentValidator {
         }
         // 숫자·식 문제는 도형에 '?' 이름표가 있어야 정답을 맞혔을 때 칠판에 답이 써진다
         if ((p.isNumber() || p.isExpr()) && p.diagram != null && c.diagrams.containsKey(p.diagram.trim())) {
-            boolean hasSlot = false;
-            for (geomystery.data.Model.Cmd cmd : c.diagrams.get(p.diagram.trim())) {
-                for (String arg : cmd.args) if (arg.contains("?")) { hasSlot = true; break; }
-                if (hasSlot) break;
-            }
+            boolean hasSlot = DiagramView.hasQuestionLabel(c.diagrams.get(p.diagram.trim()));
             if (!hasSlot) warn(f, w, "도형 " + p.diagram + "에 '?' 이름표가 없어 정답이 칠판에 써지지 않습니다");
         }
         for (Feedback fb : p.feedback) {

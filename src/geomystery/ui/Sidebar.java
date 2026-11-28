@@ -154,7 +154,6 @@ public class Sidebar extends JPanel {
             int w = getWidth(), h = getHeight();
             Color fg = Theme.CREAM;
             if (selected) {
-                g.setColor(Theme.HIGHLIGHT.brighter());
                 g.setColor(Theme.c(0xF4E6C2));
                 g.fill(new RoundRectangle2D.Float(1, 1, w - 2, h - 2, 10, 10));
                 g.setColor(Theme.GOLD);

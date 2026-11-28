@@ -44,8 +44,6 @@ public final class Sfx {
         });
     }
 
-    public static int level() { return level; }
-
     public static void play(String name) {
         if (level == 0 || broken) return;
         EXEC.submit(() -> {

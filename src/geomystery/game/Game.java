@@ -83,8 +83,6 @@ public final class Game {
         return n;
     }
 
-    public int caseNumber(Lesson l) { return l.order; }
-
     public List<Theorem> cards() {
         List<Theorem> out = new ArrayList<>();
         for (Lesson l : content.lessons) {
@@ -181,8 +179,6 @@ public final class Game {
         long gap = ChronoUnit.DAYS.between(last, today());
         return gap <= 1 ? save.streak : 0;
     }
-
-    public boolean studiedToday() { return today().toString().equals(save.lastStudy); }
 
     private void recordStudyDay() {
         LocalDate t = today();

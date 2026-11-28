@@ -43,15 +43,12 @@ public class Btn extends JButton {
     /** 글자 정렬(SwingConstants.LEFT 또는 CENTER). 칸보다 긴 글자는 …로 줄인다. */
     public Btn align(int a) { halign = a; return this; }
     public void setStyle(Style s) { style = s; repaint(); }
-    public Style style() { return style; }
-    public void setIconName(String n) { iconName = n; revalidate(); repaint(); }
 
     @Override public void setSelected(boolean b) { selected = b; repaint(); }
     @Override public boolean isSelected() { return selected; }
 
     private Font font() {
         if (style == Style.KEY || style == Style.KEY_ALT) return Theme.serif(fontSize);
-        if (style == Style.LINK || style == Style.TAB && !selected) return Theme.bold(fontSize);
         return Theme.bold(fontSize);
     }
 
@@ -68,7 +65,7 @@ public class Btn extends JButton {
         FontMetrics fm = getFontMetrics(font());
         String t = getText() == null ? "" : getText();
         int w = fm.stringWidth(t) + (style == Style.LINK ? 4 : 40);
-        if (iconName != null) w += t.isEmpty() ? 26 : 26;
+        if (iconName != null) w += 26;
         int h = style == Style.LINK ? fm.getHeight() + 4 : Math.max(44, fm.getHeight() + 22) + depth();
         return new Dimension(w, h);
     }

@@ -51,7 +51,6 @@ public class RoundPanel extends JPanel {
 
     public void setFill(Color c) { fill = c; repaint(); }
     public Color fill() { return fill; }
-    public void setBorderColor(Color c) { border = c; repaint(); }
 
     /**
      * 둥근 패널 바탕(그림자·채움·테두리)을 그린다.

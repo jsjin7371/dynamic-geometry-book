@@ -14,8 +14,8 @@ public final class Theme {
     private Theme() {}
 
     // 색상 토큰. apply()가 밝은/어두운 팔레트로 다시 채운다(화면을 새로 만들어야 반영됨).
-    public static Color DARK, DARK2, SIDEBAR, BG, PAPER, PAPER2, BORDER, BORDER_DARK, GOLD, GOLD_DARK,
-            RED, RED_DARK, GREEN, GREEN_DARK, INK, INK_SOFT, MUTED, ORANGE, CHALK, CREAM, HIGHLIGHT;
+    public static Color DARK, SIDEBAR, BG, PAPER, PAPER2, BORDER, BORDER_DARK, GOLD, GOLD_DARK,
+            RED, RED_DARK, GREEN, GREEN_DARK, INK, INK_SOFT, MUTED, ORANGE, CREAM;
 
     private static boolean dark = false;
     private static float scale = 1f;
@@ -33,24 +33,23 @@ public final class Theme {
         GOLD = new Color(0xD9B456);
         GREEN = new Color(0x2F5E50);
         GREEN_DARK = new Color(0x22473D);
-        CHALK = new Color(0xF4ECD8);
         CREAM = new Color(0xF7EEDC);
         if (!dark) {
-            DARK = new Color(0x3A2819); DARK2 = new Color(0x2E2015); SIDEBAR = new Color(0x3B2A1B);
+            DARK = new Color(0x3A2819); SIDEBAR = new Color(0x3B2A1B);
             BG = new Color(0xEFE3C7); PAPER = new Color(0xF7EEDC); PAPER2 = new Color(0xF2E6CB);
             BORDER = new Color(0xCBAE7C); BORDER_DARK = new Color(0x8C6A48);
             GOLD_DARK = new Color(0xB8903A);
             RED = new Color(0xA33A28); RED_DARK = new Color(0x74271A);
             INK = new Color(0x3A2819); INK_SOFT = new Color(0x6E5641); MUTED = new Color(0x9A8266);
-            ORANGE = new Color(0xC0661E); HIGHLIGHT = new Color(0xF1DCA0);
+            ORANGE = new Color(0xC0661E);
         } else {
-            DARK = new Color(0x17110C); DARK2 = new Color(0x120D09); SIDEBAR = new Color(0x15100B);
+            DARK = new Color(0x17110C); SIDEBAR = new Color(0x15100B);
             BG = new Color(0x1F1812); PAPER = new Color(0x2B221A); PAPER2 = new Color(0x32281F);
             BORDER = new Color(0x5C4934); BORDER_DARK = new Color(0x806549);
             GOLD_DARK = new Color(0xC9A04A);
             RED = new Color(0xB9493A); RED_DARK = new Color(0x6E2418);
             INK = new Color(0xEDE0C4); INK_SOFT = new Color(0xC2AE8C); MUTED = new Color(0x8E7B62);
-            ORANGE = new Color(0xE08A40); HIGHLIGHT = new Color(0x5E4A22);
+            ORANGE = new Color(0xE08A40);
         }
         UIManager.put("ToolTip.background", PAPER);
         UIManager.put("ToolTip.foreground", INK);
@@ -150,13 +149,6 @@ public final class Theme {
 
     public static Color alpha(Color c, float a) {
         return new Color(c.getRed(), c.getGreen(), c.getBlue(), Math.max(0, Math.min(255, Math.round(a * 255))));
-    }
-
-    public static Color mix(Color a, Color b, float t) {
-        return new Color(
-                Math.round(a.getRed() + (b.getRed() - a.getRed()) * t),
-                Math.round(a.getGreen() + (b.getGreen() - a.getGreen()) * t),
-                Math.round(a.getBlue() + (b.getBlue() - a.getBlue()) * t));
     }
 
     public static void drawCentered(Graphics2D g, String s, double cx, double cy) {

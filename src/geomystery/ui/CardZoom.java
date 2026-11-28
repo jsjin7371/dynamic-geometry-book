@@ -46,7 +46,7 @@ final class CardZoom {
         private final boolean foil;
         private BufferedImage face;
         private double nx, ny, tx, ty;   // 지금 기울기와 목표 기울기(-1~1)
-        private Point2D.Double glare;
+        private boolean glare;
         private javax.swing.Timer settle;
 
         Tilt(Game game, Theorem t) {
@@ -62,13 +62,13 @@ final class CardZoom {
                     ty = Math.max(-1, Math.min(1, (e.getY() - getHeight() / 2.0) / (CH / 2.0)));
                     nx = tx;
                     ny = ty;
-                    glare = new Point2D.Double(e.getX(), e.getY());
+                    glare = true;
                     repaint();
                 }
                 @Override public void mouseExited(MouseEvent e) {
                     // 놓으면 천천히 제자리로(잠깐만 도는 타이머)
                     tx = ty = 0;
-                    glare = null;
+                    glare = false;
                     if (settle != null) settle.stop();
                     settle = new javax.swing.Timer(16, ev -> {
                         nx += (tx - nx) * 0.2;
@@ -153,7 +153,7 @@ final class CardZoom {
             // 빛 반사
             RoundRectangle2D shape = new RoundRectangle2D.Double(2, 2, CW - 4, CH - 4, 20, 20);
             double gx = CW / 2.0 + nx * CW * 0.5, gy = CH / 2.0 + ny * CH * 0.5;
-            if (glare != null || Math.abs(nx) + Math.abs(ny) > 0.02) {
+            if (glare || Math.abs(nx) + Math.abs(ny) > 0.02) {
                 Graphics2D s = (Graphics2D) g.create();
                 s.clip(shape);
                 s.setPaint(new RadialGradientPaint(new Point2D.Double(gx, gy), CW * 0.7f, new float[]{0f, 1f},

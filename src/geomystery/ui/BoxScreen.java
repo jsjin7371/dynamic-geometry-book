@@ -59,8 +59,7 @@ public class BoxScreen extends JPanel {
         content.add(Ui.vgap(34));
 
         for (Chapter ch : game.content.chapters) {
-            JLabel h = Ui.label(ch.label + "  ·  " + ch.title, Theme.xbold(20), Theme.INK);
-            content.add(h);
+            content.add(Ui.label(ch.label + "  ·  " + ch.title, Theme.xbold(20), Theme.INK));
             content.add(Ui.vgap(4));
             content.add(Ui.label(ch.subtitle + "  —  " + game.doneCount(ch) + " / " + game.content.lessonsOf(ch).size() + " 해결",
                     Theme.serif(13.5f), Theme.INK_SOFT));

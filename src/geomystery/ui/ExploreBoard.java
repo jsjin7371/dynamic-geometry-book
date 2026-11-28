@@ -63,9 +63,6 @@ public class ExploreBoard extends JComponent {
         repaint();
     }
 
-    /** (예전의 반짝임 타이머 자리) 정리할 자원이 없지만 호출하는 쪽과의 호환을 위해 남겨 둔다. */
-    public void stop() { }
-
     private Map<String, Point2D.Double> pts() { return DiagramView.points(script, overrides); }
 
     private Drag dragOf(String name) {
@@ -359,13 +356,13 @@ public class ExploreBoard extends JComponent {
     }
 
     // ------------------------------------------------------------------ 창
-    /** 정리 하나의 탐구 창을 연다. 설정이 없으면 false. */
-    public static boolean open(MainFrame frame, Theorem t) {
-        if (t == null) return false;
+    /** 정리 하나의 탐구 창을 연다. 설정이 없으면 아무것도 하지 않는다. */
+    public static void open(MainFrame frame, Theorem t) {
+        if (t == null) return;
         Explore spec = frame.game.content.explores.get(t.id);
-        if (spec == null) return false;
+        if (spec == null) return;
         List<Cmd> script = frame.game.content.diagrams.get(spec.diagram);
-        if (script == null) return false;
+        if (script == null) return;
         Ui.Modal m = Ui.solidModal(frame, "정리 탐구 · " + t.name, 780);
         m.text(spec.caption == null || spec.caption.isEmpty() ? "반짝이는 점을 끌어 보세요." : spec.caption + "  (반짝이는 점을 끌어 보세요)");
         m.add((JComponent) Ui.vgap(10));
@@ -382,11 +379,7 @@ public class ExploreBoard extends JComponent {
         Btn reset = new Btn("처음 모양으로", Btn.Style.OUTLINE, "refresh");
         reset.addActionListener(e -> board.reset());
         m.buttons.add(reset);
-        m.button("닫기", Btn.Style.PRIMARY, board::stop);
-        m.dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override public void windowClosed(java.awt.event.WindowEvent e) { board.stop(); }
-        });
+        m.button("닫기", Btn.Style.PRIMARY, null);
         m.show();
-        return true;
     }
 }

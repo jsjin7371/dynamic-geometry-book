@@ -398,7 +398,7 @@ public final class DiagramEditor extends JFrame {
                 @Override public void mouseMoved(MouseEvent e) {
                     mouse = toLogical(e.getPoint());
                     String h = hit(mouse);
-                    if (!Objects.equals(h, hover)) hover = h;
+                    hover = h;
                     setCursor(Cursor.getPredefinedCursor(h != null && isFreePoint(h) ? Cursor.MOVE_CURSOR : Cursor.CROSSHAIR_CURSOR));
                     repaint();
                 }

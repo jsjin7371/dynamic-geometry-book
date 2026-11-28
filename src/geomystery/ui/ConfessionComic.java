@@ -32,12 +32,6 @@ final class ConfessionComic {
     private static final long FADE = 260, POP = 300;
     /** 칸마다 저절로 넘어가기까지(동기, 수법). 체포 칸은 클릭할 때까지 남는다. */
     private static final long[] AUTO = {2400, 3600};
-    /** 수법 칸에 쓸 수 있는 장면. */
-    static final List<String> SCENES = Arrays.asList("channel", "gear", "rope", "disc");
-
-    static boolean has(Game game, Lesson l) {
-        return l != null && game.content.confessions.containsKey(l.id) && game.content.culpritOf(l) != null;
-    }
 
     static void play(JFrame frame, Game game, Lesson lesson, Runnable done) { play(frame, game, lesson, null, done); }
 

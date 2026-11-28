@@ -14,7 +14,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -449,7 +448,6 @@ public class DialogueScreen extends JPanel {
             g.draw(new Line2D.Double(cx, cy, cx + Math.cos(a) * len, cy + Math.sin(a) * len));
         }
 
-        /** 실제 시각에 따라 새벽·노을·밤 빛을 덧씌운다. */
         /** 시간대 빛(새벽·노을·밤 그늘과 등불빛)은 시간대·크기가 바뀔 때만 다시 그린다. 반짝이는 별만 매 프레임. */
         private BufferedImage tintCache;
         private String tintKey;
