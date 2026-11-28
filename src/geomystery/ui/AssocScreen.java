@@ -57,7 +57,8 @@ public class AssocScreen extends JPanel {
         // ---------- 리그 표
         RoundPanel table = new RoundPanel(new BorderLayout(), Theme.PAPER, Theme.BORDER_DARK, 14).borderWidth(2f);
         JPanel th = new JPanel(new BorderLayout(16, 0)) {
-            @Override protected void paintComponent(Graphics g0) {
+            @Override
+            protected void paintComponent(Graphics g0) {
                 Graphics2D g = Theme.aa(g0.create());
                 g.setColor(Theme.DARK);
                 g.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight() + 20, 12, 12));
@@ -94,7 +95,11 @@ public class AssocScreen extends JPanel {
         dex.add(dexScroll, BorderLayout.CENTER);
         left.add(dex, "dex");
 
-        c.gridx = 0; c.gridy = 0; c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
         c.insets = new Insets(0, 0, 0, 26);
         body.add(left, c);
 
@@ -123,7 +128,10 @@ public class AssocScreen extends JPanel {
 
         // 훈장 수만큼 늘어난다(최대 높이로 묶으면 칸이 눌려 이름이 잘린다)
         RoundPanel bd = new RoundPanel(new BorderLayout(0, 14), Theme.PAPER, Theme.BORDER, 14) {
-            @Override public Dimension getMaximumSize() { return new Dimension(Integer.MAX_VALUE, getPreferredSize().height); }
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, getPreferredSize().height);
+            }
         }.borderWidth(2f);
         bd.pad(18, 18, 18, 18);
         bd.setAlignmentX(LEFT_ALIGNMENT);
@@ -138,7 +146,9 @@ public class AssocScreen extends JPanel {
         JScrollPane rightScroll = Ui.scroll(right);
         rightScroll.setPreferredSize(new Dimension(310, 600));
         rightScroll.setMinimumSize(new Dimension(310, 300));
-        c.gridx = 1; c.weightx = 0; c.insets = new Insets(0, 0, 0, 0);
+        c.gridx = 1;
+        c.weightx = 0;
+        c.insets = new Insets(0, 0, 0, 0);
         body.add(rightScroll, c);
         add(body, BorderLayout.CENTER);
         new javax.swing.Timer(50, e -> {
@@ -155,7 +165,9 @@ public class AssocScreen extends JPanel {
         tabDex.setSelected("dex".equals(t));
     }
 
-    public String tab() { return tab; }
+    public String tab() {
+        return tab;
+    }
 
     public void refresh() {
         header.refresh();
@@ -173,7 +185,10 @@ public class AssocScreen extends JPanel {
         int oldRank = -1;
         String[] seen = game.save.leagueSeen == null ? new String[0] : game.save.leagueSeen.split(":");
         if (seen.length == 2 && seen[0].equals(week)) {
-            try { oldRank = Integer.parseInt(seen[1]); } catch (NumberFormatException ignored) { }
+            try {
+                oldRank = Integer.parseInt(seen[1]);
+            } catch (NumberFormatException ignored) {
+            }
         }
         LeagueTable lt = new LeagueTable(rows, next != null, game.tier() > 0);
         leagueRows.add(lt);
@@ -239,7 +254,92 @@ public class AssocScreen extends JPanel {
             this.promo = promo;
             this.demote = demote;
             setAlignmentX(LEFT_ALIGNMENT);
-        }
+
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    int index = -1;
+
+                    for (int i = 0; i < rows.size(); i++) {
+                        double y = yOf(i);
+
+                        if (e.getY() >= y && e.getY() < y + RH) {
+                            index = i;
+                            break;
+                        }
+                    }  /*승급선·강등선 때문에 행 사이 간격이 달라져도 클릭한 탐정을 정확하게 찾기위해 수정함  248~257 */
+
+                    if (index >= 0 && index < rows.size()) {
+                        Game.LeagueRow r = rows.get(index);
+
+                        /*수정된내용: 탐정 프로필에 총 학습 시간, 정리 카드 수, 챕터별 학습 진행률 표시 추가 250~300*/
+
+                        // 총 학습 시간을 시간과 분으로 변환
+                        int hours = r.studySeconds / 3600;
+                        int minutes = (r.studySeconds % 3600) / 60;
+
+                        String studyTime;
+                        if (hours > 0) {
+                            studyTime = hours + "시간 " + minutes + "분";
+                        } else {
+                            studyTime = minutes + "분";
+                        }
+
+                        StringBuilder info = new StringBuilder();
+
+                        info.append("이름: ").append(r.name)
+                                .append("\n순위: ").append(index + 1).append("위")
+                                .append("\n주간 XP: ").append(r.xp)
+                                .append("\n해결한 사건: ").append(r.solvedCases)
+                                .append("\n첫 시도 정답률: ").append(r.accuracy).append("%")
+                                .append("\n최장 연속 학습: ").append(r.bestStreak).append("일")
+                                .append("\n총 학습 시간: ").append(studyTime)
+                                .append("\n보조선 사용: ").append(r.auxTotal).append("회")
+                                .append("\n모은 정리 카드: ").append(r.cardsCount).append("개");
+
+                        // 챕터별 학습 진행률 표시
+                        info.append("\n\n[챕터별 학습 진행률]");
+
+                        for (int i = 0; i < game.content.chapters.size(); i++) {
+                            Chapter ch = game.content.chapters.get(i);
+
+                            String chapterName = ch.title != null ? ch.title : ch.label;
+
+                            int done = 0;
+                            int total = 0;
+
+                            if (r.chapterDone != null && i < r.chapterDone.size()) {
+                                done = r.chapterDone.get(i);
+                            }
+
+                            if (r.chapterTotal != null && i < r.chapterTotal.size()) {
+                                total = r.chapterTotal.get(i);
+                            }
+
+                            int percent = total == 0 ? 0 : done * 100 / total;
+
+                            info.append("\n")
+                                    .append(chapterName)
+                                    .append(": ")
+                                    .append(done).append(" / ").append(total)
+                                    .append("개 완료 (")
+                                    .append(percent).append("%)");
+                        }
+
+                        /*수정된내용 끝*/
+
+                        JOptionPane.showMessageDialog(
+                                AssocScreen.this,
+                                info.toString(),
+                                "탐정 프로필",
+                                JOptionPane.INFORMATION_MESSAGE
+                        );
+                    }
+                }
+            });
+        } /*리그 순위표의 탐정 이름을 클릭하면 해당 탐정의 통계가 팝업으로 표시되도록 수정함 237~272 */
 
         void animateFrom(int oldMine) {
             int me = -1;
@@ -269,8 +369,15 @@ public class AssocScreen extends JPanel {
             return index * RH + extra;
         }
 
-        @Override public Dimension getPreferredSize() { return new Dimension(600, rows.size() * RH + LINE * 2); }
-        @Override public Dimension getMaximumSize() { return new Dimension(Integer.MAX_VALUE, getPreferredSize().height); }
+        @Override
+        public Dimension getPreferredSize() {
+            return new Dimension(600, rows.size() * RH + LINE * 2);
+        }
+
+        @Override
+        public Dimension getMaximumSize() {
+            return new Dimension(Integer.MAX_VALUE, getPreferredSize().height);
+        }
 
         @Override
         protected void paintComponent(Graphics g0) {
@@ -292,7 +399,10 @@ public class AssocScreen extends JPanel {
             }
             int meIdx = -1;
             for (int i = 0; i < rows.size(); i++) {
-                if (rows.get(i).me) { meIdx = i; continue; }
+                if (rows.get(i).me) {
+                    meIdx = i;
+                    continue;
+                }
                 paintRow(g, i, e, w);
             }
             if (meIdx >= 0) paintRow(g, meIdx, e, w); // 내 줄은 맨 위에
@@ -437,9 +547,22 @@ public class AssocScreen extends JPanel {
                 setToolTipText("클릭 — 카드를 크게 보기" + (foil ? " (장을 모두 해결한 금박 카드)" : ""));
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 addMouseListener(new java.awt.event.MouseAdapter() {
-                    @Override public void mouseClicked(java.awt.event.MouseEvent e) { CardZoom.open(frame, t); }
-                    @Override public void mouseEntered(java.awt.event.MouseEvent e) { hover = true; repaint(); }
-                    @Override public void mouseExited(java.awt.event.MouseEvent e) { hover = false; repaint(); }
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        CardZoom.open(frame, t);
+                    }
+
+                    @Override
+                    public void mouseEntered(java.awt.event.MouseEvent e) {
+                        hover = true;
+                        repaint();
+                    }
+
+                    @Override
+                    public void mouseExited(java.awt.event.MouseEvent e) {
+                        hover = false;
+                        repaint();
+                    }
                 });
             }
         }
@@ -489,7 +612,9 @@ public class AssocScreen extends JPanel {
                     Graphics2D cg = Ui.cacheGraphics(faceCache, g);
                     paintFace(cg, w, h, shape);
                     cg.dispose();
-                    faceW = w; faceH = h; faceScale = sc;
+                    faceW = w;
+                    faceH = h;
+                    faceScale = sc;
                 }
                 Ui.blit(g, faceCache, 0, 0, w, h);
             }

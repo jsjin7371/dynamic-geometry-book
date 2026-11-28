@@ -286,6 +286,16 @@ public final class Game {
         public String name;
         public int xp, color;
         public boolean me;
+
+        public int solvedCases;
+        public int accuracy;
+        public int bestStreak;
+        public int studySeconds;
+        public int auxTotal;   /* 가상 탐정 한 명마다 상세 프로필 통계값을 담을 공간 */
+    
+        public int cardsCount; /*정리 카드 수와 각 챕터의 완료 사건 수를 저장 290~292 */
+        public List<Integer> chapterDone = new ArrayList<>();
+        public List<Integer> chapterTotal = new ArrayList<>();
     }
 
     public int tier() { return Math.max(0, Math.min(TIERS.length - 1, save.leagueTier)); }
@@ -321,6 +331,27 @@ public final class Game {
             r.color = b.color;
             long h = Math.abs((b.name.hashCode() * 31L + week * 17L) % 97);
             r.xp = Math.round((b.base + b.daily * day + h * (day + 1) / 3f) * f);
+            int seed = Math.floorMod(b.name.hashCode(), 1000);
+            
+            r.solvedCases = 5 + seed % 80;    /*가상 탐정 데이터 추가 326~330 */
+            r.accuracy = 55 + seed % 46;
+            r.bestStreak = 1 + seed % 20;
+            r.studySeconds = (10 + seed % 300) * 60;
+            r.auxTotal = seed % 120;
+
+            r.cardsCount = Math.min(r.solvedCases, content.theorems.size()); /*가상 조사관 데이터 추가 336~346 */
+            
+            for (int i = 0; i < content.chapters.size(); i++) {
+                Chapter ch = content.chapters.get(i);
+
+                int total = content.lessonsOf(ch).size();
+                int done = total == 0 ? 0
+                        : Math.floorMod(seed + i * 7, total + 1);
+                
+                r.chapterDone.add(done);
+                r.chapterTotal.add(total);
+            }
+
             rows.add(r);
         }
         LeagueRow me = new LeagueRow();
@@ -328,6 +359,23 @@ public final class Game {
         me.xp = weekXp(monday, monday.plusDays(day));
         me.me = true;
         me.color = 0xB8903A;
+
+        me.solvedCases = lessonsDone();
+        me.accuracy = overallAccuracy();
+        me.bestStreak = Math.max(save.bestStreak, streakNow());
+        me.auxTotal = save.auxTotal;
+
+        me.cardsCount = cards().size(); /*내 프로필 데이터 추가  362~367*/
+        
+        for (Chapter ch : content.chapters) {
+            me.chapterDone.add(doneCount(ch));
+            me.chapterTotal.add(content.lessonsOf(ch).size());
+        }
+        
+        for (SaveData.PuzzleStat st : save.stats.values()) {
+            me.studySeconds += st.seconds;
+        } /*내 프로필 통계 추가 340~347 */
+
         rows.add(me);
         rows.sort((a, b) -> b.xp != a.xp ? Integer.compare(b.xp, a.xp) : Boolean.compare(b.me, a.me));
         return rows;

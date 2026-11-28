@@ -32,7 +32,7 @@
 - `explore.csv` — 정리 탐구: `theorem,diagram,drag,relation,caption`
   - drag: `점 움직임 [인자] [격자]`를 `|`로 나열. 움직임은 `free`, `hline`(가로로만), `vline`(세로로만), `circle O`(원 위), `arc O 시작° 끝°`(원의 일부 위). 끝의 숫자는 격자 간격(픽셀) 예) `B hline 40`
   - relation: `|`로 줄을 나누고 `{식}` 안에 `ang(A,O,B)`(∠AOB), `len(A,B)`(길이, 도형의 `unit` 기준)를 쓰면 실시간 계산. `{kind:식}`은 각의 종류(예각·직각·둔각·평각)
-  - 탐구용 도형(`X01`~`X13`)에서 `angle`/`len`의 이름표를 `@`로 쓰면 잰 값을 표시하고, `unit 40 m`은 40픽셀 = 1m
+  - 탐구용 도형(`X01`~`X17`)에서 `angle`/`len`의 이름표를 `@`로 쓰면 잰 값을 표시하고, `unit 40 m`은 40픽셀 = 1m
 - `quests.csv`, `badges.csv`(`finales`, `league_tier` 통계 추가), `league.csv`, `quotes.csv`
 
 ## 저장 (프로필)
